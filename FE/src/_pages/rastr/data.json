@@ -1,0 +1,13 @@
+{
+    "title": "Rastr",
+    "fontIdentifier": "rasterizer",
+    "inputs": [
+        {
+            "type": "slider",
+            "title": "Resolution",
+            "name": "Resolution",
+            "min": 10,
+            "max": 150
+        }
+    ]
+  }

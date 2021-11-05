@@ -8,6 +8,12 @@ const rule = ({props}) => ({
   }
 })
 
+
+export function Box({ padding, margin, children }) {
+  const { css } = useFela()
+  return <div className={css({ padding, margin })}>{children}</div>
+}
+
 function Nav(props) {
   const { css } = useFela()
   const { websiteContext, inDetailView = true} = props

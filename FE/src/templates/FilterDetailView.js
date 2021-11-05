@@ -15,25 +15,32 @@ const rule = () => ({
 function FilterDetailView(props) {
   const { css } = useFela()
   const { title, fontIdentifier, inputs, websiteContext } = props
-  const [previewFontSize, setPreviewFontSize] = useState()
+  const defaultValue = 30
+  const [previewedString, setPreviewedString] = useState(title)
+  const [previewFontSize, setPreviewFontSize] = useState(defaultValue)
+
   return (
     <>
       <Nav websiteContext={websiteContext}></Nav>
       <main className={css(rule)}>
-        <FontPreview fontSize={previewFontSize}>{title}</FontPreview>
-        <div className={css(formRule)}>
+        <FontPreview fontSize={previewFontSize}>{previewedString}</FontPreview>
+        {/* <div className={css(formRule)}>
+
+        </div> */}
+        <FontInputForm
+          title={title}
+          inputs={inputs}
+          fontIdentifier={fontIdentifier}
+          setPreviewedString={setPreviewedString}
+        >
           <FontControlSlider
             onChange={e => setPreviewFontSize(e.target.value)}
             title="size"
-            name="size"
             min="10"
             max="200"
+            defaultValue={defaultValue}
           />
-        </div>
-        <FontInputForm
-          inputs={inputs}
-          fontIdentifier={fontIdentifier}
-        ></FontInputForm>
+        </FontInputForm>
       </main>
     </>
   )

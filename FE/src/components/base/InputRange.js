@@ -42,7 +42,7 @@ function InputRange(props) {
     name,
     min,
     max,
-    default_ = (parseFloat(max) + parseFloat(min)) / 2,
+    defaultValue = (parseFloat(max) + parseFloat(min)) / 2,
     onChange = () => {},
     required = false,
   } = props
@@ -52,8 +52,8 @@ function InputRange(props) {
   const numberInputRef = useRef()
 
   useEffect(() => {
-    rangeInputRef.current.value = default_
-    numberInputRef.current.value = default_
+    rangeInputRef.current.value = defaultValue
+    numberInputRef.current.value = defaultValue
   }, [])
 
   return (

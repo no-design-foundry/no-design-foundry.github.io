@@ -11,7 +11,7 @@ import Style from "./Style"
 
 function FontInputForm(props) {
   const {css} = useFela()
-  const { inputs, fontIdentifier } = props
+  const { inputs, fontIdentifier, title, setPreviewedString } = props
   const [fontString, setFontString] = useState("")
   const formRef = useRef()
   var lastTimeStamp = 0
@@ -26,8 +26,10 @@ function FontInputForm(props) {
     }).then(response => {
       const fontStrings_ = response.data.fonts
       const fontString_ = fontStrings_[0]
-      console.log(fontString)
       setFontString(fontString_)
+      console.log(setPreviewedString)
+      setPreviewedString(formData.get("preview_string"))
+
     })
     .catch(error => console.log(error))
   }
@@ -48,8 +50,9 @@ function FontInputForm(props) {
     <>
     {fontString.length > 0 && <Style>{fontString}</Style>}
     <form ref={formRef} className={css(formRule)} onChange={handleOnChange}>
+      {props.children}
       <FontFileInput title="font file"/>
-      <TextInput title="preview string" name="preview_string" defaultValue={fontIdentifier}></TextInput>
+      <TextInput title="preview string" name="preview_string" defaultValue={title}></TextInput>
       {inputs.map(input => {
         switch (input.type) {
           case "slider":

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { RendererProvider } from "react-fela"
 import { createRenderer } from "fela"
 import FilterDetailView from "./FilterDetailView"
@@ -91,7 +91,22 @@ renderer.renderStatic(link, "input")
 const files = ["/fonts/rastr.ttf"]
 renderer.renderFont("rastr", files)
 
+export const Context = React.createContext()
+
 function Page(props) {
+  const [cursorY, setCursorY] = useState(0)
+  const [showPreviewFont, setShowPreviewFont] = useState(false)
+  function handleOnMouseMove(e) {
+    setCursorY(e.pageY)
+  }
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleOnMouseMove)
+    return () => {
+      window.removeEventListener("mousemove", handleOnMouseMove)
+    }
+  }, [])
+
   let pageContent
   switch (props.pageContext.type) {
     case "filterDetailView":
@@ -105,8 +120,10 @@ function Page(props) {
   }
   return (
     <RendererProvider renderer={renderer}>
-      {pageContent}
-      <Footer></Footer>
+      <Context.Provider value={{cursorY, showPreviewFont, setShowPreviewFont}}>
+        {pageContent}
+        <Footer></Footer>
+      </Context.Provider>
     </RendererProvider>
   )
 }

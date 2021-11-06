@@ -1,8 +1,10 @@
 import React from "react"
 import { Link } from "gatsby"
 import { useFela } from "react-fela"
+import { padding } from "../rules/variables"
 
 const rule = ({props}) => ({
+  padding,
   "& > * + *": {
     "margin-left": "1ch"
   }

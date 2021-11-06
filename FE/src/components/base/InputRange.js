@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react"
 import { useFela } from "react-fela"
-import {validateMax} from "../../helpers"
+import { validateMax } from "../../helpers"
 
 const rangeInputRule = ({ props }) => ({
   "-webkit-appearance": "none",
@@ -27,13 +27,13 @@ const rangeInputRule = ({ props }) => ({
   },
 })
 
-const inputWrapperRule = ({}) => ({
+const inputWrapperRule = ({ props }) => ({
   display: "flex",
-  alignItems: "center"
+  alignItems: "center",
 })
 
-const numberInputRule = ({}) => ({
-  fontFeatureSettings: "'tnum' 1"
+const numberInputRule = ({ props }) => ({
+  fontFeatureSettings: "'tnum' 1",
 })
 
 function InputRange(props) {
@@ -47,7 +47,6 @@ function InputRange(props) {
     required = false,
   } = props
   const { css } = useFela()
-  const [currentValue, setCurrentValue] = useState(0)
   const rangeInputRef = useRef()
   const numberInputRef = useRef()
 
@@ -80,7 +79,7 @@ function InputRange(props) {
           min={min}
           max={max}
           onChange={e => {
-            if(validateMax(e.target)) return
+            if (validateMax(e.target)) return
             rangeInputRef.current.value = e.target.value
             onChange(e)
           }}

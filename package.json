@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "fela-plugin-embedded": "^11.7.0",
-    "fela-plugin-extend": "^11.7.0",
-    "fela-plugin-friendly-pseudo-class": "^11.7.0",
-    "fela-plugin-responsive-value": "^11.7.0"
-  }
-}

@@ -8,8 +8,14 @@ from fontTools.subset import Subsetter
 from io import BytesIO
 from tools.generic import (
     get_components_in_subsetted_text,
-    fonts_to_base64
+    fonts_to_base64,
+    extract_to_ufo
 )
+import extractor
+import defcon
+from datetime import datetime
+
+
 
 
 app = FastAPI()
@@ -46,13 +52,18 @@ async def rotorizer(
     depth: int = Form(...)
 ):
     try:
+        start = datetime.now()
         if not ((depth >= 2) and (depth <= 300)):
             return {"message": "error"}
         tt_font = get_tt_font(font_file)
         subset_font(tt_font, preview_string)
         output = BytesIO()
         tt_font.save(output)
+        ufo = extract_to_ufo(tt_font)
+        print(ufo.glyphOrder)
         response = fonts_to_base64([output])
+        end = datetime.now()
+        print((end - start).total_seconds())
     except Exception as e:
         print(e)
         return {"message": "wrong"}

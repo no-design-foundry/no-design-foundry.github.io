@@ -1,29 +1,34 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useContext, useEffect } from "react"
 import { useFela } from "react-fela"
+import { Context } from "../templates/Page"
 
 const flexCenter = {
   display: "flex",
   justifyContent: "center",
 }
 
-const rule = ({ fontSize, inDetailView }) => ({
+const rule = ({ fontSize, showPreviewFont, inDetailView }) => ({
   fontSize: `${fontSize}px`,
   height: "200px",
   position: "relative",
-  fontFamily: "previewFont",
   width: "100%",
   cursor: "ns-resize",
   overflow: "hidden",
   alignItems: "center",
   ...flexCenter,
+  extend: {
+    condition: showPreviewFont && inDetailView,
+    style: {
+      fontFamily: "preview-input-font"
+    }
+  }
 })
 
-const overlayRule = ({ cursorY, inDetailView, showPreview }) => ({
+const overlayRule = ({ cursorY, inDetailView, showPreviewFont, showPreview }) => ({
   position: "absolute",
   top: `${cursorY}px`,
   left: 0,
   background: "silver",
-  fontFamily: "Verdana",
   overflow: "hidden",
   width: "100%",
   height: "100%",
@@ -44,8 +49,8 @@ const overlayRule = ({ cursorY, inDetailView, showPreview }) => ({
           style: {
             marginLeft: "0",
             "> *": {
-              marginLeft: "0"
-            }
+              marginLeft: "0",
+            },
           },
         },
       },
@@ -57,6 +62,12 @@ const overlayRule = ({ cursorY, inDetailView, showPreview }) => ({
     alignItems: "center",
     ...flexCenter,
   },
+  extend: {
+    condition: showPreviewFont && inDetailView,
+    style: {
+      fontFamily: "preview-output-font"
+    }
+  }
 })
 
 const animationRule = ({ isEven }) => ({
@@ -85,63 +96,64 @@ const animationRule = ({ isEven }) => ({
 
 const compareButtonRule = ({}) => ({
   "@media (hover:hover)": {
-    display: "none"
+    display: "none",
   },
   display: "flex",
-  justifyContent: "flex-end"
+  justifyContent: "flex-end",
 })
 
 function FontPreview(props) {
-  let isTouching = false
-  const { children, fontSize, isEven, inDetailView = true } = props
   const container = useRef()
-  const [cursorY, setCursorY] = useState(0)
+
+  const { children, fontSize, isEven, inDetailView = true } = props
+  const {cursorY, showPreviewFont} = useContext(Context)
+
+  const [height, setHeight] = useState(0)
+  const [top, setTop] = useState(0)
+  const [overlayTop, setOverlayTop] = useState(0)
   const [showPreview, setShowPreview] = useState(false)
+
+  function updateRect() {
+    const { top: bodyTop  } = document.body.getBoundingClientRect()
+    const { top: containerTop, height: containerHeight } = container.current.getBoundingClientRect()
+    setTop(containerTop - bodyTop)
+    setHeight(containerHeight)
+  }
+
+  useEffect(() => {
+    updateRect()
+    document.addEventListener("resize", updateRect)
+    return () => {
+      document.removeEventListener("resize", updateRect)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (cursorY < top) {
+      setOverlayTop(0)
+    }
+    else if(cursorY > top + height) {
+      setOverlayTop(height)
+    }
+    else {
+      setOverlayTop(cursorY - top)
+    }
+  }, [top, height, cursorY])
+
+
+
   const { css } = useFela({
     fontSize,
-    cursorY,
+    cursorY: overlayTop,
     isEven,
     inDetailView,
     showPreview,
+    showPreviewFont
   })
-
-  function handleOnMouseMove(e) {
-    if (!isTouching) {
-      const { top } = container.current.getBoundingClientRect()
-      setCursorY(e.pageY - top)
-    }
-  }
-
-  function handleOnMouseLeave(e) {
-    const { top, bottom, height } = container.current.getBoundingClientRect()
-    if (e.clientY >= bottom) {
-      setCursorY(height)
-    }
-    if (e.clientY <= top) {
-      setCursorY(0)
-    }
-  }
-
-  function handleOnTouchStart(e) {
-    isTouching = true
-  }
-
-  function handleOnTouchEnd(e) {
-    setTimeout(() => {
-      isTouching = false
-    }, 10)
-  }
 
   return (
     <>
-      <div
-        ref={container}
-        className={css(rule)}
-        onMouseMove={handleOnMouseMove}
-        onMouseLeave={handleOnMouseLeave}
-        onTouchStart={handleOnTouchStart}
-        onTouchEnd={handleOnTouchEnd}
-      >
+      <div ref={container} className={css(rule)}>
         <div>{children}</div>
         <div
           className={css(overlayRule, inDetailView ? () => {} : animationRule)}
@@ -150,7 +162,12 @@ function FontPreview(props) {
         </div>
       </div>
       {inDetailView && (
-        <div className={css(compareButtonRule)} onClick={() => setShowPreview(!showPreview)}>compare</div>
+        <div
+          className={css(compareButtonRule)}
+          onClick={() => setShowPreview(!showPreview)}
+        >
+          compare
+        </div>
       )}
     </>
   )

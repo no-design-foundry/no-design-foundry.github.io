@@ -1,5 +1,16 @@
 import base64
 from itertools import chain
+from fontTools.ttLib import TTFont
+import defcon
+
+from extractor.formats.opentype import (
+    extractGlyphOrder,
+    extractOpenTypeInfo,
+    extractOpenTypeKerning,
+    extractOpenTypeGlyphs,
+    # extractUnicodeVariationSequences,
+    # extractInstructions
+)
 
 
 def fonts_to_base64(fonts):
@@ -23,3 +34,14 @@ def get_components_in_subsetted_text(tt_font, text):
         return get_component_names(glyf, list(keep_glyphs))
     else:
         return ()
+
+
+def extract_to_ufo(tt_font):
+    assert isinstance(tt_font, TTFont), "tt_font must be an instance of TTFont"
+    ufo = defcon.Font()
+    extract_OTF(tt_font, ufo)
+    return ufo
+
+def extract_OTF(source, destination):
+    # extractUnicodeVariationSequences(source, destination) # don't know what this is
+    extractOpenTypeGlyphs(source, destination)

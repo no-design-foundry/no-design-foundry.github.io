@@ -1,7 +1,9 @@
 import React from 'react'
 import { useFela } from 'react-fela'
+import { padding } from '../rules/variables'
 
 const rule = ({}) => ({
+    padding,
     marginTop: "auto"
 })
 

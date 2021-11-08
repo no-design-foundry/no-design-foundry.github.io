@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from "react"
 import { useFela } from "react-fela"
-import { Context } from "../App"
+import { Context, CursorContext } from "../App"
 import { DetailViewContext } from "../templates/FilterDetailView"
 
 const flexCenter = {
@@ -124,7 +124,7 @@ function FontPreview(props) {
   const container = useRef()
 
   const { fontSize, showPreviewFont, children, isEven, inDetailView = true, variationSettings = {} } = props
-  const {cursorY} = useContext(Context)
+  const cursorY = useContext(CursorContext)
   const [height, setHeight] = useState(0)
   const [top, setTop] = useState(0)
   const [overlayTop, setOverlayTop] = useState(0)

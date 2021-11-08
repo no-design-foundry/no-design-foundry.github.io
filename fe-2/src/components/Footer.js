@@ -11,7 +11,7 @@ function Footer() {
     const {css} = useFela()
     return (
         <footer className={css(rule)}>
-            footer         
+            info@nodesignfoundry.com         
         </footer>
     )
 }

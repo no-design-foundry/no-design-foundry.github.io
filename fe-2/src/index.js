@@ -2,12 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import { BrowserRouter } from "react-router-dom";
+import renderer from "./felaRenderer"
+import { RendererProvider } from 'react-fela';
 
 
 ReactDOM.render(
   <BrowserRouter>
+  <RendererProvider renderer={renderer}>
     <App />
-  </BrowserRouter>,
+    </RendererProvider>
+  </BrowserRouter>
+  
+  ,
   document.getElementById('root')
 );
 

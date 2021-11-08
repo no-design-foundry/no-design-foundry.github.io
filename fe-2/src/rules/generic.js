@@ -2,8 +2,34 @@ export const relative = () => ({
     position: "relative"
 })
 
+export const flex = () => ({
+    display: "flex"
+})
+
+export const column = () => ({
+    flexDirection: "column"
+})
+
+export const row = () => ({
+    flexDirection: "row"
+})
+
 export const padding = (value) => () => ({
     padding: value
+})
+
+
+export const minHeight = (value) => () => ({
+    minHeight: value
+})
+
+export const maxWidth = (value) => () => ({
+    maxWidth: value
+})
+
+
+export const flexDirection = (value) => () => ({
+    flexDirection: value
 })
 
 export const height = (value) => () => ({
@@ -14,8 +40,11 @@ export const width = (value) => () => ({
     width: value
 })
 
-export const flex = (value_a, value_b) => () => ({
-    display: "flex",
-    alignItems: value_a,
-    justifyContent: value_b
+export const alignItems = (value) => () => ({
+    alignItems: value
 })
+
+export const justifyContent = (value) => () => ({
+    justifyContent: value
+})
+

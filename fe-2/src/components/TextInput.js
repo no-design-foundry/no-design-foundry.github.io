@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useFela } from "react-fela";
-import { inputValidityRule, labelValidityRule } from "../rules/form";
+import { inputRule, labelRule, labelValidityRule } from "../rules/form";
+import { flex } from "../rules/generic";
 
 function TextInput(props) {
   const { title, name, defaultValue } = props;
@@ -18,11 +19,11 @@ function TextInput(props) {
   }
 
   return (
-    <>
-      <label className={css(labelValidityRule)} htmlFor={name}>
+    <div className={css(flex)}>
+      <label className={css(labelValidityRule, labelRule)} htmlFor={name}>
         {title}
       </label>
-      <div className={css(inputValidityRule)}>
+      <div className={css(inputRule)}>
         <input
           ref={inputRef}
           name={name}
@@ -31,7 +32,7 @@ function TextInput(props) {
           onChange={handleOnChange}
         ></input>{" "}
       </div>
-    </>
+    </div>
   );
 }
 

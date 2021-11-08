@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
 import { useFela } from "react-fela";
 import { validateMax } from "../helpers";
-import { flex, padding, relative, width } from "../rules/generic";
+import { inputRule, labelRule } from "../rules/form";
+import { alignItems, flex, padding, relative, width } from "../rules/generic";
+import { insetShadow } from "../rules/variables";
 import { DetailViewContext } from "../templates/FilterDetailView";
 
 const rangeInputRule = ({ test }) => ({
@@ -13,25 +15,30 @@ const rangeInputRule = ({ test }) => ({
   },
   "-webkit-appearance": "none",
   width: "100%",
-  height: "2px",
-  background: "#000",
+  height: "4px",
+  background: "silver",
   outline: "none",
   zIndex: 1000,
+  ...insetShadow,
+  borderRadius: "2px",
   "&::-webkit-slider-thumb": {
     "-webkit-appearance": "none",
     appearance: "none",
-    width: "25px",
-    height: "12px",
-    background: "black",
+    width: "15px",
+    height: "15px",
+    background: "silver",
+    filter: "drop-shadow(2px 2px 1px #000b)",
     cursor: "pointer",
     zIndex: 1000,
+    borderRadius: "100%"
   },
   "&::-moz-range-thumb": {
-    width: "25px",
-    height: "12px",
+    width: "20px",
+    height: "20px",
     background: "black",
     cursor: "pointer",
     zIndex: 1000,
+    borderRadius: "100%"
   },
 });
 
@@ -47,9 +54,8 @@ const inputWrapperRule = () => ({
 
 const valueIndicatorRule = () => ({
   fontFeatureSettings: "'tnum' 1",
-  width: "3ch",
-  flexShrink: 0,
-  paddingLeft: "1ch",
+  textAlign: "right",
+  marginLeft: "1ch"
 });
 
 function RangeInput(props) {
@@ -97,8 +103,7 @@ function RangeInput(props) {
       clearInterval(animationInterval.current);
     } else {
       animationInterval.current = setInterval(() => {
-        rangeInputRef.current.value =
-          parseInt(rangeInputRef.current.value) + 10 * direction;
+        rangeInputRef.current.value = parseInt(rangeInputRef.current.value) + 10 * direction;
         handleOnChange();
       }, 1000 / 30);
     }
@@ -106,32 +111,34 @@ function RangeInput(props) {
   }
 
   return (
-    <>
-      <label htmlFor={name}>{title}</label>
-      <div className={css(inputWrapperRule)}>
-        {animatable && (
-          <div
-            className={css(relative, width("1.5em"), flex("center", "center"))}
-            onClick={handleOnClickAnimate}
-            role="button"
+    <div className={css(flex)}>
+      <label className={css(labelRule)} htmlFor={name}>
+        {title}
+      </label>
+      <div className={css(inputWrapperRule, inputRule)}>
+      {animatable && (
+        <div
+          className={css(relative, width("1.5em"), flex, alignItems("center"))}
+          onClick={handleOnClickAnimate}
+          role="button"
+        >
+          <svg
+            className={css(svgRule)}
+            width="1em"
+            height="1em"
+            viewBox="0 0 200 200"
           >
-            <svg
-              className={css(svgRule)}
-              width="1em"
-              height="1em"
-              viewBox="0 0 200 200"
-            >
-              {animating ? (
-                <>
-                  <rect x="20" y="20" height="180" width="60" />
-                  <rect x="110" y="20" height="180" width="60" />
-                </>
-              ) : (
-                <path d="M 30 0 L 180 100 L 30 200" />
-              )}
-            </svg>
-          </div>
-        )}
+            {animating ? (
+              <>
+                <rect x="20" y="20" height="180" width="60" />
+                <rect x="110" y="20" height="180" width="60" />
+              </>
+            ) : (
+              <path d="M 30 0 L 180 100 L 30 200" />
+            )}
+          </svg>
+        </div>
+      )}
         <input
           ref={rangeInputRef}
           className={css(rangeInputRule)}
@@ -143,9 +150,9 @@ function RangeInput(props) {
           required={required}
           onChange={handleOnChange}
         />
-        <span className={css(valueIndicatorRule)}>{currentValue}</span>
       </div>
-    </>
+      <span className={css(valueIndicatorRule)}>{currentValue}</span>
+    </div>
   );
 }
 

@@ -10,6 +10,12 @@ const rule = ({props}) => ({
   }
 })
 
+const linkRule = () => ({
+  ":after": {
+    content: '","'
+  }
+})
+
 
 export function Box({ padding, margin, children }) {
   const { css } = useFela()
@@ -21,9 +27,9 @@ function Nav(props) {
   const { filterRoutes, inDetailView = true} = props
   return (
     <nav className={css(rule)}>
-      <Link to={"/"}>no design foundry</Link>
+      <Link to={"/"} className={css(linkRule)}>no design foundry</Link>
       {inDetailView && filterRoutes.map((route, index) => (
-        <Link to={route.route} key={index}>
+        <Link key={index} to={route.route} className={css(linkRule)}>
           {route.title}
         </Link>
       ))}

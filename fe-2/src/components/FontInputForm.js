@@ -5,13 +5,14 @@ import TextInput from "./TextInput"
 import { useFela } from "react-fela"
 import Style from "./Style"
 import { DetailViewContext } from "../templates/FilterDetailView"
-import { Context } from "../App"
+import { Context,  } from "../App"
 import { padding } from "../rules/variables"
 import RangeInput from "./RangeInput"
+import { column, flex, flexDirection, maxWidth } from "../rules/generic"
+
+
 
 export const formRule = ({props}) => ({
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
   padding
 })
 
@@ -21,7 +22,7 @@ function FontInputForm(props) {
   const { previewStrings, setPreviewStrings } = useContext(Context)
   const { setShowPreviewFont } = useContext(DetailViewContext)
   const { css } = useFela()
-  const { inputs, fontIdentifier, title, route } = props
+  const { inputs, fontIdentifier, route } = props
   const [fontString, setFontString] = useState("")
   const formRef = useRef()
 
@@ -75,7 +76,7 @@ function FontInputForm(props) {
   return (
     <>
       {(fontString.length > 0) && <Style>{fontString}</Style>}
-      <form ref={formRef} className={css(formRule)} onChange={handleOnChange}>
+      <form ref={formRef} className={css(formRule, maxWidth("400px"), flex, column)} onChange={handleOnChange}>
         {props.children}
         <FontFileInput/>
         <TextInput

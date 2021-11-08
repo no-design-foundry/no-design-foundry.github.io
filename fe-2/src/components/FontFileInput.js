@@ -1,20 +1,28 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { useFela } from "react-fela";
 import { Context } from "../App";
-import { inputValidityRule, labelValidityRule } from "../rules/form";
+import { inputRule, labelRule, labelValidityRule } from "../rules/form";
+import { flex } from "../rules/generic";
+import { insetShadow } from "../rules/variables";
+
 
 const wrapperRule = () => ({
   position: "relative"
 });
 
-const inputRule = () => ({
-    opacity: 0,
-    height: "100%",
-    width: "100%",
-    position: "absolute",
-
+const fileInputRule = () => ({
+  opacity: 0,
+  height: "100%",
+  width: "100%",
+  position: "absolute",
 })
 
+const fileInputIconRule = () => ({
+  background: "silver",
+  padding: "0 .5em",
+  borderRadius: "1em",
+  ...insetShadow
+})
 
 function FontFileInput(props) {
   const inputRef = useRef();
@@ -35,11 +43,11 @@ function FontFileInput(props) {
   }, [])
 
   return (
-    <>
-      <label className={css(labelValidityRule)}>font file</label>
-      <div className={css(wrapperRule, inputValidityRule)}>
+    <div className={css(flex)}>
+      <label className={css(labelValidityRule, labelRule)}>font file</label>
+      <div className={css(wrapperRule, inputRule)}>
         <input
-          className={css(inputRule)}
+          className={css(fileInputRule)}
           ref={inputRef}
           type="file"
           name="font_file"
@@ -47,9 +55,9 @@ function FontFileInput(props) {
           onChange={handleOnChange}
           required={true}
         ></input>
-        <span>{inputFont ? inputFont[0].name : "select file"}</span>
+        <span className={css(fileInputIconRule)}>{inputFont ? inputFont[0].name : "select file"}</span>
       </div>
-    </>
+    </div>
   );
 }
 

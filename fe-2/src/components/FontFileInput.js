@@ -1,23 +1,29 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { useFela } from "react-fela";
 import { Context } from "../App";
+import { inputValidityRule, labelValidityRule } from "../rules/form";
 
-const rule = ({ props }) => ({
-  position: "relative",
-  "& > input": {
+const wrapperRule = () => ({
+  position: "relative"
+});
+
+const inputRule = () => ({
     opacity: 0,
     height: "100%",
     width: "100%",
     position: "absolute",
-  },
-});
+
+})
+
 
 function FontFileInput(props) {
-  const { css } = useFela();
   const inputRef = useRef();
   const { inputFont, setInputFont } = useContext(Context);
+  const [isValid, setIsValid] = useState(false)
+  const { css } = useFela({isValid});
 
   function handleOnChange() {
+    setIsValid(inputRef.current.checkValidity())
     if (inputRef.current.files.length > 0) {
       setInputFont(inputRef.current.files);
     }
@@ -25,13 +31,15 @@ function FontFileInput(props) {
 
   useEffect(() => {
     inputRef.current.files = inputFont
+    setIsValid(inputRef.current.checkValidity())
   }, [])
 
   return (
     <>
-      <label>font file</label>
-      <div className={css(rule)}>
+      <label className={css(labelValidityRule)}>font file</label>
+      <div className={css(wrapperRule, inputValidityRule)}>
         <input
+          className={css(inputRule)}
           ref={inputRef}
           type="file"
           name="font_file"

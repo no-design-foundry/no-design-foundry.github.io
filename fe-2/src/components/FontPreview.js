@@ -123,9 +123,8 @@ const compareButtonRule = ({}) => ({
 function FontPreview(props) {
   const container = useRef()
 
-  const { fontSize, showPreviewFont, children, isEven, inDetailView = true } = props
+  const { fontSize, showPreviewFont, children, isEven, inDetailView = true, variationSettings = {} } = props
   const {cursorY} = useContext(Context)
-  const {variationSettings} = useContext(DetailViewContext)
   const [height, setHeight] = useState(0)
   const [top, setTop] = useState(0)
   const [overlayTop, setOverlayTop] = useState(0)

@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import React, { createContext, useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 import data from "./data";
 import Nav from "./components/Nav";
 import renderer from "./felaRenderer";
@@ -20,7 +20,6 @@ const filterRoutes = data
 function App() {
   const [previewFontSize, setPreviewFontSize] = useState(40);
   const [cursorY, setCursorY] = useState(0);
-  const [showPreviewFont, setShowPreviewFont] = useState(false);
   const [inputFont, setInputFont] = useState(null);
   const [previewStrings, setPreviewStrings] = useState(
     filterRoutes.reduce((collector, currentValue) => {
@@ -47,7 +46,6 @@ function App() {
     <Context.Provider
       value={{
         cursorY,
-        showPreviewFont,
         previewFontSize,
         setPreviewFontSize,
         inputFont,

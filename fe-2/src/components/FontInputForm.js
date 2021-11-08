@@ -1,13 +1,19 @@
 import React, { createContext, useContext, useRef, useState, useEffect } from "react"
-import FontInputSlider from "./FontInputSlider"
 import axios from "axios"
 import FontFileInput from "./FontFileInput"
 import TextInput from "./TextInput"
 import { useFela } from "react-fela"
-import formRule from "../rules/formRule"
 import Style from "./Style"
 import { DetailViewContext } from "../templates/FilterDetailView"
 import { Context } from "../App"
+import { padding } from "../rules/variables"
+import RangeInput from "./RangeInput"
+
+export const formRule = ({props}) => ({
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  padding
+})
 
 let lastTimeStamp
 
@@ -19,9 +25,7 @@ function FontInputForm(props) {
   const [fontString, setFontString] = useState("")
   const formRef = useRef()
 
-  function wait(ms) {
-    return new Promise( (resolve) => {setTimeout(resolve, ms)});
-  }
+
 
   function sendRequest() {
     const formData = new FormData(formRef.current)
@@ -63,16 +67,14 @@ function FontInputForm(props) {
       setTimeout(function(){if(e.timeStamp === lastTimeStamp){
         if(formRef.current.checkValidity()) {
           sendRequest()
-          console.log("request")
         }
       }}, 500)
     }
-
   }
 
   return (
     <>
-      {fontString.length > 0 && <Style>{fontString}</Style>}
+      {(fontString.length > 0) && <Style>{fontString}</Style>}
       <form ref={formRef} className={css(formRule)} onChange={handleOnChange}>
         {props.children}
         <FontFileInput/>
@@ -84,7 +86,7 @@ function FontInputForm(props) {
         {inputs.map((input, index) => {
           switch (input.type) {
             case "slider":
-              return <FontInputSlider key={`${route}_form_${index}`} {...input} />
+              return <RangeInput key={`${route}_form_${index}`} {...input} />
             default:
               throw new Error("type not found")
           }

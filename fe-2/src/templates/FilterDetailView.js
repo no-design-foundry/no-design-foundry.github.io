@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState } from "react";
-import FontControlSlider from "../components/FontControlSlider";
 import FontPreview from "../components/FontPreview";
 import FontInputForm from "../components/FontInputForm";
 import { useFela } from "react-fela";
 import { Context } from "../App";
 import data from "../data";
+import RangeInput from "../components/RangeInput";
 
 export const DetailViewContext = createContext();
 
@@ -27,11 +27,12 @@ function FilterDetailView(props) {
   const [variationSettings, setVariationSettings] = useState({});
 
   return (
-    <DetailViewContext.Provider value={{ showPreviewFont, setShowPreviewFont, variationSettings }}>
+    <DetailViewContext.Provider value={{ showPreviewFont, setShowPreviewFont, variationSettings, setVariationSettings }}>
       <main className={css(rule)}>
         <FontPreview
           fontSize={previewFontSize}
           showPreviewFont={showPreviewFont}
+          variationSettings={variationSettings}
         >
           {previewStrings[fontIdentifier]}
         </FontPreview>
@@ -41,21 +42,17 @@ function FilterDetailView(props) {
           fontIdentifier={fontIdentifier}
         >
           {variableFontControlSliders.map((slider, index) => (
-            <FontControlSlider
-              onChange={(e) => {
-                let value = {}
-                value[slider.tag] = e.target.value
-                setVariationSettings({...variationSettings, ...value});
-              }}
+            <RangeInput
               key={`fontControlSlider_${index}`}
               title={slider.title}
               min={slider.min}
               max={slider.max}
               defaultValue={slider.default}
               animatable={true}
+              tag={slider.tag}
             />
           ))}
-          <FontControlSlider
+          <RangeInput
             onChange={(e) => setPreviewFontSize(e.target.value)}
             title="size"
             min="10"
@@ -68,4 +65,4 @@ function FilterDetailView(props) {
   );
 }
 
-export default FilterDetailView;
+export default React.memo(FilterDetailView);

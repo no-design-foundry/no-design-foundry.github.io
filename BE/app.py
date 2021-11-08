@@ -1,7 +1,7 @@
 import uvicorn
 
-from fastapi import FastAPI, Form, File, Depends, Body
-from typing import Any
+from fastapi import FastAPI, Form, File, Depends, Body, Request
+from typing import Any, Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fontTools.ttLib import TTFont
 from fontTools.subset import Subsetter
@@ -15,13 +15,14 @@ import extractor
 import defcon
 from datetime import datetime
 
-
+from filters.rasterizer.rasterizer import rasterize
+from filters.rotorizer.rotorizer import rotorize
 
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:8000",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -44,24 +45,27 @@ def subset_font(tt_font, subsetted_text):
     subsetter.populate(text=subsetted_text, glyphs=keep_glyphs)
     subsetter.subset(tt_font)
 
-
-@app.post("/filters/rotorizer")
-async def rotorizer(
+@app.post("/filters/{filter_identifier}")
+async def filter(
+    filter_identifier: str,
     font_file: bytes = File(...),
-    preview_string: str = Form(...),
-    depth: int = Form(...)
+    preview_string: str = Form(..., max_length=32),
+    depth: int= Form(None),
+    resolution: int = Form(None)
 ):
     try:
         start = datetime.now()
-        if not ((depth >= 2) and (depth <= 300)):
-            return {"message": "error"}
         tt_font = get_tt_font(font_file)
         subset_font(tt_font, preview_string)
         output = BytesIO()
         tt_font.save(output)
         ufo = extract_to_ufo(tt_font)
-        print(ufo.glyphOrder)
-        response = fonts_to_base64([output])
+        if filter_identifier == "rasterizer":
+            response_fonts = [rasterize(tt_font=tt_font, ufo=ufo, resolution=resolution)]
+        elif filter_identifier == "rotorizer":
+            print(depth)
+            response_fonts = rotorize(tt_font=tt_font, depth=depth)
+        response = fonts_to_base64(response_fonts)
         end = datetime.now()
         print((end - start).total_seconds())
     except Exception as e:
@@ -71,4 +75,4 @@ async def rotorizer(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000, debug=True)
+    uvicorn.run("app:app", host="0.0.0.0", port=5000, debug=True, reload=True)

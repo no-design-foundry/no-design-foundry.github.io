@@ -33,6 +33,8 @@ function FilterDetailView(props) {
           fontSize={previewFontSize}
           showPreviewFont={showPreviewFont}
           variationSettings={variationSettings}
+          stuckOnTop={true}
+          stuckOnBottom={true}
         >
           {previewStrings[fontIdentifier]}
         </FontPreview>

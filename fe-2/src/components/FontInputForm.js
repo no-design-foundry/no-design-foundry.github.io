@@ -6,17 +6,22 @@ import { useFela } from "react-fela"
 import Style from "./Style"
 import { DetailViewContext } from "../templates/FilterDetailView"
 import { Context,  } from "../App"
-import { padding } from "../rules/variables"
 import RangeInput from "./RangeInput"
-import { column, flex, flexDirection, maxWidth } from "../rules/generic"
+import { padding } from "../rules/generic"
 
 
 
-export const formRule = ({props}) => ({
-  padding
+export const formRule = () => ({
+  display: "grid",
+  width: "500px",
+  gridTemplateColumns: "1fr auto auto 3ch",
+  gridAutoRows: "1.2em",
+  gap: "0px 10px",
 })
 
 let lastTimeStamp
+
+
 
 function FontInputForm(props) {
   const { previewStrings, setPreviewStrings } = useContext(Context)
@@ -76,7 +81,7 @@ function FontInputForm(props) {
   return (
     <>
       {(fontString.length > 0) && <Style>{fontString}</Style>}
-      <form ref={formRef} className={css(formRule, maxWidth("400px"), flex, column)} onChange={handleOnChange}>
+      <form ref={formRef} className={css(formRule, padding("10px"))} onChange={handleOnChange}>
         {props.children}
         <FontFileInput/>
         <TextInput

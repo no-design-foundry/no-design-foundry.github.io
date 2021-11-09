@@ -4,7 +4,7 @@ import { useFela } from "react-fela"
 import { padding } from "../rules/variables"
 import Link from "./Link"
 
-const rule = ({props}) => ({
+const rule = () => ({
   padding,
   "& > * + *": {
     "margin-left": "1ch"

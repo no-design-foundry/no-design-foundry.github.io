@@ -1,14 +1,18 @@
-import React, { useState, useRef, useContext, useEffect } from "react"
-import { useFela } from "react-fela"
-import { Context, CursorContext } from "../App"
-import { DetailViewContext } from "../templates/FilterDetailView"
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { useFela } from "react-fela";
+import { CursorContext } from "../App";
 
 const flexCenter = {
   display: "flex",
   justifyContent: "center",
-}
+};
 
-const rule = ({ fontSize, showPreviewFont, inDetailView, variationSettings }) => ({
+const rule = ({
+  fontSize,
+  showPreviewFont,
+  inDetailView,
+  variationSettings,
+}) => ({
   fontSize: `${fontSize}px`,
   height: "200px",
   position: "relative",
@@ -18,35 +22,46 @@ const rule = ({ fontSize, showPreviewFont, inDetailView, variationSettings }) =>
   alignItems: "center",
   fontDisplay: "swap",
   ...flexCenter,
-  extend: [{
-    condition: showPreviewFont && inDetailView,
-    style: {
-      fontFamily: "preview-output-font"
-    }
-  },
-  {
-    condition: Object.keys(variationSettings).length > 0,
-    style: {
-      fontVariationSettings: Object.keys(variationSettings).map(key => `"${key}" ${variationSettings[key]}`).join(",")
-    }
-  }
-]
-})
+  extend: [
+    {
+      condition: showPreviewFont && inDetailView,
+      style: {
+        fontFamily: "preview-output-font",
+      },
+    },
+    {
+      condition: Object.keys(variationSettings).length > 0,
+      style: {
+        fontVariationSettings: Object.keys(variationSettings)
+          .map((key) => `"${key}" ${variationSettings[key]}`)
+          .join(","),
+      },
+    },
+  ],
+});
 
-const variationSettingsRule = ({ variationSettings }) => ({
-
-})
-
-const overlayRule = ({ cursorY, inDetailView, showPreviewFont, showPreview }) => ({
+const overlayRule = ({
+  cursorY,
+  inDetailView,
+  showPreviewFont,
+  showPreview,
+}) => ({
   position: "absolute",
   left: 0,
   "@media (hover:hover)": {
     top: `${cursorY}px`,
     "> *": {
       marginTop: `${-cursorY}px`,
-    }
+    },
   },
-  background: "silver",
+  ":after": {
+    content: '""',
+    position: "absolute",
+    width: "100%",
+    borderTop: "1px solid black",
+    top: 0,
+  },
+  background: "white",
   overflow: "hidden",
   width: "100%",
   height: "100%",
@@ -83,10 +98,10 @@ const overlayRule = ({ cursorY, inDetailView, showPreviewFont, showPreview }) =>
   extend: {
     condition: showPreviewFont && inDetailView,
     style: {
-      fontFamily: "preview-input-font"
-    }
-  }
-})
+      fontFamily: "preview-input-font",
+    },
+  },
+});
 
 const animationRule = ({ isEven }) => ({
   "@media (hover:none)": {
@@ -110,7 +125,7 @@ const animationRule = ({ isEven }) => ({
       animationDirection: isEven ? "alternate" : "alternate-reverse",
     },
   },
-})
+});
 
 const compareButtonRule = ({}) => ({
   "@media (hover:hover)": {
@@ -118,47 +133,51 @@ const compareButtonRule = ({}) => ({
   },
   display: "flex",
   justifyContent: "flex-end",
-})
+});
 
 function FontPreview(props) {
-  const container = useRef()
-
-  const { fontSize, showPreviewFont, children, isEven, inDetailView = true, variationSettings = {} } = props
-  const cursorY = useContext(CursorContext)
-  const [height, setHeight] = useState(0)
-  const [top, setTop] = useState(0)
-  const [overlayTop, setOverlayTop] = useState(0)
-  const [showPreview, setShowPreview] = useState(false)
-
+  const container = useRef();
+  const {
+    fontSize,
+    showPreviewFont,
+    children,
+    isEven,
+    inDetailView = true,
+    variationSettings = {},
+    stuckOnTop = false,
+    stuckOnBottom = false
+  } = props;
+  const cursorY = useContext(CursorContext);
+  const [height, setHeight] = useState(0);
+  const [top, setTop] = useState(0);
+  const [overlayTop, setOverlayTop] = useState(0);
+  const [showPreview, setShowPreview] = useState(false);
 
   function updateRect() {
-    const { top: bodyTop  } = document.body.getBoundingClientRect()
-    const { top: containerTop, height: containerHeight } = container.current.getBoundingClientRect()
-    setTop(containerTop - bodyTop)
-    setHeight(containerHeight)
+    const { top: bodyTop } = document.body.getBoundingClientRect();
+    const { top: containerTop, height: containerHeight } =
+      container.current.getBoundingClientRect();
+    setTop(containerTop - bodyTop);
+    setHeight(containerHeight);
   }
 
   useEffect(() => {
-    updateRect()
-    document.addEventListener("resize", updateRect)
+    updateRect();
+    document.addEventListener("resize", updateRect);
     return () => {
-      document.removeEventListener("resize", updateRect)
-    }
-  }, [])
+      document.removeEventListener("resize", updateRect);
+    };
+  }, []);
 
   useEffect(() => {
-    if (cursorY < top) {
-      setOverlayTop(0)
+    if (cursorY <= top) {
+      setOverlayTop(stuckOnTop ? "0" : null);
+    } else if (cursorY >= top + height) {
+      setOverlayTop(stuckOnBottom ? height - 1 : null);
+    } else {
+      setOverlayTop(cursorY - top);
     }
-    else if(cursorY > top + height) {
-      setOverlayTop(height)
-    }
-    else {
-      setOverlayTop(cursorY - top)
-    }
-  }, [top, height, cursorY])
-
-
+  }, [top, height, cursorY]);
 
   const { css } = useFela({
     cursorY: overlayTop,
@@ -167,18 +186,22 @@ function FontPreview(props) {
     inDetailView,
     showPreview,
     showPreviewFont,
-    variationSettings
-  })
+    variationSettings,
+  });
 
   return (
     <>
-      <div ref={container} className={css(rule, variationSettingsRule)}>
+      <div ref={container} className={css(rule)}>
         <div>{children}</div>
+        {console.log(overlayTop)}
+        {
+          overlayTop &&
         <div
           className={css(overlayRule, inDetailView ? () => {} : animationRule)}
         >
           <div>{children}</div>
-        </div>
+          </div>
+        }
       </div>
       {inDetailView && (
         <div
@@ -189,7 +212,7 @@ function FontPreview(props) {
         </div>
       )}
     </>
-  )
+  );
 }
 
-export default FontPreview
+export default FontPreview;

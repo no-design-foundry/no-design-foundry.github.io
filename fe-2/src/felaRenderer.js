@@ -57,13 +57,33 @@ const elementStyle = {
 renderer.renderStatic(elementStyle, "html,body,div,input,label,a")
 
 const bodyStyle = {
+  fontFamily: "rastr, Helvetica, Arial, sans-serif",
   fontSize: "20px",
   lineHeight: "1.2em",
-  fontFamily: "rastr, Helvetica, Arial, sans-serif",
   minHeight: "100vh",
 }
 
 renderer.renderStatic(bodyStyle, "body")
+
+// const buttonRule = {
+//   // height: "1.2em",
+//   marginTop: "-2px",
+//   height: "calc(100% + 4px)",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   fontSize: ".7em"
+// }
+// renderer.renderStatic(buttonRule, "button")
+
+const allRule = {
+  fontSize: "inherit",
+  lineHeight: "inherit",
+  fontFamily: "inherit",
+}
+
+renderer.renderStatic(allRule, "*")
+
 
 const gatsby = {
   display: "flex",
@@ -81,7 +101,7 @@ const link = {
 
 renderer.renderStatic(link, "input")
 
-const files = ["/fonts/rastr.ttf"]
+const files = ["/rastr.ttf"]
 renderer.renderFont("rastr", files)
 
 export default renderer

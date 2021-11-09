@@ -1,18 +1,22 @@
 export const labelRule = () => ({
-  marginRight: "3ch"
-  // gridColumn: "2",
+  gridColumn: "1",
+  whiteSpace: "nowrap"
 })
 
 export const inputRule = () => ({
-  // gridColumn: "1"
+  gridColumn: "3",
+  width: "100%",
+  "> input": {
+    width: "100%",
+  }
 })
 
 
 export const labelValidityRule = ({isValid}) => ({
-  extend: {
-    condition: !isValid,
-    style: {
-      color: "red"
-    }
-  }
+  // extend: {
+  //   condition: !isValid,
+  //   style: {
+  //     color: "red"
+  //   }
+  // }
 })

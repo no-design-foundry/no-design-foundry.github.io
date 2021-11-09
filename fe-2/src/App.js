@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import data from "./data";
 import Nav from "./components/Nav";
@@ -7,21 +7,22 @@ import FilterDetailView from "./templates/FilterDetailView";
 import Footer from "./components/Footer";
 import { useFela } from "react-fela";
 import { column, flex, minHeight } from "./rules/generic";
+import AnimateHeight from "react-animate-height"
 
 export const Context = createContext();
 export const CursorContext = createContext();
 export const FormInputsContext = createContext();
+export const ContentVisibilityContext = createContext();
 
 const filterRoutes = data.filter((entry) => entry.type === "filterDetailView");
 
-
 function App() {
-  const {css} = useFela()
-  let location = useLocation()
+  const contetWrapperRef = useRef();
+  const { css } = useFela();
+  let location = useLocation();
 
   useEffect(() => {
-    console.log("changed")
-  }, [location])
+  }, [location]);
 
   const [previewFontSize, setPreviewFontSize] = useState(40);
   const [inputs, setInputs] = useState(
@@ -32,6 +33,12 @@ function App() {
       return collector;
     }, {})
   );
+
+  const [contentIsVisible, setContentIsVisible] = useState(true);
+
+  useEffect(() => {
+    console.log(contentIsVisible)
+  }, [contentIsVisible])
 
   const [cursorY, setCursorY] = useState(0);
   const [inputFont, setInputFont] = useState(null);
@@ -67,45 +74,49 @@ function App() {
         setPreviewStrings,
       }}
     >
-        <div className={css(flex(), minHeight("100vh"), column())}>
+      <div className={css(flex(), minHeight("100vh"), column())}>
+        <ContentVisibilityContext.Provider value={setContentIsVisible}>
           <Nav filterRoutes={filterRoutes}></Nav>
           <CursorContext.Provider value={cursorY}>
-            <FormInputsContext.Provider value={{inputs, setInputs}}>
-              <Routes>
-                {data.map((entry) => {
-                  let el;
-                  switch (entry.type) {
-                    case "filterDetailView":
-                      el = (
-                        <FilterDetailView
-                          {...entry}
-                          key={entry.route}
-                        ></FilterDetailView>
-                      );
-                      break;
-                    case "filterListView":
-                      el = (
-                        <FilterListView
-                          filterRoutes={filterRoutes}
-                        ></FilterListView>
-                      );
-                      break;
-                    default:
-                      throw new Error("component not found");
-                  }
-                  return (
-                    <Route
-                      key={entry.route}
-                      path={entry.route}
-                      element={el}
-                    ></Route>
-                  );
-                })}
-              </Routes>
+            <FormInputsContext.Provider value={{ inputs, setInputs }}>
+              <AnimateHeight height={contentIsVisible ? "auto" : 2} duration={350}>
+                <Routes>
+                  {data.map((entry) => {
+                    let el;
+                    switch (entry.type) {
+                      case "filterDetailView":
+                        el = (
+                          <FilterDetailView
+                            {...entry}
+                            key={entry.route}
+                          ></FilterDetailView>
+                        );
+                        break;
+                      case "filterListView":
+                        el = (
+                          <FilterListView
+                            filterRoutes={filterRoutes}
+                          ></FilterListView>
+                        );
+                        break;
+                      default:
+                        throw new Error("component not found");
+                    }
+                    return (
+                      <Route
+                        key={entry.route}
+                        path={entry.route}
+                        element={el}
+                      ></Route>
+                    );
+                  })}
+                </Routes>
+              </AnimateHeight>
             </FormInputsContext.Provider>
           </CursorContext.Provider>
           <Footer></Footer>
-        </div>
+        </ContentVisibilityContext.Provider>
+      </div>
     </Context.Provider>
   );
 }

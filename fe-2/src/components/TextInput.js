@@ -19,7 +19,7 @@ function TextInput(props) {
   }
 
   return (
-    <div className={css(flex)}>
+    <>
       <label className={css(labelValidityRule, labelRule)} htmlFor={name}>
         {title}
       </label>
@@ -32,7 +32,7 @@ function TextInput(props) {
           onChange={handleOnChange}
         ></input>{" "}
       </div>
-    </div>
+    </>
   );
 }
 

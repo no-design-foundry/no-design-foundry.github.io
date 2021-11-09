@@ -1,0 +1,6 @@
+[submodule "BE/filters/rasterizer"]
+	path = BE/filters/rasterizer
+	url = https://github.com/jansindl3r/rasterizer.git
+[submodule "BE/filters/rotorizer"]
+	path = BE/filters/rotorizer
+	url = https://github.com/jansindl3r/rotorizer

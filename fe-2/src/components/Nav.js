@@ -1,7 +1,8 @@
 import React from "react"
-import { Link } from "react-router-dom"
+// import { Link } from "react-router-dom"
 import { useFela } from "react-fela"
 import { padding } from "../rules/variables"
+import Link from "./Link"
 
 const rule = ({props}) => ({
   padding,

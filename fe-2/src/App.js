@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import data from "./data";
 import Nav from "./components/Nav";
 import FilterListView from "./templates/FilterListView";
@@ -14,8 +14,14 @@ export const FormInputsContext = createContext();
 
 const filterRoutes = data.filter((entry) => entry.type === "filterDetailView");
 
+
 function App() {
   const {css} = useFela()
+  let location = useLocation()
+
+  useEffect(() => {
+    console.log("changed")
+  }, [location])
 
   const [previewFontSize, setPreviewFontSize] = useState(40);
   const [inputs, setInputs] = useState(

@@ -53,24 +53,22 @@ async def filter(
     depth: int= Form(None),
     resolution: int = Form(None)
 ):
-    try:
-        start = datetime.now()
-        tt_font = get_tt_font(font_file)
-        subset_font(tt_font, preview_string)
-        output = BytesIO()
-        tt_font.save(output)
-        ufo = extract_to_ufo(tt_font)
-        if filter_identifier == "rasterizer":
-            response_fonts = [rasterize(tt_font=tt_font, ufo=ufo, resolution=resolution)]
-        elif filter_identifier == "rotorizer":
-            print(depth)
-            response_fonts = rotorize(tt_font=tt_font, depth=depth)
-        response = fonts_to_base64(response_fonts)
-        end = datetime.now()
-        print((end - start).total_seconds())
-    except Exception as e:
-        print(e)
-        return {"message": "wrong"}
+    # try:
+    start = datetime.now()
+    tt_font = get_tt_font(font_file)
+    subset_font(tt_font, preview_string)
+    output = BytesIO()
+    tt_font.save(output)
+    ufo = defcon.Font() if ("CFF " in tt_font or "CFF2" in tt_font) else None
+    if filter_identifier == "rasterizer":
+        response_fonts = [rasterize(tt_font=tt_font, ufo=ufo, resolution=resolution)]
+    elif filter_identifier == "rotorizer":
+        response_fonts = rotorize(tt_font=tt_font, depth=depth)
+    response = fonts_to_base64(response_fonts)
+    end = datetime.now()
+    print((end - start).total_seconds())
+    # except Exception as e:
+    #     return {"message": "wrong"}
     return {"fonts": response}
 
 

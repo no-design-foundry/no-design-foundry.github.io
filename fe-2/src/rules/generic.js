@@ -18,6 +18,10 @@ export const padding = (value) => () => ({
     padding: value
 })
 
+export const margin = (value) => () => ({
+    margin: value
+})
+
 
 export const minHeight = (value) => () => ({
     minHeight: value

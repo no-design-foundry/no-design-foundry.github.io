@@ -1,10 +1,11 @@
 import React from "react"
 // import { Link } from "react-router-dom"
 import { useFela } from "react-fela"
-import { padding } from "../rules/variables"
+import { background, padding } from "../rules/variables"
 import Link from "./Link"
 
 const rule = () => ({
+  background,
   padding,
   "& > * + *": {
     "margin-left": "1ch"

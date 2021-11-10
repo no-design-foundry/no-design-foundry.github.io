@@ -101,6 +101,10 @@ const link = {
 
 renderer.renderStatic(link, "input")
 
+renderer.renderStatic({
+  cursor: "pointer"
+}, "*[role=button]")
+
 const files = ["/rastr.ttf"]
 renderer.renderFont("rastr", files)
 

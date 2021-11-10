@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import { useFela } from "react-fela";
 import { column, flex, minHeight } from "./rules/generic";
 import AnimateHeight from "react-animate-height"
+import { defaultFontSize } from "./rules/variables";
 
 export const Context = createContext();
 export const CursorContext = createContext();
@@ -17,14 +18,13 @@ export const ContentVisibilityContext = createContext();
 const filterRoutes = data.filter((entry) => entry.type === "filterDetailView");
 
 function App() {
-  const contetWrapperRef = useRef();
   const { css } = useFela();
   let location = useLocation();
 
   useEffect(() => {
   }, [location]);
 
-  const [previewFontSize, setPreviewFontSize] = useState(40);
+  const [previewFontSize, setPreviewFontSize] = useState(defaultFontSize);
   const [inputs, setInputs] = useState(
     filterRoutes.reduce((collector, filterRoute) => {
       collector[filterRoute.fontIdentifier] = filterRoute.inputs.map(
@@ -36,9 +36,6 @@ function App() {
 
   const [contentIsVisible, setContentIsVisible] = useState(true);
 
-  useEffect(() => {
-    console.log(contentIsVisible)
-  }, [contentIsVisible])
 
   const [cursorY, setCursorY] = useState(0);
   const [inputFont, setInputFont] = useState(null);
@@ -56,6 +53,7 @@ function App() {
   function handleOnMouseMove(e) {
     setCursorY(e.pageY);
   }
+  
   useEffect(() => {
     window.addEventListener("mousemove", handleOnMouseMove);
     return () => {
@@ -114,7 +112,7 @@ function App() {
               </AnimateHeight>
             </FormInputsContext.Provider>
           </CursorContext.Provider>
-          <Footer></Footer>
+          {/* <Footer></Footer> */}
         </ContentVisibilityContext.Provider>
       </div>
     </Context.Provider>

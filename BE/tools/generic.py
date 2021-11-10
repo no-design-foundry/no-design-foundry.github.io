@@ -3,6 +3,7 @@ from io import BytesIO
 from itertools import chain
 from fontTools.ttLib import TTFont
 import defcon
+from ufo2ft import compileTTF
 
 from extractor.formats.opentype import (
     extractGlyphOrder,
@@ -17,6 +18,8 @@ from extractor.formats.opentype import (
 def fonts_to_base64(fonts):
     fonts_ = []
     for font in fonts:
+        if isinstance(font, defcon.Font):
+            font = compileTTF(font)
         if isinstance(font, TTFont):
             font_bytes = BytesIO()
             font.save(font_bytes)

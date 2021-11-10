@@ -30,7 +30,7 @@ function FontFileInput(props) {
 
   return (
     <>
-      <label className={css(labelValidityRule, labelRule)}>font file</label>
+      <label className={css(labelValidityRule, labelRule)} htmlFor="font_file">font file</label>
       <div className={css(inputRule, relative)}>
         <input
           className={css(fileInputRule)}
@@ -41,7 +41,7 @@ function FontFileInput(props) {
           onChange={handleOnChange}
           required={true}
         ></input>
-        <span>
+        <span role="button">
           {inputFont ? inputFont[0].name : "Select font"}
         </span>
       </div>

@@ -67,6 +67,7 @@ function RangeInput(props) {
       </label>
       {animatable && (
         <div
+          role="button"
           onClick={handleOnClickAnimate}
         >
           {animating ? "stop" : "play"}

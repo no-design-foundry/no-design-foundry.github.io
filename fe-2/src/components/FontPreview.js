@@ -1,10 +1,12 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { useFela } from "react-fela";
 import { CursorContext } from "../App";
+import { padding, margin } from "../rules/generic";
+import { background } from "../rules/variables";
 
 const flexCenter = {
   display: "flex",
-  justifyContent: "center",
+  // justifyContent: "center",
 };
 
 const rule = ({
@@ -13,6 +15,7 @@ const rule = ({
   inDetailView,
   variationSettings,
 }) => ({
+  background,
   fontSize: `${fontSize}px`,
   height: "200px",
   position: "relative",
@@ -58,7 +61,7 @@ const overlayRule = ({
     content: '""',
     position: "absolute",
     width: "100%",
-    borderTop: "1px solid black",
+    // borderTop: "1px solid black",
     top: 0,
   },
   background: "white",
@@ -145,7 +148,7 @@ function FontPreview(props) {
     inDetailView = true,
     variationSettings = {},
     stuckOnTop = false,
-    stuckOnBottom = false
+    stuckOnBottom = false,
   } = props;
   const cursorY = useContext(CursorContext);
   const [height, setHeight] = useState(0);
@@ -160,6 +163,16 @@ function FontPreview(props) {
     setTop(containerTop - bodyTop);
     setHeight(containerHeight);
   }
+
+  const { css } = useFela({
+    cursorY: overlayTop,
+    fontSize,
+    isEven,
+    inDetailView,
+    showPreview,
+    showPreviewFont,
+    variationSettings,
+  });
 
   useEffect(() => {
     updateRect();
@@ -179,29 +192,20 @@ function FontPreview(props) {
     }
   }, [top, height, cursorY]);
 
-  const { css } = useFela({
-    cursorY: overlayTop,
-    fontSize,
-    isEven,
-    inDetailView,
-    showPreview,
-    showPreviewFont,
-    variationSettings,
-  });
-
   return (
     <>
       <div ref={container} className={css(rule)}>
-        <div>{children}</div>
-        {console.log(overlayTop)}
-        {
-          overlayTop &&
-        <div
-          className={css(overlayRule, inDetailView ? () => {} : animationRule)}
-        >
-          <div>{children}</div>
+        <div className={css(padding("10px"))}>{children}</div>
+        {overlayTop && (
+          <div
+            className={css(
+              overlayRule,
+              inDetailView ? () => {} : animationRule
+            )}
+          >
+            <div className={css(padding("10px"))}>{children}</div>
           </div>
-        }
+        )}
       </div>
       {inDetailView && (
         <div

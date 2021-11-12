@@ -9,9 +9,10 @@ import { Context,  } from "../App"
 import RangeInput from "./RangeInput"
 import { padding } from "../rules/generic"
 
-
-
 export const formRule = () => ({
+  position: "absolute",
+  bottom: 0,
+  left: 0,
   display: "grid",
   width: "500px",
   gridTemplateColumns: "1fr auto auto 3ch",

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useState, useEffect, useRef, createRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import data from "./data";
 import Nav from "./components/Nav";
@@ -6,23 +6,46 @@ import FilterListView from "./templates/FilterListView";
 import FilterDetailView from "./templates/FilterDetailView";
 import Footer from "./components/Footer";
 import { useFela } from "react-fela";
-import { column, flex, minHeight } from "./rules/generic";
-import AnimateHeight from "react-animate-height"
+import { column, flex, minHeight, grow } from "./rules/generic";
 import { defaultFontSize } from "./rules/variables";
 
 export const Context = createContext();
 export const CursorContext = createContext();
 export const FormInputsContext = createContext();
 export const ContentVisibilityContext = createContext();
+export const NavHeightContext = createContext();
 
 const filterRoutes = data.filter((entry) => entry.type === "filterDetailView");
 
-function App() {
-  const { css } = useFela();
-  let location = useLocation();
+const routeOverlayRule = ({contentIsVisible, navHeight}) => ({
+  zIndex: 1000,
+  bottom: 0,
+  position: "fixed",
+  width: "100%",
+  background: "white",
+  transition: "height .35s ease-in",
+  extend: [
+    {
+      condition: contentIsVisible,
+      style: {
+        height: "10px",
+      }
+    },
+    {
+      condition: !contentIsVisible,
+      style: {
+        height: `calc(100vh - ${navHeight}px)`
+      }
+    }
+  ]
+});
 
-  useEffect(() => {
-  }, [location]);
+
+function App() {
+  const location = useLocation();
+  const navRef = createRef(null);
+
+  useEffect(() => {}, [location]);
 
   const [previewFontSize, setPreviewFontSize] = useState(defaultFontSize);
   const [inputs, setInputs] = useState(
@@ -35,9 +58,8 @@ function App() {
   );
 
   const [contentIsVisible, setContentIsVisible] = useState(true);
-
-
   const [cursorY, setCursorY] = useState(0);
+  const [navHeight, setNavHeight] = useState(null);
   const [inputFont, setInputFont] = useState(null);
   const [previewStrings, setPreviewStrings] = useState(
     filterRoutes.reduce((collector, currentValue) => {
@@ -50,10 +72,13 @@ function App() {
     }, {})
   );
 
+
+  const { css } = useFela({ contentIsVisible, navHeight });
+
   function handleOnMouseMove(e) {
     setCursorY(e.pageY);
   }
-  
+
   useEffect(() => {
     window.addEventListener("mousemove", handleOnMouseMove);
     return () => {
@@ -72,12 +97,13 @@ function App() {
         setPreviewStrings,
       }}
     >
-      <div className={css(flex(), minHeight("100vh"), column())}>
+      <div className={css(flex(), grow(), column(), minHeight("100vh"))}>
         <ContentVisibilityContext.Provider value={setContentIsVisible}>
-          <Nav filterRoutes={filterRoutes}></Nav>
+          <Nav setNavHeight={setNavHeight} ref={navRef} filterRoutes={filterRoutes} />
           <CursorContext.Provider value={cursorY}>
             <FormInputsContext.Provider value={{ inputs, setInputs }}>
-              <AnimateHeight height={contentIsVisible ? "auto" : 2} duration={350}>
+              <NavHeightContext.Provider value={navHeight}>
+              <main className={css(flex(), grow(), column())}>
                 <Routes>
                   {data.map((entry) => {
                     let el;
@@ -109,7 +135,9 @@ function App() {
                     );
                   })}
                 </Routes>
-              </AnimateHeight>
+              </main>
+              </NavHeightContext.Provider>
+              <div className={css(routeOverlayRule)}></div>
             </FormInputsContext.Provider>
           </CursorContext.Provider>
           {/* <Footer></Footer> */}

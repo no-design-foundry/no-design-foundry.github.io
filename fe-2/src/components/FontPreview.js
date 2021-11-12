@@ -1,12 +1,16 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { useFela } from "react-fela";
 import { CursorContext } from "../App";
-import { padding, margin } from "../rules/generic";
+import { padding, margin, height } from "../rules/generic";
 import { background } from "../rules/variables";
+import { NavHeightContext } from "../App";
+
+
 
 const flexCenter = {
+  height: "100%",
   display: "flex",
-  // justifyContent: "center",
+  justifyContent: "center",
 };
 
 const rule = ({
@@ -14,10 +18,10 @@ const rule = ({
   showPreviewFont,
   inDetailView,
   variationSettings,
+  height
 }) => ({
   background,
   fontSize: `${fontSize}px`,
-  height: "200px",
   position: "relative",
   width: "100%",
   cursor: "ns-resize",
@@ -25,7 +29,15 @@ const rule = ({
   alignItems: "center",
   fontDisplay: "swap",
   ...flexCenter,
+  height,
+  // userSelect: "none",
   extend: [
+    {
+      condition: !inDetailView,
+      style: {
+        height: "300px",
+      }
+    },
     {
       condition: showPreviewFont && inDetailView,
       style: {
@@ -70,29 +82,29 @@ const overlayRule = ({
   height: "100%",
   fontDisplay: "block",
   ...flexCenter,
-  "@media (hover:none)": {
-    top: "0",
-    extend: {
-      condition: inDetailView,
-      style: {
-        marginLeft: "-100%",
-        transition: "margin-left .2s ease-in",
-        "> *": {
-          transition: "margin-left .2s ease-in",
-          marginLeft: "200%",
-        },
-        extend: {
-          condition: showPreview,
-          style: {
-            marginLeft: "0",
-            "> *": {
-              marginLeft: "0",
-            },
-          },
-        },
-      },
-    },
-  },
+  // "@media (hover:none)": {
+  //   top: "0",
+  //   extend: {
+  //     condition: inDetailView,
+  //     style: {
+  //       marginLeft: "-100%",
+  //       transition: "margin-left .2s ease-in",
+  //       "> *": {
+  //         transition: "margin-left .2s ease-in",
+  //         marginLeft: "200%",
+  //       },
+  //       extend: {
+  //         condition: showPreview,
+  //         style: {
+  //           marginLeft: "0",
+  //           "> *": {
+  //             marginLeft: "0",
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  // },
   "> * ": {
     height: "100%",
     alignItems: "center",
@@ -106,29 +118,33 @@ const overlayRule = ({
   },
 });
 
-const animationRule = ({ isEven }) => ({
-  "@media (hover:none)": {
-    animationName: {
-      from: { marginLeft: "-100%" },
-      to: { marginLeft: "100%" },
-    },
-    animationDuration: "2s",
-    animationTimingFunction: "ease-in-out",
-    animationIterationCount: "infinite",
-    animationDirection: isEven ? "alternate" : "alternate-reverse",
-    "> *": {
-      animationName: {
-        from: { marginLeft: "200%" },
-        to: { marginLeft: "-200%" },
-      },
-      animationDuration: "2s",
-      animationTimingFunction: "ease-in-out",
-      animationIterationCount: "infinite",
-      animationDirection: "alternate",
-      animationDirection: isEven ? "alternate" : "alternate-reverse",
-    },
-  },
-});
+// const animationRule = ({ isEven }) => ({
+//   "@media (hover:none)": {
+//     animationName: {
+//       from: { marginLeft: "-100%" },
+//       to: { marginLeft: "100%" },
+//     },
+//     animationDuration: "2s",
+//     animationTimingFunction: "ease-in-out",
+//     animationIterationCount: "infinite",
+//     animationDirection: isEven ? "alternate" : "alternate-reverse",
+//     "> *": {
+//       animationName: {
+//         from: { marginLeft: "200%" },
+//         to: { marginLeft: "-200%" },
+//       },
+//       animationDuration: "2s",
+//       animationTimingFunction: "ease-in-out",
+//       animationIterationCount: "infinite",
+//       animationDirection: "alternate",
+//       animationDirection: isEven ? "alternate" : "alternate-reverse",
+//     },
+//   },
+// });
+
+const heightRule = ({navHeight}) => ({
+  height: `calc(100vh - ${navHeight}px)`
+})
 
 const compareButtonRule = ({}) => ({
   "@media (hover:hover)": {
@@ -144,35 +160,36 @@ function FontPreview(props) {
     fontSize,
     showPreviewFont,
     children,
-    isEven,
     inDetailView = true,
     variationSettings = {},
-    stuckOnTop = false,
-    stuckOnBottom = false,
   } = props;
   const cursorY = useContext(CursorContext);
-  const [height, setHeight] = useState(0);
+  const navHeight = useContext(NavHeightContext);
+  const [containerHeight, setContainerHeight] = useState(0);
   const [top, setTop] = useState(0);
   const [overlayTop, setOverlayTop] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
+
+  console.log("navHeight", navHeight)
+  const height = "calc(100vh - " + navHeight + "px)"
+  const { css } = useFela({
+    inDetailView,
+    cursorY: overlayTop,
+    fontSize,
+    showPreview,
+    showPreviewFont,
+    variationSettings,
+    height
+  });
 
   function updateRect() {
     const { top: bodyTop } = document.body.getBoundingClientRect();
     const { top: containerTop, height: containerHeight } =
       container.current.getBoundingClientRect();
     setTop(containerTop - bodyTop);
-    setHeight(containerHeight);
+    setContainerHeight(containerHeight);
+    console.log(containerTop - bodyTop, containerHeight, inDetailView)
   }
-
-  const { css } = useFela({
-    cursorY: overlayTop,
-    fontSize,
-    isEven,
-    inDetailView,
-    showPreview,
-    showPreviewFont,
-    variationSettings,
-  });
 
   useEffect(() => {
     updateRect();
@@ -184,28 +201,21 @@ function FontPreview(props) {
 
   useEffect(() => {
     if (cursorY <= top) {
-      setOverlayTop(stuckOnTop ? "0" : null);
-    } else if (cursorY >= top + height) {
-      setOverlayTop(stuckOnBottom ? height - 1 : null);
+      setOverlayTop(0);
+    } else if (cursorY >= top + containerHeight) {
+      setOverlayTop(containerHeight);
     } else {
       setOverlayTop(cursorY - top);
     }
-  }, [top, height, cursorY]);
+  }, [top, containerHeight, cursorY, navHeight]);
 
   return (
     <>
       <div ref={container} className={css(rule)}>
         <div className={css(padding("10px"))}>{children}</div>
-        {overlayTop && (
-          <div
-            className={css(
-              overlayRule,
-              inDetailView ? () => {} : animationRule
-            )}
-          >
-            <div className={css(padding("10px"))}>{children}</div>
-          </div>
-        )}
+        <div className={css(overlayRule)}>
+          <div className={css(padding("10px"))}>{children}</div>
+        </div>
       </div>
       {inDetailView && (
         <div

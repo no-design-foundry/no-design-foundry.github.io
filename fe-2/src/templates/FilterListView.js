@@ -7,7 +7,7 @@ import { defaultFontSize } from "../rules/variables"
 function FilterListView(props) {
   const { filterRoutes } = props
   return (
-    <main>
+    <>
       {filterRoutes.map((filter, index) => (
         <Link to={filter.route} key={index}>
           <FontPreview fontSize={defaultFontSize} isEven={index % 2 === 0} inDetailView={false} stuckOnTop={index===0} stuckOnBottom={index===(filterRoutes.length - 1)}>
@@ -15,7 +15,7 @@ function FilterListView(props) {
           </FontPreview>
         </Link>
       ))}
-    </main>
+    </>
   )
 }
 

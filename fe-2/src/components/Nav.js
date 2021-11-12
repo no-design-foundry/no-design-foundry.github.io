@@ -1,10 +1,14 @@
-import React from "react"
+import React, {useRef, useEffect, useContext} from "react"
 // import { Link } from "react-router-dom"
 import { useFela } from "react-fela"
 import { background, padding } from "../rules/variables"
 import Link from "./Link"
+// import { NavHeightContext } from "../App" 
 
-const rule = () => ({
+const rule = ({}) => ({
+  // position: "sticky",
+  // top: `px",
+  zIndex: 1,
   background,
   padding,
   "& > * + *": {
@@ -18,17 +22,27 @@ const linkRule = () => ({
   }
 })
 
-
-export function Box({ padding, margin, children }) {
-  const { css } = useFela()
-  return <div className={css({ padding, margin })}>{children}</div>
-}
-
 function Nav(props) {
+  // const navHeight = useContext(NavHeightContext)
+  const containerRef = useRef()
+  const { setNavHeight, filterRoutes, inDetailView = true} = props
   const { css } = useFela()
-  const { filterRoutes, inDetailView = true} = props
+
+
+  function handleOnResize() {
+    setNavHeight(containerRef.current.clientHeight)  
+  }
+
+  useEffect(() => {
+    window.addEventListener("resize", handleOnResize)
+    handleOnResize()
+    return () => {
+      window.removeEventListener("resize", handleOnResize)
+    }
+  }, [])
+
   return (
-    <nav className={css(rule)}>
+    <nav ref={containerRef} className={css(rule)}>
       <Link to={"/"} className={css(linkRule)}>no design foundry</Link>
       {inDetailView && filterRoutes.map((route, index) => (
         <Link key={index} to={route.route} className={css(linkRule)}>

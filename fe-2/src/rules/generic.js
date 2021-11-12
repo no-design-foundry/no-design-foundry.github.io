@@ -6,6 +6,10 @@ export const flex = () => ({
     display: "flex"
 })
 
+export const grow = () => ({
+    flexGrow: "1"
+})
+
 export const column = () => ({
     flexDirection: "column"
 })

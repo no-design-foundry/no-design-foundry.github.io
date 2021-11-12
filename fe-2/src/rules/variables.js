@@ -1,4 +1,4 @@
-export const defaultFontSize = 100
+export const defaultFontSize = 200
 export const background = "#eee"
 
 export const padding = ["10px"];

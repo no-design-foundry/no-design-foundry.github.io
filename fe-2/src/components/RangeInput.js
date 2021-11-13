@@ -33,6 +33,7 @@ function RangeInput(props) {
     rangeInputRef.current.value = defaultValue;
     return () => {
       clearInterval(animationInterval.current);
+      setAnimating(false)
     };
   }, []);
 
@@ -48,13 +49,24 @@ function RangeInput(props) {
     setCurrentValue(rangeInputRef.current.value);
   }
 
+  useEffect(() => {
+    rangeInputRef.current.value = currentValue
+  }, [currentValue])
+
   function handleOnClickAnimate() {
     if (animating === true) {
       clearInterval(animationInterval.current);
     } else {
+      let counter = 1-currentValue/max*2
+      counter = min+counter * max
+
       animationInterval.current = setInterval(() => {
-        rangeInputRef.current.value = parseInt(rangeInputRef.current.value) + 10 * direction;
-        handleOnChange();
+        const value = min + (Math.cos(-Math.PI * counter/max)+1)/2 * max
+        setCurrentValue(Math.round(value))
+        // if (rangeInputRef.current.value)
+        // rangeInputRef.current.value = parseInt(rangeInputRef.current.value) + 10;
+        // handleOnChange();
+        counter += 2
       }, 1000 / 30);
     }
     setAnimating(!animating);

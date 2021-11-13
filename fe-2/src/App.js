@@ -24,13 +24,8 @@ const routeOverlayRule = ({contentIsVisible, navHeight}) => ({
   width: "100%",
   background: "white",
   transition: "height .35s ease-in",
+  height: "0px",
   extend: [
-    {
-      condition: contentIsVisible,
-      style: {
-        height: "10px",
-      }
-    },
     {
       condition: !contentIsVisible,
       style: {
@@ -99,10 +94,10 @@ function App() {
     >
       <div className={css(flex(), grow(), column(), minHeight("100vh"))}>
         <ContentVisibilityContext.Provider value={setContentIsVisible}>
+              <NavHeightContext.Provider value={{navHeight, setNavHeight}}>
           <Nav setNavHeight={setNavHeight} ref={navRef} filterRoutes={filterRoutes} />
           <CursorContext.Provider value={cursorY}>
             <FormInputsContext.Provider value={{ inputs, setInputs }}>
-              <NavHeightContext.Provider value={navHeight}>
               <main className={css(flex(), grow(), column())}>
                 <Routes>
                   {data.map((entry) => {
@@ -136,11 +131,11 @@ function App() {
                   })}
                 </Routes>
               </main>
-              </NavHeightContext.Provider>
               <div className={css(routeOverlayRule)}></div>
             </FormInputsContext.Provider>
           </CursorContext.Provider>
           {/* <Footer></Footer> */}
+            </NavHeightContext.Provider>
         </ContentVisibilityContext.Provider>
       </div>
     </Context.Provider>

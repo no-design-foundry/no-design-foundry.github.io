@@ -35,6 +35,21 @@ export const maxWidth = (value) => () => ({
     maxWidth: value
 })
 
+export const absolute = () => () => ({
+    position: "absolute"
+})
+
+export const fontFamily = (familyName) => () => ({
+    fontFamily: familyName,
+})
+
+export const top = (value = 0) => ({
+    top: value + "px"
+})
+
+export const left = (value = 0) => ({
+    left: value + "px"
+})
 
 export const flexDirection = (value) => () => ({
     flexDirection: value

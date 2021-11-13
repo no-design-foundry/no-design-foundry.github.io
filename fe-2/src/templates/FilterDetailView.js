@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState } from "react";
 import FontPreview from "../components/FontPreview";
 import FontInputForm from "../components/FontInputForm";
-import { useFela } from "react-fela";
 import { Context } from "../App";
 import RangeInput from "../components/RangeInput";
+import DetailViewDescription from "../components/DetailViewDescription";
 
 export const DetailViewContext = createContext();
 
@@ -12,6 +12,8 @@ function FilterDetailView(props) {
   const {
     title,
     fontIdentifier,
+    numberOfLayers,
+    layerColors,
     inputs,
     variableFontControlSliders = [],
   } = props;
@@ -33,8 +35,10 @@ function FilterDetailView(props) {
         fontSize={previewFontSize}
         showPreviewFont={showPreviewFont}
         variationSettings={variationSettings}
+        layerColors={layerColors}
         stuckOnTop={true}
         stuckOnBottom={true}
+        numberOfLayers={numberOfLayers}
       >
         {previewStrings[fontIdentifier]}
       </FontPreview>
@@ -62,12 +66,9 @@ function FilterDetailView(props) {
           defaultValue={previewFontSize}
         />
       </FontInputForm>
-      <div>adjiawjdiajwodjaiwd</div>
-      <div>adjiawjdiajwodjaiwd</div>
-      <div>adjiawjdiajwodjaiwd</div>
-      <div>adjiawjdiajwodjaiwd</div>
-      <div>adjiawjdiajwodjaiwd</div>
-      <div>adjiawjdiajwodjaiwd</div>
+      <DetailViewDescription>
+
+      </DetailViewDescription>
     </DetailViewContext.Provider>
   );
 }

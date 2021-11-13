@@ -3,7 +3,7 @@ import React, {useRef, useEffect, useContext} from "react"
 import { useFela } from "react-fela"
 import { background, padding } from "../rules/variables"
 import Link from "./Link"
-// import { NavHeightContext } from "../App" 
+import { NavHeightContext } from "../App" 
 
 const rule = ({}) => ({
   // position: "sticky",
@@ -23,9 +23,9 @@ const linkRule = () => ({
 })
 
 function Nav(props) {
-  // const navHeight = useContext(NavHeightContext)
+  const {setNavHeight} = useContext(NavHeightContext)
   const containerRef = useRef()
-  const { setNavHeight, filterRoutes, inDetailView = true} = props
+  const { filterRoutes, inDetailView = true} = props
   const { css } = useFela()
 
 

@@ -1,186 +1,76 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { useFela } from "react-fela";
 import { CursorContext } from "../App";
-import { padding, margin, height } from "../rules/generic";
-import { background } from "../rules/variables";
-import { NavHeightContext } from "../App";
+import {
+  padding,
+  margin,
+  height,
+  absolute,
+  fontFamily,
+  relative,
+  left,
+} from "../rules/generic";
+import { background, navHeight } from "../rules/variables";
 
+const transformTypeRule = () => ({
+  transform: `translateY(${-navHeight}px)`,
+});
 
+const centerRule = ({fontSize, inDetailView}) => ({
+  fontSize: `${fontSize}px`,
+  position: "absolute",
+  height: `${inDetailView ? "100vh" : 50}vh`,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignContent: "center",
+  userSelect: "none",
+  textAlign: "center",
+});
 
-const flexCenter = {
-  height: "100%",
+const containerRule = ({inDetailView}) => ({
+  height: `calc(${inDetailView ? 100 : 50}vh - ${navHeight}px)`,
+});
+
+const foregroundRule = ({ overlayTop, variationSettings }) => ({
+  color: "pink",
+  background: "#EEE",
+  position: "absolute",
+  width: "100%",
+  height: `${overlayTop}px`,
+  overflow: "hidden",
   display: "flex",
   justifyContent: "center",
-};
-
-const rule = ({
-  fontSize,
-  showPreviewFont,
-  inDetailView,
-  variationSettings,
-  height
-}) => ({
-  background,
-  fontSize: `${fontSize}px`,
-  position: "relative",
-  width: "100%",
-  cursor: "ns-resize",
-  overflow: "hidden",
-  alignItems: "center",
-  fontDisplay: "swap",
-  ...flexCenter,
-  height,
-  // userSelect: "none",
-  extend: [
-    {
-      condition: !inDetailView,
-      style: {
-        height: "300px",
-      }
-    },
-    {
-      condition: showPreviewFont && inDetailView,
-      style: {
-        fontFamily: "preview-output-font",
-      },
-    },
-    {
-      condition: Object.keys(variationSettings).length > 0,
-      style: {
-        fontVariationSettings: Object.keys(variationSettings)
-          .map((key) => `"${key}" ${variationSettings[key]}`)
-          .join(","),
-      },
-    },
-  ],
+  fontVariationSettings: 
+    Object.keys(variationSettings)
+    .map((key) => `"${key}" ${variationSettings[key]}`)
+    .join(", "),
 });
 
-const overlayRule = ({
-  cursorY,
-  inDetailView,
-  showPreviewFont,
-  showPreview,
-}) => ({
-  position: "absolute",
-  left: 0,
-  "@media (hover:hover)": {
-    top: `${cursorY}px`,
-    "> *": {
-      marginTop: `${-cursorY}px`,
-    },
-  },
-  ":after": {
-    content: '""',
-    position: "absolute",
-    width: "100%",
-    // borderTop: "1px solid black",
-    top: 0,
-  },
-  background: "white",
-  overflow: "hidden",
-  width: "100%",
-  height: "100%",
-  fontDisplay: "block",
-  ...flexCenter,
-  // "@media (hover:none)": {
-  //   top: "0",
-  //   extend: {
-  //     condition: inDetailView,
-  //     style: {
-  //       marginLeft: "-100%",
-  //       transition: "margin-left .2s ease-in",
-  //       "> *": {
-  //         transition: "margin-left .2s ease-in",
-  //         marginLeft: "200%",
-  //       },
-  //       extend: {
-  //         condition: showPreview,
-  //         style: {
-  //           marginLeft: "0",
-  //           "> *": {
-  //             marginLeft: "0",
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // },
-  "> * ": {
-    height: "100%",
-    alignItems: "center",
-    ...flexCenter,
-  },
-  extend: {
-    condition: showPreviewFont && inDetailView,
-    style: {
-      fontFamily: "preview-input-font",
-    },
-  },
-});
-
-// const animationRule = ({ isEven }) => ({
-//   "@media (hover:none)": {
-//     animationName: {
-//       from: { marginLeft: "-100%" },
-//       to: { marginLeft: "100%" },
-//     },
-//     animationDuration: "2s",
-//     animationTimingFunction: "ease-in-out",
-//     animationIterationCount: "infinite",
-//     animationDirection: isEven ? "alternate" : "alternate-reverse",
-//     "> *": {
-//       animationName: {
-//         from: { marginLeft: "200%" },
-//         to: { marginLeft: "-200%" },
-//       },
-//       animationDuration: "2s",
-//       animationTimingFunction: "ease-in-out",
-//       animationIterationCount: "infinite",
-//       animationDirection: "alternate",
-//       animationDirection: isEven ? "alternate" : "alternate-reverse",
-//     },
-//   },
-// });
-
-const heightRule = ({navHeight}) => ({
-  height: `calc(100vh - ${navHeight}px)`
-})
-
-const compareButtonRule = ({}) => ({
-  "@media (hover:hover)": {
-    display: "none",
-  },
+const backgroundRule = () => ({
   display: "flex",
-  justifyContent: "flex-end",
+  justifyContent: "center",
+});
+
+const backgroundChildRule = () => ({
+  zIndex: -100,
 });
 
 function FontPreview(props) {
   const container = useRef();
   const {
     fontSize,
-    showPreviewFont,
     children,
+    layerColors,
     inDetailView = true,
+    numberOfLayers = 1,
     variationSettings = {},
   } = props;
   const cursorY = useContext(CursorContext);
-  const navHeight = useContext(NavHeightContext);
   const [containerHeight, setContainerHeight] = useState(0);
   const [top, setTop] = useState(0);
   const [overlayTop, setOverlayTop] = useState(0);
-  const [showPreview, setShowPreview] = useState(false);
-
-  console.log("navHeight", navHeight)
-  const height = "calc(100vh - " + navHeight + "px)"
-  const { css } = useFela({
-    inDetailView,
-    cursorY: overlayTop,
-    fontSize,
-    showPreview,
-    showPreviewFont,
-    variationSettings,
-    height
-  });
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
 
   function updateRect() {
     const { top: bodyTop } = document.body.getBoundingClientRect();
@@ -188,7 +78,6 @@ function FontPreview(props) {
       container.current.getBoundingClientRect();
     setTop(containerTop - bodyTop);
     setContainerHeight(containerHeight);
-    console.log(containerTop - bodyTop, containerHeight, inDetailView)
   }
 
   useEffect(() => {
@@ -207,25 +96,38 @@ function FontPreview(props) {
     } else {
       setOverlayTop(cursorY - top);
     }
-  }, [top, containerHeight, cursorY, navHeight]);
+  }, [top, containerHeight, cursorY]);
+
+  const { css } = useFela({
+    inDetailView,
+    overlayTop,
+    fontSize,
+    showMobilePreview,
+    variationSettings,
+  });
 
   return (
-    <>
-      <div ref={container} className={css(rule)}>
-        <div className={css(padding("10px"))}>{children}</div>
-        <div className={css(overlayRule)}>
-          <div className={css(padding("10px"))}>{children}</div>
+    <div ref={container} className={css(containerRule)}>
+      <div className={css(foregroundRule)}>
+        {[...Array(numberOfLayers)].map((_, index) => (
+          <div
+            className={css(centerRule, transformTypeRule, () => ({
+              color: layerColors[index],
+              fontFamily: `preview-output-font--${index}`,
+            }))}
+          >
+            {children}
+          </div>
+        ))}
+      </div>
+      <div className={css(backgroundRule)}>
+        <div
+          className={css(centerRule, backgroundChildRule, transformTypeRule)}
+        >
+          {children}
         </div>
       </div>
-      {inDetailView && (
-        <div
-          className={css(compareButtonRule)}
-          onClick={() => setShowPreview(!showPreview)}
-        >
-          compare
-        </div>
-      )}
-    </>
+    </div>
   );
 }
 

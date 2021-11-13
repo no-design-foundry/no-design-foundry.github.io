@@ -14,6 +14,12 @@ from extractor.formats.opentype import (
     # extractInstructions
 )
 
+def inject_features(source, destination):
+    for table_name in ("GPOS", "GSUB", "GDEF"):
+        if table_name in source:
+            destination[table_name].table = source[table_name].table
+    # go = [glyph_name for glyph_name in source.getGlyphOrder() if glyph_name in destination.getGlyphOrder()]
+
 
 def fonts_to_base64(fonts):
     fonts_ = []

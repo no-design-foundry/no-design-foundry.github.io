@@ -7,10 +7,12 @@ from fontTools.ttLib import TTFont
 
 
 tt_font = TTFont("fe-2/public/sourceSerif.otf")
-
-tt_font["CFF2"].cff[0].decompileAllCharStrings()
-# print(dir(tt_font["CFF2"].cff[0].CharStrings.charStrings))
-print(dir(tt_font["CFF2"].cff[0].CharStrings["F"]))
-print(tt_font["CFF2"].cff[0].CharStrings["F"].program)
+tt_font_2 = TTFont("fe-2/public/rastr.ttf")
+tt_font["GPOS"] = tt_font_2["GPOS"]
+tt_font.save("output")
+# tt_font["CFF2"].cff[0].decompileAllCharStrings()
+# # print(dir(tt_font["CFF2"].cff[0].CharStrings.charStrings))
+# print(dir(tt_font["CFF2"].cff[0].CharStrings["F"]))
+# print(tt_font["CFF2"].cff[0].CharStrings["F"].program)
 
 

@@ -8,6 +8,8 @@ export default [
     title: "Rotorizer",
     fontIdentifier: "rotorizer",
     route: "/rotorizer",
+    numberOfLayers: 2,
+    layerColors: ["gray", "#000"],
     variableFontControlSliders: [{
       "title": "rotation",
       "tag": "RTTX",
@@ -31,6 +33,8 @@ export default [
     title: "Rastr",
     fontIdentifier: "rasterizer",
     route: "/rasterizer",
+    numberOfLayers: 1,
+    layerColors: ["#000"],
     inputs: [
       {
         type: "slider",

@@ -9,7 +9,8 @@ from io import BytesIO
 from tools.generic import (
     get_components_in_subsetted_text,
     fonts_to_base64,
-    extract_to_ufo
+    extract_to_ufo,
+    inject_features
 )
 import extractor
 import defcon
@@ -53,9 +54,9 @@ async def filter(
     depth: int= Form(None),
     resolution: int = Form(None)
 ):
-    # try:
     start = datetime.now()
     tt_font = get_tt_font(font_file)
+    gpos = tt_font["GPOS"]
     subset_font(tt_font, preview_string)
     output = BytesIO()
     tt_font.save(output)
@@ -64,6 +65,12 @@ async def filter(
         response_fonts = [rasterize(tt_font=tt_font, ufo=ufo, resolution=resolution)]
     elif filter_identifier == "rotorizer":
         response_fonts = rotorize(tt_font=tt_font, depth=depth)
+    for response_font in response_fonts:
+        # print(dir(response_font["GPOS"]))
+        inject_features(tt_font, response_font)
+        response_font["GPOS"] = gpos
+    # for font in response_fonts:
+    #     print(tt_font.keys())
     response = fonts_to_base64(response_fonts)
     end = datetime.now()
     print((end - start).total_seconds())

@@ -51,6 +51,11 @@ function RangeInput(props) {
 
   useEffect(() => {
     rangeInputRef.current.value = currentValue
+    if (tag) {
+      let value = {}
+      value[tag] = currentValue
+      setVariationSettings({ ...variationSettings, ...value });
+    }
   }, [currentValue])
 
   function handleOnClickAnimate() {
@@ -59,14 +64,11 @@ function RangeInput(props) {
     } else {
       let counter = 1-currentValue/max*2
       counter = min+counter * max
-
+      const start = Math.PI * (currentValue-min)/(max-min)
       animationInterval.current = setInterval(() => {
-        const value = min + (Math.cos(-Math.PI * counter/max)+1)/2 * max
+        const value = min + (Math.cos(start + Math.PI * counter/max)+1)/2 * max
         setCurrentValue(Math.round(value))
-        // if (rangeInputRef.current.value)
-        // rangeInputRef.current.value = parseInt(rangeInputRef.current.value) + 10;
-        // handleOnChange();
-        counter += 2
+        counter += 1
       }, 1000 / 30);
     }
     setAnimating(!animating);

@@ -1,16 +1,7 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { useFela } from "react-fela";
 import { CursorContext } from "../App";
-import {
-  padding,
-  margin,
-  height,
-  absolute,
-  fontFamily,
-  relative,
-  left,
-} from "../rules/generic";
-import { background, navHeight } from "../rules/variables";
+import { navHeight } from "../rules/variables";
 
 const transformTypeRule = () => ({
   transform: `translateY(${-navHeight}px)`,
@@ -19,7 +10,7 @@ const transformTypeRule = () => ({
 const centerRule = ({fontSize, inDetailView}) => ({
   fontSize: `${fontSize}px`,
   position: "absolute",
-  height: `${inDetailView ? "100vh" : 50}vh`,
+  height: `${inDetailView ? 100 : 50}vh`,
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
@@ -47,9 +38,15 @@ const foregroundRule = ({ overlayTop, variationSettings }) => ({
     .join(", "),
 });
 
-const backgroundRule = () => ({
+const backgroundRule = ({showPreviewFont}) => ({
   display: "flex",
   justifyContent: "center",
+  extend: {
+    condition: showPreviewFont,
+    style: {
+      fontFamily: "preview-input-font"
+    }
+  }
 });
 
 const backgroundChildRule = () => ({
@@ -60,6 +57,7 @@ function FontPreview(props) {
   const container = useRef();
   const {
     fontSize,
+    showPreviewFont,
     children,
     layerColors,
     inDetailView = true,
@@ -70,7 +68,7 @@ function FontPreview(props) {
   const [containerHeight, setContainerHeight] = useState(0);
   const [top, setTop] = useState(0);
   const [overlayTop, setOverlayTop] = useState(0);
-  const [showMobilePreview, setShowMobilePreview] = useState(false);
+  const [showMobilePreview] = useState(false);
 
   function updateRect() {
     const { top: bodyTop } = document.body.getBoundingClientRect();
@@ -104,6 +102,7 @@ function FontPreview(props) {
     fontSize,
     showMobilePreview,
     variationSettings,
+    showPreviewFont
   });
 
   return (

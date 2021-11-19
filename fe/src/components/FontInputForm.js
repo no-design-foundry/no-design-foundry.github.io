@@ -30,7 +30,7 @@ let lastTimeStamp;
 
 function FontInputForm(props) {
   const { previewStrings, setPreviewStrings } = useContext(Context);
-  const { setShowPreviewFont } = useContext(DetailViewContext);
+  const {showPreviewFont, setShowPreviewFont } = useContext(DetailViewContext);
   const { css } = useFela();
   const { inputs, fontIdentifier, route } = props;
   const [fontStrings, setFontStrings] = useState("");
@@ -55,7 +55,9 @@ function FontInputForm(props) {
       .then((fontData) => new FontFace("preview-input-font", fontData))
       .then((font) => {
         document.fonts.add(font);
+        console.log(showPreviewFont)
         setShowPreviewFont(true);
+        console.log(showPreviewFont)
       })
       .catch((error) => console.error(error));
   }

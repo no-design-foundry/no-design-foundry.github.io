@@ -65,17 +65,6 @@ const bodyStyle = {
 
 renderer.renderStatic(bodyStyle, "body")
 
-// const buttonRule = {
-//   // height: "1.2em",
-//   marginTop: "-2px",
-//   height: "calc(100% + 4px)",
-//   display: "flex",
-//   alignItems: "center",
-//   justifyContent: "center",
-//   fontSize: ".7em"
-// }
-// renderer.renderStatic(buttonRule, "button")
-
 const allRule = {
   fontSize: "inherit",
   lineHeight: "inherit",
@@ -93,13 +82,11 @@ const gatsby = {
 
 renderer.renderStatic(gatsby, "#gatsby-focus-wrapper")
 
-const link = {
-  "&:invalid, &:invalid ~ *": {
-    background: "red",
-  },
-}
+// const inputRule = {
+//     background: "red",
+// }
 
-renderer.renderStatic(link, "input")
+// renderer.renderStatic(inputRule, "input:disabled")
 
 renderer.renderStatic({
   cursor: "pointer"

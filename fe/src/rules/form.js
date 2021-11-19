@@ -11,6 +11,25 @@ export const inputRule = () => ({
   }
 })
 
+export const inputValidityRule = ({isValid}) => ({
+  extend: {
+    condition: !isValid,
+    background: "red"
+  }
+})
+
+export const disabledTextInputRule = ({disabled}) => {
+  if (disabled) {
+    return {
+      color: "silver"
+    }
+  }
+  else {
+    return {}
+  }
+}
+
+
 
 export const labelValidityRule = ({isValid}) => ({
   // extend: {

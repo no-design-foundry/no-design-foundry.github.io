@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useFela } from "react-fela";
-import { inputRule, labelRule, labelValidityRule } from "../rules/form";
+import { disabledTextInputRule, inputRule, labelRule, labelValidityRule } from "../rules/form";
 import { flex } from "../rules/generic";
 
 function TextInput(props) {
-  const { title, name, defaultValue } = props;
+  const { title, name, defaultValue, disabled } = props;
   const inputRef = useRef();
   const [isValid, setIsValid] = useState(true);
-  const { css } = useFela({isValid});
+  const { css } = useFela({isValid, disabled});
 
   useEffect(() => {
     inputRef.current.value = defaultValue;
@@ -23,13 +23,14 @@ function TextInput(props) {
       <label className={css(labelValidityRule, labelRule)} htmlFor={name}>
         {title}
       </label>
-      <div className={css(inputRule)}>
+      <div className={css(inputRule, disabledTextInputRule)}>
         <input
           ref={inputRef}
           name={name}
           type="text"
           required={true}
           onChange={handleOnChange}
+          disabled={disabled}
         ></input>{" "}
       </div>
     </>

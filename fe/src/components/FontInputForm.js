@@ -30,10 +30,11 @@ let lastTimeStamp;
 
 function FontInputForm(props) {
   const { previewStrings, setPreviewStrings } = useContext(Context);
-  const {showPreviewFont, setShowPreviewFont } = useContext(DetailViewContext);
+  const { showPreviewFont, setShowPreviewFont } = useContext(DetailViewContext);
   const { css } = useFela();
   const { inputs, fontIdentifier, route } = props;
   const [fontStrings, setFontStrings] = useState("");
+  const [formIsValid, setFormIsValid] = useState(false);
   const formRef = useRef();
 
   function sendRequest() {
@@ -55,29 +56,52 @@ function FontInputForm(props) {
       .then((fontData) => new FontFace("preview-input-font", fontData))
       .then((font) => {
         document.fonts.add(font);
-        console.log(showPreviewFont)
         setShowPreviewFont(true);
-        console.log(showPreviewFont)
       })
       .catch((error) => console.error(error));
   }
 
+  function handleDragOver() {
+    console.log("dragged over")
+  }
+
+  function handleDrop(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    console.log("dropped")
+  }
+
   useEffect(() => {
+    window.addEventListener("dragover", handleDragOver)
+    window.addEventListener("drop", handleDrop)
     if (formRef.current.checkValidity()) {
+      setFormIsValid(true)
       sendRequest();
+    }
+    return () => {
+      window.removeEventListener("dragover", handleDragOver)
+      window.removeEventListener("drop", handleDrop)  
     }
   }, []);
 
   function handleOnChange(e) {
     if (e.target.name.length > 0) {
-      lastTimeStamp = e.timeStamp;
-      setTimeout(function () {
-        if (e.timeStamp === lastTimeStamp) {
-          if (formRef.current.checkValidity()) {
+      if (formRef.current.checkValidity()) {
+        if (formIsValid !== true) {
+          setFormIsValid(true)
+        }
+        lastTimeStamp = e.timeStamp;
+        setTimeout(function () {
+          if (e.timeStamp === lastTimeStamp) {
             sendRequest();
           }
-        }
-      }, 500)
+        }, 500);
+      }
+      else {
+        if (formIsValid !== false) {
+          setFormIsValid(false)
+        }    
+      }
     }
   }
 
@@ -85,7 +109,9 @@ function FontInputForm(props) {
     <>
       {fontStrings.length > 0 &&
         fontStrings.map((fontString, index) => (
-          <Style key={index} index={index}>{fontString}</Style>
+          <Style key={index} index={index}>
+            {fontString}
+          </Style>
         ))}
       <form
         ref={formRef}
@@ -93,16 +119,17 @@ function FontInputForm(props) {
         onChange={handleOnChange}
       >
         {props.children}
-        <FontFileInput />
+        <FontFileInput/>
         <TextInput
           title="preview string"
           name="preview_string"
           defaultValue={previewStrings[fontIdentifier]}
+          disabled={!formIsValid}
         ></TextInput>
         {inputs.map((input, index) => {
           switch (input.type) {
             case "slider":
-              return <RangeInput key={`${route}_form_${index}`} {...input} />;
+              return <RangeInput key={`${route}_form_${index}`} {...input} disabled={!formIsValid}/>;
             default:
               throw new Error("type not found");
           }

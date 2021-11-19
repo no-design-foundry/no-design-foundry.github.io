@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
 import { useFela } from "react-fela";
-import { inputRule, labelRule } from "../rules/form";
+import { disabledInputRule, inputRule, labelRule } from "../rules/form";
 import { DetailViewContext } from "../templates/FilterDetailView";
 
 const valueIndicatorRule = () => ({
@@ -19,15 +19,15 @@ function RangeInput(props) {
     required = false,
     animatable,
     tag,
+    disabled = false
   } = props;
   const rangeInputRef = useRef();
   const animationInterval = useRef();
-  const [direction, setDirection] = useState(1);
   const [animating, setAnimating] = useState();
   const [currentValue, setCurrentValue] = useState(defaultValue);
   const { variationSettings, setVariationSettings } =
     useContext(DetailViewContext);
-  const { css } = useFela();
+  const { css } = useFela({disabled});
 
   useEffect(() => {
     rangeInputRef.current.value = defaultValue;
@@ -62,13 +62,13 @@ function RangeInput(props) {
     if (animating === true) {
       clearInterval(animationInterval.current);
     } else {
-      let counter = 1-currentValue/max*2
-      counter = min+counter * max
-      const start = Math.PI * (currentValue-min)/(max-min)
+      let counter = 0
+      const start = currentValue
       animationInterval.current = setInterval(() => {
-        const value = min + (Math.cos(start + Math.PI * counter/max)+1)/2 * max
-        setCurrentValue(Math.round(value))
-        counter += 1
+        const position = (start + counter) % 720
+        setCurrentValue(Math.round(position - 360 < 0 ? position : 360 - position % 360 ))
+        const offset = 10-(Math.cos(Math.PI * position/180)+1)/2*9
+        counter += offset
       }, 1000 / 30);
     }
     setAnimating(!animating);
@@ -97,6 +97,7 @@ function RangeInput(props) {
           type="range"
           required={required}
           onChange={handleOnChange}
+          disabled={disabled}
         />
       </div>
       <span className={css(valueIndicatorRule)}>{currentValue}</span>

@@ -3,6 +3,7 @@ import { useFela } from "react-fela";
 import { Context } from "../App";
 import { inputRule, labelRule, labelValidityRule } from "../rules/form";
 import { relative } from "../rules/generic";
+import { ValidityContext } from "./FontInputForm";
 
 const fileInputRule = () => ({
   opacity: 0,
@@ -10,6 +11,7 @@ const fileInputRule = () => ({
 });
 
 function FontFileInput(props) {
+  const {disabled} = props
   const inputRef = useRef();
   const { inputFont, setInputFont } = useContext(Context);
 
@@ -40,6 +42,7 @@ function FontFileInput(props) {
           accept=".otf, .ttf"
           onChange={handleOnChange}
           required={true}
+          disabled={disabled}
         ></input>
         <span role="button">
           {inputFont ? inputFont[0].name : "Select font"}

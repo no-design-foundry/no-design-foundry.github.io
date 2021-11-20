@@ -38,14 +38,7 @@ function RangeInput(props) {
   }, []);
 
   function handleOnChange(e) {
-    if (tag) {
-      let value = {};
-      value[tag] = rangeInputRef.current.value;
-      setVariationSettings({ ...variationSettings, ...value });
-    }
-    if (onChange) {
-      onChange(e);
-    }
+    onChange(e);
     setCurrentValue(rangeInputRef.current.value);
   }
 

@@ -1,5 +1,8 @@
 import uvicorn
+from functools import wraps
 
+
+from fastapi.responses import StreamingResponse, Response
 from fastapi import FastAPI, Form, File, Depends, Body, Request
 from typing import Any, Optional
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,9 +45,20 @@ def get_tt_font(bytes_):
 
 def subset_font(tt_font, subsetted_text):
     subsetter = Subsetter()
-    keep_glyphs = get_components_in_subsetted_text(tt_font, subsetted_text)
-    subsetter.populate(text=subsetted_text, glyphs=keep_glyphs)
+    # keep_glyphs = get_components_in_subsetted_text(tt_font, subsetted_text)
+    # subsetter.populate(text=subsetted_text, glyphs=keep_glyphs)
+    subsetter.populate(text=subsetted_text)
     subsetter.subset(tt_font)
+
+def timer(func):
+    @wraps(func)
+    async def temp_func(*args, **kwargs):
+        start = datetime.now()
+        response = func(*args, **kwargs)
+        end = datetime.now()
+        print((end - start).total_seconds())
+        return response
+    return temp_func
 
 @app.post("/filters/{filter_identifier}")
 async def filter(
@@ -54,29 +68,32 @@ async def filter(
     depth: int= Form(None),
     resolution: int = Form(None)
 ):
-    start = datetime.now()
     tt_font = get_tt_font(font_file)
-    gpos = tt_font["GPOS"]
+    start = datetime.now()
     subset_font(tt_font, preview_string)
+    end = datetime.now()
     output = BytesIO()
     tt_font.save(output)
+    print((end - start).total_seconds())
     ufo = defcon.Font() if ("CFF " in tt_font or "CFF2" in tt_font) else None
     if filter_identifier == "rasterizer":
         response_fonts = [rasterize(tt_font=tt_font, ufo=ufo, resolution=resolution)]
     elif filter_identifier == "rotorizer":
         response_fonts = rotorize(tt_font=tt_font, depth=depth)
-    for response_font in response_fonts:
-        # print(dir(response_font["GPOS"]))
-        inject_features(tt_font, response_font)
-        response_font["GPOS"] = gpos
-    # for font in response_fonts:
-    #     print(tt_font.keys())
+    # for response_font in response_fonts:
+    #     inject_features(tt_font, response_font)
     response = fonts_to_base64(response_fonts)
-    end = datetime.now()
-    print((end - start).total_seconds())
-    # except Exception as e:
-    #     return {"message": "wrong"}
     return {"fonts": response}
+
+@app.get("/filters/{filter_identifier}/get")
+def filter_get():
+    with open("../fe/public/rastr.ttf", "rb") as input_file:
+        response = input_file.read()
+    return Response(
+        content=response,
+        media_type="font/opentype",
+        headers={'Content-Disposition': 'inline; filename="test.ttf"'}
+        )
 
 
 if __name__ == "__main__":

@@ -14,32 +14,32 @@ import { DetailViewContext } from "../templates/FilterDetailView";
 import { Context } from "../App";
 import RangeInput from "./RangeInput";
 import { padding } from "../rules/generic";
+import { fadeInDuration } from "../rules/variables";
+import GetFontButton from "./GetFontButton";
 
 export const formRule = () => ({
-  position: "absolute",
-  bottom: 0,
-  left: 0,
   display: "grid",
   width: "500px",
   gridTemplateColumns: "1fr auto auto 3ch",
-  gridAutoRows: "1.2em",
+  gridAutoRows: "1.5em",
+  alignItems: "center",
   gap: "0px 10px",
 });
 
 let lastTimeStamp;
 
 function FontInputForm(props) {
-  const { previewStrings, setPreviewStrings } = useContext(Context);
+  const { inputs, fontIdentifier, route, setFadingOut } = props;
+  const { previewStrings, setPreviewStrings, inputFont } = useContext(Context);
   const { showPreviewFont, setShowPreviewFont } = useContext(DetailViewContext);
   const { css } = useFela();
-  const { inputs, fontIdentifier, route } = props;
   const [fontStrings, setFontStrings] = useState("");
   const [formIsValid, setFormIsValid] = useState(false);
+
   const formRef = useRef();
 
   function sendRequest() {
     const formData = new FormData(formRef.current);
-
     axios({
       method: "post",
       url: `http://0.0.0.0:5000/filters/${fontIdentifier}`,
@@ -47,60 +47,59 @@ function FontInputForm(props) {
       headers: { "Content-Type": "multipart/form-data" },
     })
       .then((response) => {
-        setFontStrings(response.data.fonts);
-        let value = {};
-        value[fontIdentifier] = formData.get("preview_string");
-        setPreviewStrings({ ...previewStrings, ...value });
-        return formData.get("font_file").arrayBuffer();
-      })
-      .then((fontData) => new FontFace("preview-input-font", fontData))
-      .then((font) => {
-        document.fonts.add(font);
-        setShowPreviewFont(true);
+        setFadingOut(true);
+        setTimeout(() => {
+          const arrayBuffer = formData.get("font_file").arrayBuffer();
+          arrayBuffer
+            .then((array) => new FontFace("preview-input-font", array))
+            .then((inputFont) => {
+              document.fonts.add(inputFont);
+              setShowPreviewFont(true);
+              setFontStrings(response.data.fonts);
+              setFadingOut(false);
+              let value = {};
+              value[fontIdentifier] = formData.get("preview_string");
+              setPreviewStrings({ ...previewStrings, ...value });
+            });
+        }, fadeInDuration + 100);
       })
       .catch((error) => console.error(error));
   }
 
-  function handleDragOver() {
-    console.log("dragged over")
-  }
-
-  function handleDrop(e) {
-    e.stopPropagation()
-    e.preventDefault()
-    console.log("dropped")
-  }
-
   useEffect(() => {
-    window.addEventListener("dragover", handleDragOver)
-    window.addEventListener("drop", handleDrop)
     if (formRef.current.checkValidity()) {
-      setFormIsValid(true)
+      setFormIsValid(true);
       sendRequest();
     }
     return () => {
-      window.removeEventListener("dragover", handleDragOver)
-      window.removeEventListener("drop", handleDrop)  
-    }
+    };
   }, []);
+
+  function handleOnSubmit(e) {
+    e.preventDefault()
+    console.log(e)
+    if (formRef.current.checkValidity()) {
+      setFormIsValid(true)
+      lastTimeStamp = e.timeStamp + 500
+      sendRequest()
+    }
+    else {
+      setFormIsValid(false)
+    }
+  }
 
   function handleOnChange(e) {
     if (e.target.name.length > 0) {
       if (formRef.current.checkValidity()) {
-        if (formIsValid !== true) {
-          setFormIsValid(true)
-        }
+        setFormIsValid(true)
         lastTimeStamp = e.timeStamp;
         setTimeout(function () {
-          if (e.timeStamp === lastTimeStamp) {
+          if (e.timeStamp === lastTimeStamp || e.target.type === "file") {
             sendRequest();
           }
         }, 500);
-      }
-      else {
-        if (formIsValid !== false) {
-          setFormIsValid(false)
-        }    
+      } else {
+        setFormIsValid(false);
       }
     }
   }
@@ -117,9 +116,10 @@ function FontInputForm(props) {
         ref={formRef}
         className={css(formRule, padding("10px"))}
         onChange={handleOnChange}
+        onSubmit={handleOnSubmit}
       >
         {props.children}
-        <FontFileInput/>
+        <FontFileInput />
         <TextInput
           title="preview string"
           name="preview_string"
@@ -129,7 +129,13 @@ function FontInputForm(props) {
         {inputs.map((input, index) => {
           switch (input.type) {
             case "slider":
-              return <RangeInput key={`${route}_form_${index}`} {...input} disabled={!formIsValid}/>;
+              return (
+                <RangeInput
+                  key={`${route}_form_${index}`}
+                  {...input}
+                  disabled={!formIsValid}
+                />
+              );
             default:
               throw new Error("type not found");
           }

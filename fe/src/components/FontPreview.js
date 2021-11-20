@@ -1,13 +1,13 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { useFela } from "react-fela";
 import { CursorContext } from "../App";
-import { navHeight } from "../rules/variables";
+import { fadeInDuration, navHeight } from "../rules/variables";
 
 const transformTypeRule = () => ({
   transform: `translateY(${-navHeight}px)`,
 });
 
-const centerRule = ({fontSize, inDetailView}) => ({
+const centerRule = ({ fontSize, inDetailView }) => ({
   fontSize: `${fontSize}px`,
   position: "absolute",
   height: `${inDetailView ? 100 : 50}vh`,
@@ -19,7 +19,7 @@ const centerRule = ({fontSize, inDetailView}) => ({
   textAlign: "center",
 });
 
-const containerRule = ({inDetailView}) => ({
+const containerRule = ({ inDetailView }) => ({
   height: `calc(${inDetailView ? 100 : 50}vh - ${navHeight}px)`,
 });
 
@@ -32,25 +32,35 @@ const foregroundRule = ({ overlayTop, variationSettings }) => ({
   overflow: "hidden",
   display: "flex",
   justifyContent: "center",
-  fontVariationSettings: 
-    Object.keys(variationSettings)
+  fontVariationSettings: Object.keys(variationSettings)
     .map((key) => `"${key}" ${variationSettings[key]}`)
     .join(", "),
 });
 
-const backgroundRule = ({showPreviewFont}) => ({
+const backgroundRule = ({ showPreviewFont }) => ({
   display: "flex",
   justifyContent: "center",
   extend: {
     condition: showPreviewFont,
     style: {
-      fontFamily: "preview-input-font"
-    }
-  }
+      fontFamily: "preview-input-font",
+    },
+  },
 });
 
-const backgroundChildRule = () => ({
-  zIndex: -100,
+const fadingRule = ({ fadingOut }) => ({
+  opacity: 1,
+  transitionProperty: "opacity, filter",
+  transitionDuration: `${fadeInDuration}ms`,
+  transitionTimingFunction: "ease-in",
+  filter: "blur(0)",
+  extend: {
+    condition: fadingOut,
+    style: {
+      filter: "blur(.02em)",
+      opacity: 0,
+    },
+  },
 });
 
 function FontPreview(props) {
@@ -60,6 +70,7 @@ function FontPreview(props) {
     showPreviewFont,
     children,
     layerColors,
+    fadingOut = false,
     inDetailView = true,
     numberOfLayers = 1,
     variationSettings = {},
@@ -102,7 +113,8 @@ function FontPreview(props) {
     fontSize,
     showMobilePreview,
     variationSettings,
-    showPreviewFont
+    showPreviewFont,
+    fadingOut
   });
 
   return (
@@ -110,7 +122,7 @@ function FontPreview(props) {
       <div className={css(foregroundRule)}>
         {[...Array(numberOfLayers)].map((_, index) => (
           <div
-            className={css(centerRule, transformTypeRule, () => ({
+            className={css(centerRule, transformTypeRule, fadingRule, () => ({
               color: layerColors[index],
               fontFamily: `preview-output-font--${index}`,
             }))}
@@ -121,8 +133,14 @@ function FontPreview(props) {
       </div>
       <div className={css(backgroundRule)}>
         <div
-          className={css(centerRule, backgroundChildRule, transformTypeRule)}
-        >
+          className={css(
+            centerRule, 
+            transformTypeRule, 
+            fadingRule, 
+            () => ({
+              zIndex: -100,
+            }))
+          }>
           {children}
         </div>
       </div>

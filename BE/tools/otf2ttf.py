@@ -45,7 +45,7 @@ def update_hmtx(ttFont, glyf):
 
 def otf_to_ttf(ttFont, post_format=POST_FORMAT, **kwargs):
     assert ttFont.sfntVersion == "OTTO"
-    assert "CFF " in ttFont
+    assert ("CFF " in ttFont) or ("CFF2" in ttFont)
 
     glyphOrder = ttFont.getGlyphOrder()
 
@@ -53,7 +53,7 @@ def otf_to_ttf(ttFont, post_format=POST_FORMAT, **kwargs):
     ttFont["glyf"] = glyf = newTable("glyf")
     glyf.glyphOrder = glyphOrder
     glyf.glyphs = glyphs_to_quadratic(ttFont.getGlyphSet(), **kwargs)
-    del ttFont["CFF "]
+    del ttFont["CFF2" if "CFF2" in ttFont else "CFF "]
     glyf.compile(ttFont)
     update_hmtx(ttFont, glyf)
 
@@ -71,15 +71,15 @@ def otf_to_ttf(ttFont, post_format=POST_FORMAT, **kwargs):
         for g in glyf.glyphs.values())
     maxp.compile(ttFont)
 
-    post = ttFont["post"]
-    post.formatType = post_format
-    post.extraNames = []
-    post.mapping = {}
-    post.glyphOrder = glyphOrder
+
+    ttFont["post"].formatType = post_format
+    ttFont["post"].extraNames = []
+    ttFont["post"].mapping = {}
+    ttFont["post"].glyphOrder = glyphOrder
     try:
-        post.compile(ttFont)
+        ttFont["post"].compile(ttFont)
     except OverflowError:
-        post.formatType = 3
+        ttFont["post"].formatType = 3
         log.warning("Dropping glyph names, they do not fit in 'post' table.")
 
     ttFont.sfntVersion = "\000\001\000\000"

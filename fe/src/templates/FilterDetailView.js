@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 import FontPreview from "../components/FontPreview";
 import FontInputForm from "../components/FontInputForm";
 import { Context } from "../App";
@@ -8,6 +8,8 @@ import GetFontForm from "../components/GetFontForm";
 import { useFela } from "react-fela";
 import { background } from "../rules/variables";
 import TextInput from "../components/TextInput";
+import { padding } from "../rules/generic";
+import AnimateHeight from "react-animate-height";
 
 export const DetailViewContext = createContext();
 
@@ -15,10 +17,6 @@ const formsWrapper = () => ({
   position: "absolute",
   bottom: 0,
   left: 0,
-  display: "flex",
-  alignItems: "flex-end",
-  flexGrow: "1",
-  width: "100%"
 })
 
 function FilterDetailView(props) {
@@ -35,8 +33,12 @@ function FilterDetailView(props) {
   const [showPreviewFont, setShowPreviewFont] = useState(false);
   const [variationSettings, setVariationSettings] = useState({});
   const [fadingOut, setFadingOut] = useState(false)
-
+  const [getFormVisible, setGetFormVisible] = useState(false)
   const {css} = useFela()
+
+  function handleGetFormVisible() {
+    setGetFormVisible(true)
+  }
 
   return (
     <DetailViewContext.Provider
@@ -59,7 +61,7 @@ function FilterDetailView(props) {
       >
         {previewStrings[fontIdentifier]}
       </FontPreview>
-      <div className={css(formsWrapper)}>
+      <div className={css(formsWrapper, padding("10px"))}>
       <FontInputForm
         title={title}
         inputs={inputs}
@@ -85,10 +87,12 @@ function FilterDetailView(props) {
           defaultValue={previewFontSize}
         />
       </FontInputForm>
-      <GetFontForm>
-        <TextInput title="font name" name="font-name" defaultValue="default"></TextInput>
-      </GetFontForm>
+      <AnimateHeight height={getFormVisible ? "auto" : "auto"}>
+        <button onClick={handleGetFormVisible}>get</button>
+      </AnimateHeight>
       </div>
+      <GetFontForm visible={getFormVisible}>
+      </GetFontForm>
       <DetailViewDescription>
 
       </DetailViewDescription>

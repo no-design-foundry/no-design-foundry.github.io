@@ -1,3 +1,12 @@
+export const formRule = () => ({
+  display: "grid",
+  width: "500px",
+  gridTemplateColumns: "1fr auto auto 3ch",
+  gridAutoRows: "1.5em",
+  alignItems: "center",
+  gap: "0px 10px",
+});
+
 export const labelRule = () => ({
   gridColumn: "1",
   whiteSpace: "nowrap"

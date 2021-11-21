@@ -35,6 +35,14 @@ const routeOverlayRule = ({contentIsVisible, navHeight}) => ({
   ]
 });
 
+const backgroundLayerRule = ({cursorY}) => ({
+  background: "#EEE",
+  height: `${cursorY}px`,
+  position: "absolute",
+  width: "100%",
+  zIndex: -1,
+})
+
 
 function App() {
   const location = useLocation();
@@ -68,7 +76,7 @@ function App() {
   );
 
 
-  const { css } = useFela({ contentIsVisible, navHeight });
+  const { css } = useFela({ contentIsVisible, navHeight, cursorY });
 
   function handleOnMouseMove(e) {
     setCursorY(e.pageY);
@@ -92,6 +100,7 @@ function App() {
         setPreviewStrings,
       }}
     >
+      {/* <div className={css(backgroundLayerRule)}></div> */}
       <div className={css(flex(), grow(), column(), minHeight("100vh"))}>
         <ContentVisibilityContext.Provider value={setContentIsVisible}>
               <NavHeightContext.Provider value={{navHeight, setNavHeight}}>

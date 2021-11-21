@@ -1,38 +1,41 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useFela } from "react-fela";
-import { padding } from "../rules/generic";
+import { margin, padding } from "../rules/generic";
+import AnimateHeight from "react-animate-height";
+import { formRule } from "../rules/form";
+import TextInput from "./TextInput";
 
-const formRule = () => ({
-    height: 0,
-    transition: "height 1s ease-in",
-    overflow: "hidden"
-})
+
+var Scroll = require('react-scroll');
+var scroll = Scroll.animateScroll;
+
 
 function GetFontForm(props) {
+  const { visible } = props;
   const formRef = useRef();
-  const {css} = useFela()
-    const [currentSize, setCurrentSize] = useState(null)
+  const { css } = useFela();
+
+  useEffect(() => {
+    if (visible) {
+      const {height} = formRef.current.getBoundingClientRect()
+      scroll.scrollMore(height, {duration: 250})
+    }
+  }, [visible])
 
   function handleOnSubmit(e) {
     e.preventDefault();
   }
 
-  function handleOnClick(e) {
-    const {scrollHeight} = formRef.current
-    console.log(scrollHeight)
-  }
-
   return (
-    <div>
-      <button disabled={false} onClick={handleOnClick}>get</button>
+    <AnimateHeight height={visible ? "auto" : 0}>
       <form
         ref={formRef}
         className={css(formRule, padding("10px"))}
         onsubmit={handleOnSubmit}
       >
-          {props.children}
+        <TextInput title="font name" name="font-name" defaultValue="default"></TextInput>
       </form>
-    </div>
+    </AnimateHeight>
   );
 }
 

@@ -4,6 +4,8 @@ from itertools import chain
 from fontTools.ttLib import TTFont
 import defcon
 from ufo2ft import compileTTF
+from fontTools.pens.t2CharStringPen import T2CharStringPen
+from fontTools.cffLib import PrivateDict
 
 from extractor.formats.opentype import (
     extractGlyphOrder,
@@ -20,12 +22,25 @@ def inject_features(source, destination):
             destination[table_name].table = source[table_name].table
     # go = [glyph_name for glyph_name in source.getGlyphOrder() if glyph_name in destination.getGlyphOrder()]
 
+def get_glyph(char_string):
+    glyph = defcon.objects.glyph.Glyph()
+    pen = glyph.getPen()
+    char_string.draw(pen)
+    pen.endPath()
+    return glyph
+
+def get_charstring(glyph):
+    cff_pen = T2CharStringPen(None, [], CFF2=True)
+    glyph.draw(cff_pen)
+    cff_pen.endPath()
+    private = PrivateDict()
+    return cff_pen.getCharString(private=private)
 
 def fonts_to_base64(fonts):
     fonts_ = []
     for font in fonts:
         if isinstance(font, defcon.Font):
-            font = compileTTF(font)
+            font = compileTTF(font, removeOverlaps=False, flattenComponents=False)
         if isinstance(font, TTFont):
             font_bytes = BytesIO()
             font.save(font_bytes)

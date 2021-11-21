@@ -1,10 +1,16 @@
 import uvicorn
 from functools import wraps
-
-
+from extractor.formats.opentype import (
+    extractGlyphOrder,
+    extractOpenTypeInfo,
+    extractOpenTypeKerning,
+    extractOpenTypeGlyphs
+)
+from fontTools.cffLib import PrivateDict
 from fastapi.responses import StreamingResponse, Response
 from fastapi import FastAPI, Form, File, Depends, Body, Request
 from typing import Any, Optional
+from fontTools.pens.t2CharStringPen import T2CharStringPen
 from fastapi.middleware.cors import CORSMiddleware
 from fontTools.ttLib import TTFont
 from fontTools.subset import Subsetter
@@ -16,8 +22,9 @@ from tools.generic import (
     inject_features
 )
 import extractor
-import defcon
+from defcon import Font
 from datetime import datetime
+import random
 
 from filters.rasterizer.rasterizer import rasterize
 from filters.rotorizer.rotorizer import rotorize
@@ -40,10 +47,11 @@ app.add_middleware(
 def get_tt_font(bytes_):
     bytes_ = BytesIO(bytes_)
     bytes_.seek(0)
-    font = TTFont(bytes_)
+    font = TTFont(bytes_, lazy=True)
     return font
 
 def subset_font(tt_font, subsetted_text):
+    
     subsetter = Subsetter()
     # keep_glyphs = get_components_in_subsetted_text(tt_font, subsetted_text)
     # subsetter.populate(text=subsetted_text, glyphs=keep_glyphs)
@@ -68,22 +76,27 @@ async def filter(
     depth: int= Form(None),
     resolution: int = Form(None)
 ):
-    tt_font = get_tt_font(font_file)
     start = datetime.now()
-    subset_font(tt_font, preview_string)
-    end = datetime.now()
-    output = BytesIO()
-    tt_font.save(output)
-    print((end - start).total_seconds())
-    ufo = defcon.Font() if ("CFF " in tt_font or "CFF2" in tt_font) else None
+
+    binary_font = BytesIO(font_file)
+    tt_font = TTFont(binary_font, lazy=True)
+    cmap = tt_font.getBestCmap()
+    unicodes = [ord(character) for character in preview_string]
+    glyph_names_to_process=set([cmap.get(unicode_) for unicode_ in unicodes])
+    
+    ufo = Font()
+    for i, glyph_name in enumerate(glyph_names_to_process):
+        new_glyph = ufo.newGlyph(glyph_name)
+        new_glyph.unicode = unicodes[i]
+    extractOpenTypeInfo(tt_font, ufo)
+
     if filter_identifier == "rasterizer":
-        response_fonts = [rasterize(tt_font=tt_font, ufo=ufo, resolution=resolution)]
-    elif filter_identifier == "rotorizer":
-        response_fonts = rotorize(tt_font=tt_font, depth=depth)
-    # for response_font in response_fonts:
-    #     inject_features(tt_font, response_font)
-    response = fonts_to_base64(response_fonts)
-    return {"fonts": response}
+        output = [rasterize(ufo=ufo, tt_font=tt_font, binary_font=binary_font, glyph_names_to_process=glyph_names_to_process, resolution=resolution)]
+    response = fonts_to_base64(output)
+    end = datetime.now()
+    total = (end-start).total_seconds()
+    print(total)
+    return {"fonts": response, "response_time": total}
 
 @app.get("/filters/{filter_identifier}/get")
 def filter_get():

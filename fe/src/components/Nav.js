@@ -1,16 +1,20 @@
 import React, {useRef, useEffect, useContext} from "react"
 // import { Link } from "react-router-dom"
 import { useFela } from "react-fela"
-import { background, padding } from "../rules/variables"
+import { background, navHeight, padding } from "../rules/variables"
 import Link from "./Link"
 import { NavHeightContext } from "../App" 
 
 const rule = ({}) => ({
-  // position: "sticky",
-  // top: `px",
+  position: "sticky",
+  display: "flex",
+  alignItems: "center",
+  top: "0px",
+  height: `${navHeight}px`,
   zIndex: 1,
   background,
-  padding,
+  paddingLeft: "10px",
+  // padding,
   "& > * + *": {
     "margin-left": "1ch"
   }

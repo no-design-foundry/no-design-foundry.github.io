@@ -27,6 +27,9 @@ function FontFileInput(props) {
     if (inputRef.current.files.length === 1) {
       setInputFont(inputRef.current.files[0]);
     }
+    else {
+      setInputFont(null)
+    }
   }
 
   function handleDrop(e) {

@@ -16,15 +16,10 @@ import RangeInput from "./RangeInput";
 import { padding } from "../rules/generic";
 import { fadeInDuration } from "../rules/variables";
 import GetFontButton from "./GetFontButton";
+import { formRule } from "../rules/form";
 
-export const formRule = () => ({
-  display: "grid",
-  width: "500px",
-  gridTemplateColumns: "1fr auto auto 3ch",
-  gridAutoRows: "1.5em",
-  alignItems: "center",
-  gap: "0px 10px",
-});
+
+
 
 let lastTimeStamp;
 
@@ -114,7 +109,7 @@ function FontInputForm(props) {
         ))}
       <form
         ref={formRef}
-        className={css(formRule, padding("10px"))}
+        className={css(formRule)}
         onChange={handleOnChange}
         onSubmit={handleOnSubmit}
       >

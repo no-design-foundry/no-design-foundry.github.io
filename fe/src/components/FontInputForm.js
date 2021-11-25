@@ -44,7 +44,9 @@ function FontInputForm(props) {
       .then((response) => {
         setFadingOut(true);
         setTimeout(() => {
+          console.log(inputFont, inputFont?.arrayBuffer())
           const arrayBuffer = formData.get("font_file").arrayBuffer();
+          // const arrayBuffer = inputFont.arrayBuffer()
           arrayBuffer
             .then((array) => new FontFace("preview-input-font", array))
             .then((inputFont) => {
@@ -62,7 +64,7 @@ function FontInputForm(props) {
   }
 
   useEffect(() => {
-    if (formRef.current.checkValidity()) {
+    if (inputFont) {
       setFormIsValid(true);
       sendRequest();
     }
@@ -72,7 +74,6 @@ function FontInputForm(props) {
 
   function handleOnSubmit(e) {
     e.preventDefault()
-    console.log(e)
     if (formRef.current.checkValidity()) {
       setFormIsValid(true)
       lastTimeStamp = e.timeStamp + 500
@@ -119,7 +120,7 @@ function FontInputForm(props) {
           title="preview string"
           name="preview_string"
           defaultValue={previewStrings[fontIdentifier]}
-          disabled={!formIsValid}
+          disabled={false}
         ></TextInput>
         {inputs.map((input, index) => {
           switch (input.type) {
@@ -128,7 +129,7 @@ function FontInputForm(props) {
                 <RangeInput
                   key={`${route}_form_${index}`}
                   {...input}
-                  disabled={!formIsValid}
+                  disabled={false}
                 />
               );
             default:

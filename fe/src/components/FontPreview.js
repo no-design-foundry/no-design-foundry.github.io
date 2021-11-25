@@ -21,31 +21,19 @@ const centerRule = ({ fontSize, inDetailView }) => ({
 
 const containerRule = ({ inDetailView }) => ({
   height: `calc(${inDetailView ? 100 : 50}vh - ${navHeight}px)`,
+  position: "relative"
 });
 
-const foregroundRule = ({ overlayTop, variationSettings }) => ({
-  color: "pink",
-  background: "#EEE",
+const foregroundRule = ({ variationSettings }) => ({
+  // top: "0px",
   position: "absolute",
   width: "100%",
-  height: `${overlayTop}px`,
   overflow: "hidden",
   display: "flex",
   justifyContent: "center",
   fontVariationSettings: Object.keys(variationSettings)
     .map((key) => `"${key}" ${variationSettings[key]}`)
     .join(", "),
-});
-
-const backgroundRule = ({ showPreviewFont }) => ({
-  display: "flex",
-  justifyContent: "center",
-  extend: {
-    condition: showPreviewFont,
-    style: {
-      fontFamily: "preview-input-font",
-    },
-  },
 });
 
 const fadingRule = ({ fadingOut }) => ({
@@ -109,7 +97,6 @@ function FontPreview(props) {
 
   const { css } = useFela({
     inDetailView,
-    overlayTop,
     fontSize,
     showMobilePreview,
     variationSettings,
@@ -119,19 +106,19 @@ function FontPreview(props) {
 
   return (
     <div ref={container} className={css(containerRule)}>
-      <div className={css(foregroundRule)}>
+      <div className={css(foregroundRule)} style={{ height: `${overlayTop}px`}}>
         {[...Array(numberOfLayers)].map((_, index) => (
           <div
             className={css(centerRule, transformTypeRule, fadingRule, () => ({
               color: layerColors[index],
-              fontFamily: `preview-output-font--${index}`,
+              fontFamily: `preview-output-font--${index}`
             }))}
           >
             {children}
           </div>
         ))}
       </div>
-      <div className={css(backgroundRule)}>
+      <div className={css(foregroundRule)} style={{ top: `${overlayTop}px`, bottom: "0px"}}>
         <div
           className={css(
             centerRule, 
@@ -139,6 +126,8 @@ function FontPreview(props) {
             fadingRule, 
             () => ({
               zIndex: -100,
+              bottom: `-${navHeight}px`,
+              fontFamily: "preview-input-font"
             }))
           }>
           {children}

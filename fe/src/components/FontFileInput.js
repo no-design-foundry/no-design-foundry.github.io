@@ -3,11 +3,15 @@ import { useFela } from "react-fela";
 import { Context } from "../App";
 import { inputRule, labelRule, labelValidityRule } from "../rules/form";
 import { relative } from "../rules/generic";
+import { DetailViewContext } from "../templates/FilterDetailView";
 import { ValidityContext } from "./FontInputForm";
+
 
 const fileInputRule = () => ({
   opacity: 0,
   position: "absolute",
+  width: 0,
+  height: 0,
 });
 
 const buttonRule = () => ({
@@ -18,18 +22,22 @@ function FontFileInput(props) {
   const {disabled} = props
   const inputRef = useRef();
   const { inputFont, setInputFont } = useContext(Context);
-
+  const {fontIdentifier} = useContext(DetailViewContext)
   const [isValid, setIsValid] = useState(false);
   const { css } = useFela({ isValid });
 
   function handleOnChange(e) {
-    setIsValid(inputRef.current.checkValidity());
     if (inputRef.current.files.length === 1) {
       setInputFont(inputRef.current.files[0]);
     }
     else {
       setInputFont(null)
     }
+    // setIsValid(inputRef.current.checkValidity());
+  }
+
+  function handleOnClick(e) {
+    inputRef.current.click()
   }
 
   function handleDrop(e) {
@@ -56,7 +64,7 @@ function FontFileInput(props) {
   }
 
   useEffect(() => {
-    setIsValid(inputRef.current.checkValidity());
+    setIsValid(Boolean(inputFont));
     window.addEventListener('dragenter', handleDragEnter)
     window.addEventListener('dragleave', handleDragLeave)
     window.addEventListener('dragover', handleDragOver)
@@ -84,7 +92,11 @@ function FontFileInput(props) {
           required={true}
           disabled={disabled}
         ></input>
-        <button role="button" className={css(buttonRule)}>
+        <button 
+        role="button" 
+        className={css(buttonRule)}
+        onClick={handleOnClick}
+        >
           {inputFont ? inputFont.name : "select font"}
         </button>
       </div>

@@ -37,7 +37,6 @@ const routeOverlayRule = ({contentIsVisible, navHeight}) => ({
 
 const backgroundLayerRule = ({cursorY}) => ({
   background: "#EEE",
-  height: `${cursorY}px`,
   position: "absolute",
   width: "100%",
   zIndex: -1,
@@ -51,11 +50,13 @@ function App() {
   useEffect(() => {}, [location]);
 
   const [previewFontSize, setPreviewFontSize] = useState(defaultFontSize);
-  const [inputs, setInputs] = useState(
+  const [formInputs, setFormInputs] = useState(
     filterRoutes.reduce((collector, filterRoute) => {
-      collector[filterRoute.fontIdentifier] = filterRoute.inputs.map(
-        (input) => ({ ...input, currentValue: input.default })
-      );
+      collector[filterRoute.fontIdentifier] = filterRoute.inputs.reduce((inputCollector, input) => {
+        inputCollector[input.name] = input.defaultValue
+        return inputCollector
+      }
+      , {});
       return collector;
     }, {})
   );
@@ -100,13 +101,13 @@ function App() {
         setPreviewStrings,
       }}
     >
-      {/* <div className={css(backgroundLayerRule)}></div> */}
+      <div className={css(backgroundLayerRule)} style={{height: `${cursorY}px`}}></div>
       <div className={css(flex(), grow(), column(), minHeight("100vh"))}>
         <ContentVisibilityContext.Provider value={setContentIsVisible}>
               <NavHeightContext.Provider value={{navHeight, setNavHeight}}>
-          <Nav setNavHeight={setNavHeight} ref={navRef} filterRoutes={filterRoutes} />
+          <Nav setNavHeight={setNavHeight} filterRoutes={filterRoutes} />
           <CursorContext.Provider value={cursorY}>
-            <FormInputsContext.Provider value={{ inputs, setInputs }}>
+            <FormInputsContext.Provider value={{ formInputs, setFormInputs }}>
               <main className={css(flex(), grow(), column())}>
                 <Routes>
                   {data.map((entry) => {

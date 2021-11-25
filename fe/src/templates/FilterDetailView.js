@@ -6,8 +6,6 @@ import RangeInput from "../components/RangeInput";
 import DetailViewDescription from "../components/DetailViewDescription";
 import GetFontForm from "../components/GetFontForm";
 import { useFela } from "react-fela";
-import { background } from "../rules/variables";
-import TextInput from "../components/TextInput";
 import { padding } from "../rules/generic";
 import AnimateHeight from "react-animate-height";
 
@@ -47,6 +45,7 @@ function FilterDetailView(props) {
         setShowPreviewFont,
         variationSettings,
         setVariationSettings,
+        fontIdentifier
       }}
     >
       <FontPreview
@@ -100,4 +99,4 @@ function FilterDetailView(props) {
   );
 }
 
-export default React.memo(FilterDetailView);
+export default FilterDetailView;

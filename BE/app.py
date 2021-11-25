@@ -10,10 +10,10 @@ from fontTools.cffLib import PrivateDict
 from fastapi.responses import StreamingResponse, Response
 from fastapi import FastAPI, Form, File, Depends, Body, Request
 from typing import Any, Optional
-from fontTools.pens.t2CharStringPen import T2CharStringPen
 from fastapi.middleware.cors import CORSMiddleware
 from fontTools.ttLib import TTFont
-from fontTools.subset import Subsetter
+from fontTools.pens.ttGlyphPen import TTGlyphPen
+from fontTools.pens.t2CharStringPen import T2CharStringPen
 from io import BytesIO
 from tools.generic import (
     get_components_in_subsetted_text,
@@ -68,6 +68,44 @@ def timer(func):
         return response
     return temp_func
 
+def extractGlyph(source, destination, glyph_name):
+    # grab the cmap
+    vmtx = source.get("vmtx")
+    vorg = source.get("VORG")
+    is_ttf = "glyf" in source
+    reversedMapping = source.get("cmap").buildReversed()
+    # grab the glyphs
+    glyphSet = source.getGlyphSet()
+    sourceGlyph = glyphSet[glyph_name]
+    # make the new glyph
+    destinationGlyph = destination.newGlyph(glyph_name)
+    # outlines
+    if is_ttf:
+        pen = destinationGlyph.getPointPen()
+        sourceGlyph.drawPoints(pen)
+    else:
+        pen = destinationGlyph.getPen()
+        sourceGlyph.draw(pen)
+    # width
+    destinationGlyph.width = sourceGlyph.width
+    # height and vertical origin
+    if vmtx is not None and glyph_name in vmtx.metrics:
+        destinationGlyph.height = vmtx[glyph_name][0]
+        if vorg is not None:
+            if glyph_name in vorg.VOriginRecords:
+                destinationGlyph.verticalOrigin = vorg[glyph_name]
+            else:
+                destinationGlyph.verticalOrigin = vorg.defaultVertOriginY
+        else:
+            tsb = vmtx[glyph_name][1]
+            bounds_pen = ControlBoundsPen(glyphSet)
+            sourceGlyph.draw(bounds_pen)
+            if bounds_pen.bounds is not None:
+                xMin, yMin, xMax, yMax = bounds_pen.bounds
+                destinationGlyph.verticalOrigin = tsb + yMax
+    # unicodes
+    destinationGlyph.unicodes = reversedMapping.get(glyph_name, [])
+
 @app.post("/filters/{filter_identifier}")
 async def filter(
     filter_identifier: str,
@@ -85,17 +123,28 @@ async def filter(
     glyph_names_to_process=set([cmap.get(unicode_) for unicode_ in unicodes])
     
     ufo = Font()
+    extractOpenTypeInfo(tt_font, ufo)
     for i, glyph_name in enumerate(glyph_names_to_process):
         new_glyph = ufo.newGlyph(glyph_name)
         new_glyph.unicode = unicodes[i]
-    extractOpenTypeInfo(tt_font, ufo)
+    if filter_identifier == "rotorizer":
+        for glyph_name in glyph_names_to_process:
+            extractGlyph(tt_font, ufo, glyph_name)
+
 
     if filter_identifier == "rasterizer":
         output = [rasterize(ufo=ufo, tt_font=tt_font, binary_font=binary_font, glyph_names_to_process=glyph_names_to_process, resolution=resolution)]
-    response = fonts_to_base64(output)
+    elif filter_identifier == "rotorizer":
+        output = rotorize(tt_font=tt_font, depth=depth, glyph_names_to_process=glyph_names_to_process)
+    else:
+    #     end = datetime.now()
+    #     total = (end-start).total_seconds()
+        # return {"fonts": []}
+        raise Exception
+    
     end = datetime.now()
     total = (end-start).total_seconds()
-    print(total)
+    response = fonts_to_base64(output)
     return {"fonts": response, "response_time": total}
 
 @app.get("/filters/{filter_identifier}/get")

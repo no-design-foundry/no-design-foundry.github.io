@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
 import { useFela } from "react-fela";
+import { FormInputsContext } from "../App";
 import { disabledInputRule, inputRule, labelRule } from "../rules/form";
 import { DetailViewContext } from "../templates/FilterDetailView";
+
 
 const valueIndicatorRule = () => ({
   fontFeatureSettings: "'tnum' 1",
@@ -21,6 +23,7 @@ function RangeInput(props) {
     tag,
     disabled = false
   } = props;
+  const {formInputs, setFormInputs} = useContext(FormInputsContext)
   const rangeInputRef = useRef();
   const animationInterval = useRef();
   const [animating, setAnimating] = useState();
@@ -66,7 +69,7 @@ function RangeInput(props) {
     }
     setAnimating(!animating);
   }
-
+  // console.log(formInputs)
   return (
     <>
       <label className={css(labelRule)} htmlFor={name}>

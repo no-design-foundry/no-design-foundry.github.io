@@ -5,7 +5,6 @@ import { ContentVisibilityContext } from "../App";
 
 export default function ({ to, children }) {
   const setContentIsVisible = useContext(ContentVisibilityContext);
-
   const navigate = useNavigate();
   
   

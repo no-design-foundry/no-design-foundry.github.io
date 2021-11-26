@@ -1,10 +1,13 @@
 import React, { useContext, useRef, useEffect } from "react";
+import { useFela } from "react-fela";
 import { InputFontContext } from "../App";
+import { column } from "../rules/rules";
 
 function FileInput(props) {
   const { label } = props;
   const fileInputRef = useRef();
   const { inputFont, setInputFont } = useContext(InputFontContext);
+  const {css} = useFela()
 
   function handleDrop(e) {
     e.preventDefault()
@@ -52,18 +55,18 @@ function FileInput(props) {
     fileInputRef.current.click();
   }
   return (
-    <div>
-      <label>{label}</label>
+    <>
+      <label className={css(column(1))}>{label}</label>
       <input
         ref={fileInputRef}
         type="file"
         onChange={handleOnChange}
         style={{ display: "none" }}
       ></input>
-      <button onClick={handleOnClick}>
+      <button className={css(column(3))} onClick={handleOnClick}>
         {inputFont?.name ?? "select file"}
       </button>
-    </div>
+    </>
   );
 }
 

@@ -6,7 +6,7 @@ export default [
   {
     type: "filterDetailView",
     title: "Rotorizer",
-    fontIdentifier: "rotorizer",
+    filterIdentifier: "rotorizer",
     route: "/rotorizer",
     numberOfLayers: 2,
     layerColors: ["gray", "#000"],
@@ -31,7 +31,7 @@ export default [
   {
     type: "filterDetailView",
     title: "Rastr",
-    fontIdentifier: "rasterizer",
+    filterIdentifier: "rasterizer",
     route: "/rasterizer",
     numberOfLayers: 1,
     layerColors: ["#000"],

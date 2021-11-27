@@ -45,6 +45,7 @@ def fonts_to_base64(fonts):
             font_bytes = BytesIO()
             font.save(font_bytes)
             fonts_.append(font_bytes)
+    # return fonts_[0]
     return [base64.b64encode(font.getvalue()).decode('ascii') for font in fonts_]
 
 def get_components_in_subsetted_text(tt_font, text):

@@ -22,8 +22,9 @@ const resetStyle = {
 renderer.renderStatic(resetStyle, "html,body,div,input,label,a,button");
 
 const bodyStyle = {
-  fontSize: "20px",
+  fontSize: "18px",
   fontFamily: "'Times New Roman', serif",
+  // fontFamily: "'Times New ",
   minHeight: "100vh",
   position: "relative",
 };
@@ -38,8 +39,16 @@ renderer.renderStatic(ulStyle, "ul");
 
 const buttonStyle = {
   whiteSpace: "nowrap",
+  padding: "0 0.5ch"
 };
 renderer.renderStatic(buttonStyle, "button");
+
+const disabledStyle = {
+  color: "gray",
+  userSelect: "none",
+  pointerEvents: "none"
+};
+renderer.renderStatic(disabledStyle, "*[disabled]");
 
 ReactDOM.render(
   <BrowserRouter>

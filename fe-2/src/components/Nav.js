@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { useFela } from 'react-fela'
 
 const navRule = () => ({
-    padding: "10px"
+    padding: "10px",
 })
 
 function Nav(props) {

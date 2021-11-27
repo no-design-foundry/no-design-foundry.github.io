@@ -1,12 +1,33 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFela } from "react-fela";
 
-const overlayItemRule = () => ({
+const opacityTransition = 350
+const overlayItemRule = ({previewedFontFamily, visible}) => ({
+  userSelect: "none",
   position: "absolute",
   transform: "translate(-50%, -50%)",
+  transitionDuration: `${opacityTransition}ms`,
+  transitionProperty: "opacity, filter",
+  transitionTimingFunction: "ease-in",
+  extend: [{
+    condition: previewedFontFamily,
+    style: {
+      fontFamily: previewedFontFamily
+    }
+  },
+  {
+    condition: !visible, 
+    style: {
+      opacity: 0,
+      filter: "blur(.025em)"
+    }
+  }
+]
 });
 
-const containerRule = () => ({
+const containerRule = ({inListView}) => ({
+  zIndex: -1,
+  userSelect: "none",
   pointerEvents: "none",
   position: "absolute",
   top: 0,
@@ -17,21 +38,41 @@ const containerRule = () => ({
   alignItems: "center",
   justifyContent: "center",
   flexGrow: 1,
-  zIndex: -1,
+  extend: [
+    {
+      condition: inListView,
+      style: {
+        height: "45vh"
+      }
+    }
+  ]
 });
 
 function FontPreview(props) {
-  const { fontSize } = props;
-  const { css } = useFela();
+  const { fontSize, inListView = false, fontFamily } = props;
+  const [visible, setVisible] = useState(true)
+  const [previewedFontFamily, setPreviewedFontFamily] = useState(fontFamily)
+
+  useEffect(() => {
+    if (fontFamily !== previewedFontFamily) {
+      setVisible(false)
+      setTimeout(() => {
+        setPreviewedFontFamily(fontFamily)
+        setVisible(true)
+      }, opacityTransition + 50)
+    }
+  }, [fontFamily])
+  
+  const { css } = useFela({visible, inListView, previewedFontFamily});
   return (
     <div className={css(containerRule)} style={{ fontSize: `${fontSize}px` }}>
       <div>
         <div className={css(overlayItemRule)}><span>{props.children}</span></div>
       </div>
-      <div>
-        {/* <div className={css(overlayItemRule)}>{props.children}</div>
-        <div className={css(overlayItemRule)}>{props.children}</div> */}
-      </div>
+      {/* <div>
+        <div className={css(overlayItemRule)}>{props.children}</div>
+        <div className={css(overlayItemRule)}>{props.children}</div>
+      </div> */}
     </div>
   );
 }

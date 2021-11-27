@@ -157,6 +157,16 @@ def filter_get():
         headers={'Content-Disposition': 'inline; filename="test.ttf"'}
         )
 
+@app.post("/debug/{filter_identifier}")
+def filter_get(
+    filter_identifier: str,
+    font_file: bytes = File(...),
+    preview_string: str = Form(..., max_length=32),
+    depth: int= Form(None),
+    resolution: int = Form(None)
+    ):
+        print(depth, resolution)
+        return {"message": "ok"}
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=5000, debug=True, reload=True)

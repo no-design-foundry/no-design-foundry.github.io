@@ -3,19 +3,22 @@ import { useFela } from "react-fela";
 import FontPreview from "../components/FontPreview";
 import Link from "../components/Link";
 
+const containerRule = ({navHeight}) => ({
+    marginTop: `${navHeight}px`
+})
 
 const fontPreviewContainerRule = () => ({
   position: "relative",
   height: "300px",
 })
 
-function ListView(props) {
-  const { filterRoutes } = props;
-  const {css} = useFela()
+function ListViewOverlay(props) {
+  const { filterRoutes, navHeight } = props;
+  const { css } = useFela({navHeight})
   return (
-    <ul>
+    <ul className={css(containerRule)}>
       {filterRoutes.map((filterRoute) => (
-        <li key={`list-view-${filterRoute.route}`}>
+        <li key={`overlay-link-${filterRoute.route}`}>
           <Link to={filterRoute.route}>
             <div className={css(fontPreviewContainerRule)}>
               <FontPreview fontSize={200} inListView={true}>{filterRoute.title}</FontPreview>
@@ -27,4 +30,4 @@ function ListView(props) {
   );
 }
 
-export default ListView;
+export default ListViewOverlay;

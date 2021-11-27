@@ -4,6 +4,10 @@ import { FormInputsContext } from "../App";
 import { column } from "../rules/rules";
 import { DetailViewContext } from "../templates/DetailView";
 
+const valueIndicatorRule = () => ({
+  fontVariantNumeric: "tabular-nums"
+})
+
 function RangeInput(props) {
   const {
     label,
@@ -13,12 +17,13 @@ function RangeInput(props) {
     defaultValue,
     onChange,
     animatable = false,
+    disabled = false
   } = props;
   const inputRef = useRef();
-  const { fontIdentifier } = useContext(DetailViewContext);
+  const { filterIdentifier } = useContext(DetailViewContext);
   const { formInputValues, setFormInputValue } = useContext(FormInputsContext);
   const [currentValue, setCurrentValue] = useState(
-    formInputValues[fontIdentifier][name]
+    formInputValues[filterIdentifier][name]
   );
   const { css } = useFela();
 
@@ -36,7 +41,9 @@ function RangeInput(props) {
       }
       const value = parseInt(e.target.value);
       setCurrentValue(value);
-      setFormInputValue(fontIdentifier, name, value);
+      if (name) {
+        setFormInputValue(filterIdentifier, name, value);
+      }
     }
   }
   return (
@@ -50,8 +57,9 @@ function RangeInput(props) {
         onChange={handleOnChange}
         min={min}
         max={max}
+        disabled={disabled}
       ></input>
-      <span>{currentValue}</span>
+      <span className={css(valueIndicatorRule)} disabled={disabled}>{currentValue}</span>
     </>
   );
 }

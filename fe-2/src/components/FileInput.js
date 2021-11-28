@@ -9,9 +9,10 @@ const fullscreenDragRule = ({ fileIsDragged }) => ({
   top: 0,
   extend: [
     {
-      condition: false,
+      condition: fileIsDragged,
       style: {
-        background: "#0f0",
+        backgroundColor: "#fff",
+        opacity: 1,
         left: 0,
         right: 0,
         bottom: 0,
@@ -55,6 +56,7 @@ function FileInput(props) {
     e.preventDefault();
     e.stopPropagation();
     setFileIsDragged(false);
+    console.log(e.path, e.target)
   }
   
   function handleDragOver(e) {
@@ -92,6 +94,7 @@ function FileInput(props) {
         type="file"
         onChange={handleOnChange}
         style={{ display: "none" }}
+        accept=".ttf,.otf,woff,woff2"
       ></input>
       <button className={css(column(3))} onClick={handleOnClick}>
         {inputFont?.name ?? "select file"}

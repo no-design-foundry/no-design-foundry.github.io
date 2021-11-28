@@ -35,7 +35,6 @@ function DetailViewOverlay(props) {
       </div>
       <div>
         <FontPreview
-          // key={`overlay-font-preview-${0}`}
           fontFamily={previewedOutputFonts[filterIdentifier][0]}
           fontSize={fontSize}
         >

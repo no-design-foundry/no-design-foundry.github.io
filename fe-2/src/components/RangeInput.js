@@ -15,12 +15,15 @@ function RangeInput(props) {
     name,
     min,
     max,
+    tag,
     defaultValue,
     onChange,
     animatable = false,
     disabled = false,
   } = props;
   const inputRef = useRef();
+  const animationInterval = useRef();
+  const [animating, setAnimating] = useState();
   const { filterIdentifier } = useContext(DetailViewContext);
   const { formInputValues, setFormInputValue } = useContext(FormInputsContext);
   const [currentValue, setCurrentValue] = useState(
@@ -35,6 +38,18 @@ function RangeInput(props) {
     }
   }, []);
 
+  useEffect(() => {
+    if (inputRef.current.value !== currentValue) {
+      inputRef.current.value = currentValue
+    }
+    if (tag) {
+      let value = {}
+      value[tag] = currentValue
+      console.log(value)
+      // setVariationSettings({ ...variationSettings, ...value });
+    }
+  }, [currentValue])
+
   function handleOnChange(e) {
     if (inputRef.current.checkValidity()) {
       if (onChange) {
@@ -48,13 +63,26 @@ function RangeInput(props) {
     }
   }
 
-  function handleIndicatorOnChange(e) {
-    console.log(e)
+  function handleOnClickAnimate() {
+    if (animating === true) {
+      clearInterval(animationInterval.current);
+    } else {
+      let counter = 0
+      const start = currentValue
+      animationInterval.current = setInterval(() => {
+        const position = (start + counter) % 720
+        setCurrentValue(Math.round(position - 360 < 0 ? position : 360 - position % 360 ))
+        const offset = 10-(Math.cos(Math.PI * position/180)+1)/2*9
+        counter += offset
+      }, 1000 / 30);
+    }
+    setAnimating(!animating);
   }
+
   return (
     <>
       <label className={css(column(1))}>{label}</label>
-      {animatable && <button className={css(column(2))}>play</button>}
+      {animatable && <button className={css(column(2))} onClick={handleOnClickAnimate}>play</button>}
       <input
         ref={inputRef}
         className={css(column(3))}
@@ -67,7 +95,6 @@ function RangeInput(props) {
       <div
         className={css(valueIndicatorRule)}
         disabled={disabled}
-        onChange={handleIndicatorOnChange}
       >
         {currentValue}
       </div>

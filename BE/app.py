@@ -120,28 +120,23 @@ async def filter(
     tt_font = TTFont(binary_font, lazy=True)
     cmap = tt_font.getBestCmap()
     unicodes = [ord(character) for character in preview_string]
-    glyph_names_to_process=set([cmap.get(unicode_) for unicode_ in unicodes])
+    glyph_names_to_process, unicodes = zip(*set([(cmap.get(unicode_), unicode_) for unicode_ in unicodes]))
     
     ufo = Font()
     extractOpenTypeInfo(tt_font, ufo)
-    for i, glyph_name in enumerate(glyph_names_to_process):
+    for glyph_name, unicode_ in zip(glyph_names_to_process, unicodes):
         new_glyph = ufo.newGlyph(glyph_name)
-        new_glyph.unicode = unicodes[i]
+        new_glyph.unicode = unicode_
+
     if filter_identifier == "rotorizer":
         for glyph_name in glyph_names_to_process:
             extractGlyph(tt_font, ufo, glyph_name)
-
-
     if filter_identifier == "rasterizer":
         output = [rasterize(ufo=ufo, tt_font=tt_font, binary_font=binary_font, glyph_names_to_process=glyph_names_to_process, resolution=resolution)]
     elif filter_identifier == "rotorizer":
         output = rotorize(tt_font=tt_font, depth=depth, glyph_names_to_process=glyph_names_to_process)
     else:
-    #     end = datetime.now()
-    #     total = (end-start).total_seconds()
-        # return {"fonts": []}
         raise Exception
-    
     end = datetime.now()
     total = (end-start).total_seconds()
     response = fonts_to_base64(output)

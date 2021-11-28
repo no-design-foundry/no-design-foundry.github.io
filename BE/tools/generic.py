@@ -41,6 +41,7 @@ def fonts_to_base64(fonts):
     for font in fonts:
         if isinstance(font, defcon.Font):
             font = compileTTF(font, removeOverlaps=False, flattenComponents=False)
+            font.save("debug_2.ttf")
         if isinstance(font, TTFont):
             font_bytes = BytesIO()
             font.save(font_bytes)

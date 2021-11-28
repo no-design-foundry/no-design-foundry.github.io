@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   FontSizeContext,
   FormInputsContext,
@@ -55,7 +55,6 @@ const isProcessingRule = ({isProcessing}) => ({
 });
 
 const CancelToken = axios.CancelToken;
-let cancel;
 let lastTimeStamp;
 
 function DetailView(props) {
@@ -73,6 +72,8 @@ function DetailView(props) {
   const { formInputValues } = useContext(FormInputsContext);
   const { fontSize, setFontSize } = useContext(FontSizeContext);
   const { inputFont } = useContext(InputFontContext);
+  const isMounted = useRef(false)
+  const cancel = useRef(undefined)
   const { previewStrings, setPreviewString } = useContext(
     PreviewStringsContext
   );
@@ -84,9 +85,10 @@ function DetailView(props) {
   const { css } = useFela({ navHeight, isProcessing });
 
   function cancelRequest() {
-    if (cancel !== undefined) {
-      cancel("cancelled by user");
-      cancel = undefined;
+    if (cancel.current !== undefined) {
+      setIsProcessing(false)
+      cancel.current("cancelled by user");
+      cancel.current = undefined;
     }
   }
 
@@ -101,7 +103,7 @@ function DetailView(props) {
     axios({
       method: "post",
       cancelToken: new CancelToken(function executor(c) {
-        cancel = c;
+        cancel.current = c;
       }),
       url: `http://0.0.0.0:5000/filters/${filterIdentifier}`,
       data: formData,
@@ -118,7 +120,7 @@ function DetailView(props) {
         outputFontsArrays.map(
           (outputFontArray, index) =>
             new FontFace(
-              `preview-input-font-${Date.now()}-${index}`,
+              `preview-output-font-${Date.now()}-${index}`,
               outputFontArray
             )
         ),
@@ -129,6 +131,7 @@ function DetailView(props) {
         return [inputFont, outputFonts];
       })
       .then(([inputFont, outputFonts]) => {
+        console.log(inputFont, outputFonts)
         setPreviewedInputFont(inputFont.family);
         setPreviewedOutputFonts(
           filterIdentifier,
@@ -138,6 +141,8 @@ function DetailView(props) {
       .catch((thrown) => {
         if (axios.isCancel(thrown)) {
           console.log(thrown.message);
+        } else {
+          console.log(thrown)
         }
       })
       .finally(() => {
@@ -146,12 +151,11 @@ function DetailView(props) {
   }
 
   useEffect(() => {
-    if (inputFont) {
+    if (isMounted.current && inputFont) {
       const now = Date.now();
       lastTimeStamp = now;
       setTimeout(function () {
         if (now === lastTimeStamp) {
-          // setPreviewedString();
           setPreviewString(filterIdentifier, previewedString)
           sendRequest();
         }
@@ -160,13 +164,14 @@ function DetailView(props) {
   }, [formInputValues, inputFont, previewedString, filterIdentifier]);
 
   useEffect(() => {
+    isMounted.current = true
     return () => {
+      isMounted.current = false
       setGetFormVisible(false);
-      // cancelRequest()
+      cancelRequest()
     };
   }, []);
 
-  useEffect(() => {}, []);
 
   return (
     <DetailViewContext.Provider value={{ filterIdentifier }}>
@@ -195,6 +200,7 @@ function DetailView(props) {
               key={`font_ui_${index}`}
               min={input.min}
               max={input.max}
+              tag={input.tag}
               defaultValue={input.default}
               animatable={true}
             />

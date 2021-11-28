@@ -5,8 +5,9 @@ import { column } from "../rules/rules";
 import { DetailViewContext } from "../templates/DetailView";
 
 const valueIndicatorRule = () => ({
-  fontVariantNumeric: "tabular-nums"
-})
+  fontVariantNumeric: "tabular-nums",
+  padding: "0 .2em",
+});
 
 function RangeInput(props) {
   const {
@@ -17,7 +18,7 @@ function RangeInput(props) {
     defaultValue,
     onChange,
     animatable = false,
-    disabled = false
+    disabled = false,
   } = props;
   const inputRef = useRef();
   const { filterIdentifier } = useContext(DetailViewContext);
@@ -46,6 +47,10 @@ function RangeInput(props) {
       }
     }
   }
+
+  function handleIndicatorOnChange(e) {
+    console.log(e)
+  }
   return (
     <>
       <label className={css(column(1))}>{label}</label>
@@ -59,7 +64,13 @@ function RangeInput(props) {
         max={max}
         disabled={disabled}
       ></input>
-      <span className={css(valueIndicatorRule)} disabled={disabled}>{currentValue}</span>
+      <div
+        className={css(valueIndicatorRule)}
+        disabled={disabled}
+        onChange={handleIndicatorOnChange}
+      >
+        {currentValue}
+      </div>
     </>
   );
 }

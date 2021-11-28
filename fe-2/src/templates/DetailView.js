@@ -4,16 +4,16 @@ import {
   FormInputsContext,
   InputFontContext,
   PreviewedInputFontContext,
+  PreviewedOutputFontsContext,
   PreviewStringsContext,
 } from "../App";
 import FileInput from "../components/FileInput";
 import RangeInput from "../components/RangeInput";
 import TextInput from "../components/TextInput";
 import { useFela } from "react-fela";
-import axios from "axios";
 import { column, width } from "../rules/rules";
 import FontPreview from "../components/FontPreview";
-import { useLocation } from "react-router";
+import axios from "axios";
 
 export const DetailViewContext = createContext();
 
@@ -30,12 +30,32 @@ const formRule = () => ({
 });
 
 const fullscreenRule = ({ navHeight }) => ({
-  // zIndex: -1,
   minHeight: `calc(100vh - ${navHeight}px)`,
   display: "flex",
   flexDirection: "column",
 });
 
+const isProcessingWrapperRule = () => ({
+  display: "flex",
+  alignItems: "flex-end",
+  flexDirection: "row"
+});
+
+const isProcessingRule = ({isProcessing}) => ({
+  display: "block",
+  animationName: {
+    "0%": { paddingBottom: ".5em" },
+    "40%": { paddingBottom: "0" },
+    "100%": { paddingBottom: "0"}
+  },
+  animationDuration: "1s",
+  animationIterationCount: "infinite",
+  animationDirection: "alternate-reverse",
+  animationPlayState: isProcessing ? "processing" : "paused"
+});
+
+const CancelToken = axios.CancelToken;
+let cancel;
 let lastTimeStamp;
 
 function DetailView(props) {
@@ -43,12 +63,13 @@ function DetailView(props) {
     inputs,
     variableFontControlSliders,
     filterIdentifier,
-    title,
     navHeight,
   } = props;
   const { previewedInputFont, setPreviewedInputFont } = useContext(
     PreviewedInputFontContext
   );
+
+  const { setPreviewedOutputFonts } = useContext(PreviewedOutputFontsContext);
   const { formInputValues } = useContext(FormInputsContext);
   const { fontSize, setFontSize } = useContext(FontSizeContext);
   const { inputFont } = useContext(InputFontContext);
@@ -59,8 +80,16 @@ function DetailView(props) {
     previewStrings[filterIdentifier]
   );
   const [getFormVisible, setGetFormVisible] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { css } = useFela({ navHeight, isProcessing });
 
-  const { css } = useFela({ navHeight });
+  function cancelRequest() {
+    if (cancel !== undefined) {
+      cancel("cancelled by user");
+      cancel = undefined;
+    }
+  }
+
   function sendRequest() {
     const formData = new FormData();
     formData.append("font_file", inputFont);
@@ -68,43 +97,52 @@ function DetailView(props) {
     Object.keys(formInputValues[filterIdentifier]).forEach((key) =>
       formData.append(key, formInputValues[filterIdentifier][key])
     );
-
+    setIsProcessing(true);
     axios({
       method: "post",
+      cancelToken: new CancelToken(function executor(c) {
+        cancel = c;
+      }),
       url: `http://0.0.0.0:5000/filters/${filterIdentifier}`,
-      // url: `http://0.0.0.0:5000/debug/${filterIdentifier}`,
       data: formData,
       headers: { "Content-Type": "multipart/form-data" },
     })
       .then((response) => {
-        // console.log(atob(response.data.fonts[0]))
-        const outputNameFont = `preview-font-output-${Date.now()}`
-        fetch(
-          `data:font/truetype;charset=utf-8;base64,${response.data.fonts[0]}`
-        )
-        .then((res) => res.blob())
-        .then((blob) => blob.arrayBuffer())
-        .then(arrayBuffer => new FontFace(outputNameFont, arrayBuffer))
-        .then(outputFont => {
-          document.fonts.add(outputFont)
-          // setPreviewedInputFont(outputNameFont);
-
-        }
-          )
-
-        console.log(outputNameFont)
-
-        const fontName = `preview-font-input-${Date.now()}`;
-        inputFont.arrayBuffer()
-          .then((array) => new FontFace(fontName, array))
-          .then((inputFont) => {
-            document.fonts.add(inputFont);
-            setPreviewedInputFont(fontName);
-            let value = {};
-            value[filterIdentifier] = formData.get("preview_string");
-          });
+        const outputFontsArrays = response.data.fonts.map((fontBase64) =>
+          Uint8Array.from(atob(fontBase64), (c) => c.charCodeAt(0))
+        );
+        return Promise.all([inputFont.arrayBuffer(), outputFontsArrays]);
       })
-      .catch((error) => console.error(error));
+      .then(([inputFontBuffer, outputFontsArrays]) => [
+        new FontFace(`preview-input-font-${Date.now()}`, inputFontBuffer),
+        outputFontsArrays.map(
+          (outputFontArray, index) =>
+            new FontFace(
+              `preview-input-font-${Date.now()}-${index}`,
+              outputFontArray
+            )
+        ),
+      ])
+      .then(([inputFont, outputFonts]) => {
+        document.fonts.add(inputFont);
+        outputFonts.map((outputFont) => document.fonts.add(outputFont));
+        return [inputFont, outputFonts];
+      })
+      .then(([inputFont, outputFonts]) => {
+        setPreviewedInputFont(inputFont.family);
+        setPreviewedOutputFonts(
+          filterIdentifier,
+          outputFonts.map((outputFont) => outputFont.family)
+        );
+      })
+      .catch((thrown) => {
+        if (axios.isCancel(thrown)) {
+          console.log(thrown.message);
+        }
+      })
+      .finally(() => {
+        setIsProcessing(false);
+      });
   }
 
   useEffect(() => {
@@ -113,16 +151,18 @@ function DetailView(props) {
       lastTimeStamp = now;
       setTimeout(function () {
         if (now === lastTimeStamp) {
-          setPreviewedString(previewStrings[filterIdentifier]);
+          // setPreviewedString();
+          setPreviewString(filterIdentifier, previewedString)
           sendRequest();
         }
       }, 500);
     }
-  }, [formInputValues, inputFont, previewStrings, filterIdentifier]);
+  }, [formInputValues, inputFont, previewedString, filterIdentifier]);
 
   useEffect(() => {
     return () => {
       setGetFormVisible(false);
+      // cancelRequest()
     };
   }, []);
 
@@ -135,6 +175,20 @@ function DetailView(props) {
           {previewStrings[filterIdentifier]}
         </FontPreview>
         <div className={css(formRule)}>
+          {isProcessing && (
+            <div className={css(isProcessingWrapperRule, column("1 / span 5"))}>
+              {[..."loading..........."].map((letter, index) => (
+                <span
+                  key={`loading-${index}`}
+                  className={css(isProcessingRule, () => ({
+                    animationDelay: `${index / 10}s`,
+                  }))}
+                >
+                  {letter}
+                </span>
+              ))}
+            </div>
+          )}
           {variableFontControlSliders?.map((input, index) => (
             <RangeInput
               label={input.label}
@@ -155,7 +209,7 @@ function DetailView(props) {
           <TextInput
             label={"preview"}
             defaultValue={previewStrings[filterIdentifier]}
-            onChange={(value) => setPreviewString(filterIdentifier, value)}
+            onChange={(value) => setPreviewedString(value)}
             disabled={!Boolean(inputFont)}
           ></TextInput>
           <FileInput label="font file"></FileInput>
@@ -179,17 +233,18 @@ function DetailView(props) {
           <button
             className={css(column(5))}
             onClick={() => setGetFormVisible(!getFormVisible)}
-            // disabled={!Boolean(inputFont)}
+            disabled={!Boolean(inputFont)}
           >
             {getFormVisible ? "hide" : "get"}
           </button>
+          <button onClick={() => cancelRequest()}>cancel</button>
           {getFormVisible && (
             <>
               <hr className={css(column("1 / span 5"), width("100%"))} />
               <TextInput label={"font name"} />
-              <button className={css(column("5"))}> download </button>
+              <button className={css(column("5"))}>download</button>
               <TextInput label={"email"} />
-              <button className={css(column("5"))}> send </button>
+              <button className={css(column("5"))}>send</button>
             </>
           )}
         </div>

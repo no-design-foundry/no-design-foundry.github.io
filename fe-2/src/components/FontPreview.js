@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useFela } from "react-fela";
 
 const opacityTransition = 350
@@ -52,12 +52,14 @@ function FontPreview(props) {
   const { fontSize, inListView = false, fontFamily } = props;
   const [visible, setVisible] = useState(true)
   const [previewedFontFamily, setPreviewedFontFamily] = useState(fontFamily)
+  const [previewedChildren, setPreviewedChildren] = useState(props.children)
 
   useEffect(() => {
     if (fontFamily !== previewedFontFamily) {
       setVisible(false)
       setTimeout(() => {
         setPreviewedFontFamily(fontFamily)
+        setPreviewedChildren(props.children)
         setVisible(true)
       }, opacityTransition + 50)
     }
@@ -67,12 +69,8 @@ function FontPreview(props) {
   return (
     <div className={css(containerRule)} style={{ fontSize: `${fontSize}px` }}>
       <div>
-        <div className={css(overlayItemRule)}><span>{props.children}</span></div>
+        <div className={css(overlayItemRule)}><span>{previewedChildren}</span></div>
       </div>
-      {/* <div>
-        <div className={css(overlayItemRule)}>{props.children}</div>
-        <div className={css(overlayItemRule)}>{props.children}</div>
-      </div> */}
     </div>
   );
 }

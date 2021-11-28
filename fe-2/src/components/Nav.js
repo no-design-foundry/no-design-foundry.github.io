@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { useFela } from 'react-fela'
 
 const navRule = () => ({
+    fontFamily: "test",
     padding: "10px",
 })
 

@@ -5,8 +5,11 @@ import { BrowserRouter } from "react-router-dom";
 import { RendererProvider } from "react-fela";
 import { createRenderer } from "fela";
 import extend from "fela-plugin-extend";
+import embedded from "fela-plugin-embedded";
 
-const renderer = createRenderer({ plugins: [extend()] });
+const renderer = createRenderer({ plugins: [
+  extend(), embedded()
+] });
 
 const resetStyle = {
   padding: 0,
@@ -39,14 +42,14 @@ renderer.renderStatic(ulStyle, "ul");
 
 const buttonStyle = {
   whiteSpace: "nowrap",
-  padding: "0 0.5ch"
+  padding: "0 0.5ch",
 };
 renderer.renderStatic(buttonStyle, "button");
 
 const disabledStyle = {
   color: "gray",
   userSelect: "none",
-  pointerEvents: "none"
+  pointerEvents: "none",
 };
 renderer.renderStatic(disabledStyle, "*[disabled]");
 

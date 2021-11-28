@@ -1,4 +1,4 @@
-const data =  [
+export default [
   {
     type: "filterListView",
     route: "/",
@@ -6,12 +6,12 @@ const data =  [
   {
     type: "filterDetailView",
     title: "Rotorizer",
-    fontIdentifier: "rotorizer",
+    filterIdentifier: "rotorizer",
     route: "/rotorizer",
     numberOfLayers: 2,
     layerColors: ["gray", "#000"],
     variableFontControlSliders: [{
-      "title": "rotation",
+      "label": "rotation",
       "tag": "RTTX",
       "min": 0,
       "max": 360,
@@ -19,8 +19,8 @@ const data =  [
     }],
     inputs: [
       {
-        type: "slider",
-        title: "depth",
+        type: "range",
+        label: "depth",
         name: "depth",
         min: 2,
         max: 600,
@@ -31,14 +31,14 @@ const data =  [
   {
     type: "filterDetailView",
     title: "Rastr",
-    fontIdentifier: "rasterizer",
+    filterIdentifier: "rasterizer",
     route: "/rasterizer",
     numberOfLayers: 1,
     layerColors: ["#000"],
     inputs: [
       {
-        type: "slider",
-        title: "resolution",
+        type: "range",
+        label: "resolution",
         name: "resolution",
         min: 10,
         max: 150,
@@ -47,5 +47,3 @@ const data =  [
     ],
   },
 ];
-
-export default data

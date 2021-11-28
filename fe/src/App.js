@@ -35,7 +35,7 @@ const routeOverlayRule = ({contentIsVisible, navHeight}) => ({
   ]
 });
 
-const backgroundLayerRule = ({cursorY}) => ({
+const backgroundLayerRule = () => ({
   background: "#EEE",
   position: "absolute",
   width: "100%",

@@ -51,6 +51,7 @@ def fonts_to_base64(fonts):
 
 def get_components_in_subsetted_text(tt_font, text):
     if "glyf" in tt_font:
+        return ()
         def get_component_names(glyf, glyph_names, collector=[]):
             components = list(chain(*[glyf[glyph_name].getComponentNames(glyf) for glyph_name in glyph_names]))
             if components:

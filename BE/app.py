@@ -118,28 +118,25 @@ async def filter(
 
     binary_font = BytesIO(font_file)
     tt_font = TTFont(binary_font, lazy=True)
-    unicodes = [ord(character) for character in preview_string]
-    cmap = {k:v for k,v in tt_font.getBestCmap().items() if k in unicodes}
-    reversed_cmap  = {v:k for k,v in cmap.items()}
-    glyph_names_to_process, unicodes = zip(*set([(cmap.get(unicode_), unicode_) for unicode_ in unicodes]))
-    print(get_components_in_subsetted_text(tt_font, glyph_names_to_process))
+    cmap = tt_font.getBestCmap()
+    glyph_names_to_process = [cmap.get(ord(char), None) for char in preview_string]
+    glyph_names_to_process = [glyph_name for glyph_name in glyph_names_to_process if glyph_name != None]
+    components = get_components_in_subsetted_text(tt_font, glyph_names_to_process)
+    glyph_names_to_process.extend(components)
+    cmap_reversed = {v:k for k,v in cmap.items() if v in glyph_names_to_process}
 
     if filter_identifier in ["rasterizer"]:
         ufo = Font()
         extractOpenTypeInfo(tt_font, ufo)
-        for glyph_name, unicode_ in zip(glyph_names_to_process, unicodes):
+        for glyph_name in glyph_names_to_process:
             new_glyph = ufo.newGlyph(glyph_name)
-            new_glyph.unicode = unicode_
+            new_glyph.unicode = cmap_reversed[glyph_name]
     else:
         ufo = None
-
-    # if filter_identifier == "rotorizer":
-    #     for glyph_name in glyph_names_to_process:
-    #         extractGlyph(tt_font, ufo, glyph_name)
     if filter_identifier == "rasterizer":
         output = [rasterize(ufo=ufo, tt_font=tt_font, binary_font=binary_font, glyph_names_to_process=glyph_names_to_process, resolution=resolution)]
     elif filter_identifier == "rotorizer":
-        output = rotorize(tt_font=tt_font, depth=depth, glyph_names_to_process=glyph_names_to_process, unicodes=unicodes, cmap=cmap)
+        output = rotorize(tt_font=tt_font, depth=depth, glyph_names_to_process=glyph_names_to_process, cmap_reversed=cmap_reversed)
     else:
         raise Exception
     end = datetime.now()

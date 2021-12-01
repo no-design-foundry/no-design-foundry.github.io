@@ -17,6 +17,7 @@ export const FontSizeContext = createContext();
 export const ContentVisibilityContext = createContext();
 export const PreviewedInputFontContext = createContext();
 export const PreviewedOutputFontsContext = createContext();
+export const FontVariationsContext = createContext();
 
 const filterRoutes = data.filter((route) => route.type === "filterDetailView");
 const _formInputValues = filterRoutes.reduce((collector, filterRoute) => {
@@ -81,6 +82,25 @@ function App() {
     collector[filterIdentifier] = value;
     _setPreviewedOutputFonts({ ...previewedOutputFonts, ...collector });
   }
+  const [fontVariations, _setFontVariations] = useState(
+    filterRoutes.reduce((collector, filterRoute) => {
+      if (filterRoute.variableFontControlSliders) {
+        collector[filterRoute.filterIdentifier] =
+          filterRoute.variableFontControlSliders.reduce((collector, slider) => {
+            collector[slider.tag] = slider.default;
+            return collector;
+          }, {});
+      }
+      return collector;
+    }, {})
+  );
+
+  function setFontVariations(filterIdentifier, tag, value) {
+    let collector = {...fontVariations}
+    collector[filterIdentifier][tag] = parseInt(value)
+    _setFontVariations(collector);
+  }
+  
   const [fontSize, setFontSize] = useState(200);
   const contentBackground = useRef();
   const [formInputValues, _setFormInputsValue] = useState(_formInputValues);
@@ -128,103 +148,109 @@ function App() {
           <PreviewedOutputFontsContext.Provider
             value={{ previewedOutputFonts, setPreviewedOutputFonts }}
           >
-            <ContentVisibilityContext.Provider value={setContentIsVisible}>
-              <Nav setNavHeight={setNavHeight}>
-                <ul>
-                  <li>
-                    <Link to={"/"}>no design foundry</Link>
-                  </li>
-                  {filterRoutes.map((route, index) => (
-                    <li key={`nav_${index}`}>
-                      <Link to={route.route}>{route.title}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </Nav>
-              <FormInputsContext.Provider
-                value={{ formInputValues, setFormInputValue }}
-              >
-                <InputFontContext.Provider value={{ inputFont, setInputFont }}>
-                  <PreviewedInputFontContext.Provider
-                    value={{ previewedInputFont, setPreviewedInputFont }}
-                  >
-                    <main>
-                      <Routes>
-                        {data.map((route, index) => {
-                          let element;
-                          switch (route.type) {
-                            case "filterDetailView":
-                              element = (
-                                <DetailView
-                                  {...route}
-                                  navHeight={navHeight}
-                                  cursorY={cursorY}
-                                  key={route.route}
-                                ></DetailView>
-                              );
-                              break;
-                            case "filterListView":
-                              element = (
-                                <ListView
-                                  {...route}
-                                  filterRoutes={filterRoutes}
-                                ></ListView>
-                              );
-                              break;
-                          }
-                          return (
-                            <Route
-                              path={route.route}
-                              element={element}
-                              key={`route_${index}`}
-                            ></Route>
-                          );
-                        })}
-                      </Routes>
-                    </main>
-                  </PreviewedInputFontContext.Provider>
-                </InputFontContext.Provider>
-              </FormInputsContext.Provider>
-            </ContentVisibilityContext.Provider>
-            <div className={css(contentOverlayRule)}></div>
-            <div
-              ref={contentBackground}
-              className={css(contentBackgroundRule)}
-              style={{ height: `${cursorY + 2}px` }}
+            <FontVariationsContext.Provider
+              value={{ fontVariations, setFontVariations }}
             >
-              <Routes>
-                {data.map((route, index) => {
-                  let element;
-                  switch (route.type) {
-                    case "filterDetailView":
-                      element = (
-                        <DetailViewOverlay
-                          {...route}
-                          navHeight={navHeight}
-                          key={route.route}
-                        />
-                      );
-                      break;
-                    default:
-                      element = (
-                        <ListViewOverlay
-                          {...route}
-                          filterRoutes={filterRoutes}
-                          navHeight={navHeight}
-                        />
-                      );
-                  }
-                  return (
-                    <Route
-                      path={route.route}
-                      element={element}
-                      key={`overlay_route_${index}`}
-                    />
-                  );
-                })}
-              </Routes>
-              <Footer navHeight={navHeight}></Footer>
-            </div>
+              <ContentVisibilityContext.Provider value={setContentIsVisible}>
+                <Nav setNavHeight={setNavHeight}>
+                  <ul>
+                    <li>
+                      <Link to={"/"}>no design foundry</Link>
+                    </li>
+                    {filterRoutes.map((route, index) => (
+                      <li key={`nav_${index}`}>
+                        <Link to={route.route}>{route.title}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </Nav>
+                <FormInputsContext.Provider
+                  value={{ formInputValues, setFormInputValue }}
+                >
+                  <InputFontContext.Provider
+                    value={{ inputFont, setInputFont }}
+                  >
+                    <PreviewedInputFontContext.Provider
+                      value={{ previewedInputFont, setPreviewedInputFont }}
+                    >
+                      <main>
+                        <Routes>
+                          {data.map((route, index) => {
+                            let element;
+                            switch (route.type) {
+                              case "filterDetailView":
+                                element = (
+                                  <DetailView
+                                    {...route}
+                                    navHeight={navHeight}
+                                    cursorY={cursorY}
+                                    key={route.route}
+                                  ></DetailView>
+                                );
+                                break;
+                              case "filterListView":
+                                element = (
+                                  <ListView
+                                    {...route}
+                                    filterRoutes={filterRoutes}
+                                  ></ListView>
+                                );
+                                break;
+                            }
+                            return (
+                              <Route
+                                path={route.route}
+                                element={element}
+                                key={`route_${index}`}
+                              ></Route>
+                            );
+                          })}
+                        </Routes>
+                      </main>
+                    </PreviewedInputFontContext.Provider>
+                  </InputFontContext.Provider>
+                </FormInputsContext.Provider>
+              </ContentVisibilityContext.Provider>
+              <div className={css(contentOverlayRule)}></div>
+              <div
+                ref={contentBackground}
+                className={css(contentBackgroundRule)}
+                style={{ height: `${cursorY + 2}px` }}
+              >
+                <Routes>
+                  {data.map((route, index) => {
+                    let element;
+                    switch (route.type) {
+                      case "filterDetailView":
+                        element = (
+                          <DetailViewOverlay
+                            {...route}
+                            navHeight={navHeight}
+                            key={route.route}
+                          />
+                        );
+                        break;
+                      default:
+                        element = (
+                          <ListViewOverlay
+                            {...route}
+                            filterRoutes={filterRoutes}
+                            navHeight={navHeight}
+                          />
+                        );
+                    }
+                    return (
+                      <Route
+                        path={route.route}
+                        element={element}
+                        key={`overlay_route_${index}`}
+                      />
+                    );
+                  })}
+                </Routes>
+                <Footer navHeight={navHeight}></Footer>
+              </div>
+            </FontVariationsContext.Provider>
           </PreviewedOutputFontsContext.Provider>
         </PreviewStringsContext.Provider>
       </FontSizeContext.Provider>

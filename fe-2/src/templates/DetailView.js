@@ -6,6 +6,7 @@ import {
   PreviewedInputFontContext,
   PreviewedOutputFontsContext,
   PreviewStringsContext,
+  FontVariationsContext
 } from "../App";
 import FileInput from "../components/FileInput";
 import RangeInput from "../components/RangeInput";
@@ -20,6 +21,7 @@ export const DetailViewContext = createContext();
 const formRule = () => ({
   display: "grid",
   gridTemplateColumns: "repeat(5, min-content)",
+  gridAutoRows: "1.4em",
   gridGap: "2px 6px",
   whiteSpace: "nowrap",
   alignItems: "center",
@@ -82,6 +84,7 @@ function DetailView(props) {
   );
   const [getFormVisible, setGetFormVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { fontVariations, setFontVariations } = useContext(FontVariationsContext)
   const { css } = useFela({ navHeight, isProcessing });
 
   function cancelRequest() {
@@ -131,7 +134,7 @@ function DetailView(props) {
         return [inputFont, outputFonts];
       })
       .then(([inputFont, outputFonts]) => {
-        console.log(inputFont, outputFonts)
+        // console.log(inputFont, outputFonts)
         setPreviewedInputFont(inputFont.family);
         setPreviewedOutputFonts(
           filterIdentifier,
@@ -150,6 +153,7 @@ function DetailView(props) {
       });
   }
 
+  // form auto-submit
   useEffect(() => {
     if (isMounted.current && inputFont) {
       const now = Date.now();
@@ -201,7 +205,8 @@ function DetailView(props) {
               min={input.min}
               max={input.max}
               tag={input.tag}
-              defaultValue={input.default}
+              defaultValue={fontVariations[filterIdentifier][input.tag]}
+              onChange={(e) => setFontVariations(filterIdentifier, input.tag, e.target.value)}
               animatable={true}
             />
           ))}

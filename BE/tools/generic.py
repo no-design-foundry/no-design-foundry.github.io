@@ -49,9 +49,8 @@ def fonts_to_base64(fonts):
     # return fonts_[0]
     return [base64.b64encode(font.getvalue()).decode('ascii') for font in fonts_]
 
-def get_components_in_subsetted_text(tt_font, text):
+def get_components_in_subsetted_text(tt_font, glyph_names):
     if "glyf" in tt_font:
-        return ()
         def get_component_names(glyf, glyph_names, collector=[]):
             components = list(chain(*[glyf[glyph_name].getComponentNames(glyf) for glyph_name in glyph_names]))
             if components:
@@ -62,8 +61,7 @@ def get_components_in_subsetted_text(tt_font, text):
         glyf = tt_font["glyf"]
         components = []
         cmap = tt_font.getBestCmap()
-        keep_glyphs = map(lambda keep_character:cmap.get(ord(keep_character)), text)
-        keep_glyphs = filter(lambda glyph_name:False if glyph_name is None else True, keep_glyphs)
+        keep_glyphs = filter(lambda glyph_name:False if glyph_name is None else True, glyph_names)
         return get_component_names(glyf, list(keep_glyphs))
     else:
         return ()

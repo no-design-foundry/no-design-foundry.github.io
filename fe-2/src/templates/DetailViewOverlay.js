@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useFela } from "react-fela";
 import {
   FontSizeContext,
+  FontVariationsContext,
   PreviewedOutputFontsContext,
   PreviewStringsContext,
 } from "../App";
@@ -25,8 +26,9 @@ function DetailViewOverlay(props) {
   const { filterIdentifier, navHeight, layerColors } = props;
   const { fontSize } = useContext(FontSizeContext);
   const { previewStrings } = useContext(PreviewStringsContext);
-  const { css } = useFela({ navHeight });
   const { previewedOutputFonts } = useContext(PreviewedOutputFontsContext);
+  const { fontVariations } = useContext(FontVariationsContext)
+  const { css } = useFela({ navHeight });
 
   return (
     <div className={css(containerRule)}>
@@ -37,6 +39,7 @@ function DetailViewOverlay(props) {
         <FontPreview
           fontFamily={previewedOutputFonts[filterIdentifier][0]}
           fontSize={fontSize}
+          fontVariations={fontVariations[filterIdentifier]}
         >
           {previewStrings[filterIdentifier]}
         </FontPreview>

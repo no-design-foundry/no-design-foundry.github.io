@@ -12,13 +12,18 @@ const containerRule = ({navHeight}) => ({
     // zIndex: 10000,
 })
 
+const ctaRule = () => ({
+    // position: "relative",
+    // zIndex: 10000
+})
+
 
 function Footer(props) {
     const {navHeight} = props
     const {css} = useFela({navHeight})
     return (
         <footer className={css(containerRule)}>
-            <a href="mailto:mail@nodesignfoundry.com">mail@nodesignfoundry.com</a>
+            <a className={css(ctaRule)} href="mailto:mail@nodesignfoundry.com">mail@nodesignfoundry.com</a>
         </footer>
     )
 }

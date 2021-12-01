@@ -5,61 +5,69 @@ import { column } from "../rules/rules";
 
 const fullscreenDragRule = ({ fileIsDragged }) => ({
   position: "fixed",
-  pointerEvents: "none",
+  fontSize: "4em",
   top: 0,
-  extend: [
-    {
-      condition: fileIsDragged,
-      style: {
-        backgroundColor: "#fff",
-        opacity: 1,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      },
-    },
-  ],
+  backgroundColor: "#fff",
+  opacity: 1,
+  left: 0,
+  right: 0,
+  bottom: 0,
+});
+
+const draggedRule = () => ({
+  position: "absolute",
+  // transform: "translate(-50%, -50%)"
 });
 
 function FileInput(props) {
   const { label } = props;
   const fileInputRef = useRef();
+  const dragState = useRef();
+  const [ cursorDrag, setCursorDrag ] = useState({});
   const { inputFont, setInputFont } = useContext(InputFontContext);
   const [fileIsDragged, setFileIsDragged] = useState(false);
   const { css } = useFela({ fileIsDragged });
 
   useEffect(() => {
     if (fileIsDragged) {
-      // document.body.style.pointerEvents = "none"
+      document.body.querySelector("#root").style.pointerEvents = "none";
+      dragState.current = "moving";
+    } else {
+      document.body
+        .querySelector("#root")
+        .style.removeProperty("pointer-events");
     }
-    else {
-      // document.body.style.removeProperty("pointer-events")
-    }
-  }, [fileIsDragged])
+  }, [fileIsDragged]);
 
   function handleDrop(e) {
     e.preventDefault();
     e.stopPropagation();
     if (e.dataTransfer?.files.length === 1) {
       setInputFont(e.dataTransfer.files[0]);
+      dragState.current = null;
     }
     setFileIsDragged(false);
   }
 
   function handleDragEnter(e) {
+    dragState.current = "entered";
     e.preventDefault();
     e.stopPropagation();
     setFileIsDragged(true);
   }
-  
+
   function handleDragLeave(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    setFileIsDragged(false);
-    console.log(e.path, e.target)
+    if (dragState.current == "moving") {
+      e.preventDefault();
+      e.stopPropagation();
+      setFileIsDragged(false);
+      dragState.current = "left";
+    }
   }
-  
+
   function handleDragOver(e) {
+    const { clientX: left, clientY: top } = e;
+    setCursorDrag({left, top});
     e.preventDefault();
     e.stopPropagation();
   }
@@ -99,7 +107,12 @@ function FileInput(props) {
       <button className={css(column(3))} onClick={handleOnClick}>
         {inputFont?.name ?? "select file"}
       </button>
-      <div className={css(fullscreenDragRule)}>Hello</div>
+      <span className={css(column("4 / span 2"))}> or drop it</span>
+      {fileIsDragged && (
+        <div className={css(fullscreenDragRule)}>
+          <span className={css(draggedRule)} style={cursorDrag}>Drop it</span>
+        </div>
+      )}
     </>
   );
 }

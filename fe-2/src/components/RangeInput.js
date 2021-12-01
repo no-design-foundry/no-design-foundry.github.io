@@ -9,6 +9,18 @@ const valueIndicatorRule = () => ({
   padding: "0 .2em",
 });
 
+const buttonRule = ({}) => ({
+  height: "100%",
+  // overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
+})
+
+const placeholderRule = ({animating}) => ({
+  visibility: "hidden"
+})
+
+
 function RangeInput(props) {
   const {
     label,
@@ -29,7 +41,7 @@ function RangeInput(props) {
   const [currentValue, setCurrentValue] = useState(
     formInputValues[filterIdentifier][name]
   );
-  const { css } = useFela();
+  const { css } = useFela({animating});
 
   useEffect(() => {
     inputRef.current.value = currentValue || defaultValue;
@@ -40,15 +52,9 @@ function RangeInput(props) {
 
   useEffect(() => {
     if (inputRef.current.value !== currentValue) {
-      inputRef.current.value = currentValue
+      inputRef.current.value = currentValue;
     }
-    if (tag) {
-      let value = {}
-      value[tag] = currentValue
-      console.log(value)
-      // setVariationSettings({ ...variationSettings, ...value });
-    }
-  }, [currentValue])
+  }, [currentValue]);
 
   function handleOnChange(e) {
     if (inputRef.current.checkValidity()) {
@@ -67,13 +73,16 @@ function RangeInput(props) {
     if (animating === true) {
       clearInterval(animationInterval.current);
     } else {
-      let counter = 0
-      const start = currentValue
+      let counter = 0;
+      const start = currentValue;
       animationInterval.current = setInterval(() => {
-        const position = (start + counter) % 720
-        setCurrentValue(Math.round(position - 360 < 0 ? position : 360 - position % 360 ))
-        const offset = 10-(Math.cos(Math.PI * position/180)+1)/2*9
-        counter += offset
+        const position = (start + counter) % 720;
+        setCurrentValue(
+          Math.round(position - 360 < 0 ? position : 360 - (position % 360))
+        );
+        const offset =
+          10 - ((Math.cos((Math.PI * position) / 180) + 1) / 2) * 9;
+        counter += offset;
       }, 1000 / 30);
     }
     setAnimating(!animating);
@@ -82,7 +91,13 @@ function RangeInput(props) {
   return (
     <>
       <label className={css(column(1))}>{label}</label>
-      {animatable && <button className={css(column(2))} onClick={handleOnClickAnimate}>play</button>}
+      {animatable && (
+        <button className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
+          <span>{animating ? "stop" : "play"}</span>
+          <span className={css(placeholderRule)} aria-label="hidden">play</span>
+          <span className={css(placeholderRule)} aria-label="hidden">stop</span>
+        </button>
+      )}
       <input
         ref={inputRef}
         className={css(column(3))}
@@ -92,10 +107,7 @@ function RangeInput(props) {
         max={max}
         disabled={disabled}
       ></input>
-      <div
-        className={css(valueIndicatorRule)}
-        disabled={disabled}
-      >
+      <div className={css(valueIndicatorRule)} disabled={disabled}>
         {currentValue}
       </div>
     </>

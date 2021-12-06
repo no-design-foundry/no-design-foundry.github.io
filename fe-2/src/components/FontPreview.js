@@ -27,7 +27,8 @@ const overlayItemRule = ({ previewedFontFamily, visible }) => ({
 });
 
 const contentRule = () => ({
-  whiteSpace: "nowrap"
+  whiteSpace: "nowrap",
+  transform: "translateZ(0)"
 })
 
 const containerRule = ({ inListView }) => ({
@@ -37,11 +38,12 @@ const containerRule = ({ inListView }) => ({
   position: "absolute",
   top: 0,
   left: 0,
-  width: "100%",
+  width: "100vw",
   height: "100vh",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  overflow: "hidden",
   flexGrow: 1,
   extend: [
     {

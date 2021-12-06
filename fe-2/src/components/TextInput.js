@@ -2,6 +2,12 @@ import React, { useEffect, useRef } from "react";
 import { useFela } from "react-fela";
 import { column } from "../rules/rules";
 
+const inputRule = () => ({
+  background: "transparent",
+  outline: "none",
+  border: "none"
+})
+
 function TextInput(props) {
   const { label, defaultValue, onChange, disabled } = props;
   const inputRef = useRef();
@@ -24,7 +30,7 @@ function TextInput(props) {
       <label className={css(column(1))}>{label}</label>
       <input
         ref={inputRef}
-        className={css(column(3))}
+        className={css(inputRule, column(3))}
         type="text"
         onChange={handleOnChange}
         disabled={disabled}

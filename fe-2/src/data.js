@@ -46,4 +46,22 @@ export default [
       },
     ],
   },
+  {
+    type: "filterDetailView",
+    title: "Rastrrrr",
+    filterIdentifier: "rasterizer_2",
+    route: "/rasterizer_2",
+    numberOfLayers: 1,
+    layerColors: ["#000"],
+    inputs: [
+      {
+        type: "range",
+        label: "resolution",
+        name: "resolution",
+        min: 10,
+        max: 150,
+        default: 20,
+      },
+    ],
+  },
 ];

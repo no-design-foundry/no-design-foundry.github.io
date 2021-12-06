@@ -6,10 +6,40 @@ import { RendererProvider } from "react-fela";
 import { createRenderer } from "fela";
 import extend from "fela-plugin-extend";
 import embedded from "fela-plugin-embedded";
+import friendlyPseudoClass from "fela-plugin-friendly-pseudo-class";
+import responsiveValue from "fela-plugin-responsive-value";
+import prefixer from 'fela-plugin-prefixer'
+import validator from 'fela-plugin-validator'
 
-const renderer = createRenderer({ plugins: [
-  extend(), embedded()
-] });
+const getMediaQueries = (values, props) => {
+  console.log(values)
+  switch(values.length) {
+   case 2:
+     return ["@media (min-width: 1024px)"];
+    case 1:
+      return []
+  }
+  return ["@media (min-width: 800px)", "@media (min-width: 1024px)"];
+};
+
+const renderer = createRenderer({
+  plugins: [
+    extend(),
+    embedded(),
+    // friendlyPseudoClass(),
+    responsiveValue(getMediaQueries, {
+      padding: true,
+      margin: true,
+      display: true,
+      fontSize: true,
+      gridTemplateColumns: true,
+      width: true
+    }),
+    // validator({logInvalid: true,
+    //   deleteInvalid: false,
+    //   useCSSLint: true}),
+  ],
+});
 
 const resetStyle = {
   padding: 0,
@@ -25,13 +55,17 @@ const resetStyle = {
 renderer.renderStatic(resetStyle, "html,body,div,input,label,a,button");
 
 const bodyStyle = {
-  fontSize: "18px",
   fontFamily: "'Times New Roman', serif",
-  // fontFamily: "'Times New ",
+  maxWidth: "100vw",
   minHeight: "100vh",
   position: "relative",
 };
-renderer.renderStatic(bodyStyle, "body, #root");
+renderer.renderStatic(bodyStyle, "body");
+
+const htmlStyle = {
+  overflowX: "hidden",
+};
+renderer.renderStatic(htmlStyle, "html");
 
 const ulStyle = {
   margin: 0,
@@ -52,6 +86,23 @@ const disabledStyle = {
   pointerEvents: "none",
 };
 renderer.renderStatic(disabledStyle, "*[disabled]");
+
+const inputRule = {
+  minWidth: "100px"
+  //   -webkit-appearance: none;
+  //   border: 1px solid #000000;
+  //   height: 36px;
+  //   width: 16px;
+  //   border-radius: 3px;
+  //   background: #ffffff;
+  //   cursor: pointer;
+  //   margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  //   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+  // } 
+}
+renderer.renderStatic(inputRule, "input");
+
+
 
 ReactDOM.render(
   <BrowserRouter>

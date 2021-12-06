@@ -20,6 +20,8 @@ const placeholderRule = ({animating}) => ({
   visibility: "hidden"
 })
 
+const inputRule = ({}) => ({
+})
 
 function RangeInput(props) {
   const {
@@ -92,15 +94,15 @@ function RangeInput(props) {
     <>
       <label className={css(column(1))}>{label}</label>
       {animatable && (
-        <button className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
+        <div className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
           <span>{animating ? "stop" : "play"}</span>
           <span className={css(placeholderRule)} aria-label="hidden">play</span>
           <span className={css(placeholderRule)} aria-label="hidden">stop</span>
-        </button>
+        </div>
       )}
       <input
         ref={inputRef}
-        className={css(column(3))}
+        className={css(inputRule, column(3))}
         type="range"
         onChange={handleOnChange}
         min={min}

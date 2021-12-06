@@ -13,13 +13,18 @@ const containerRule = ({ navHeight }) => ({
 });
 
 const descriptionWrapperRule = () => ({
+  position: "absolute",
+  width: "100vw",
   display: "flex",
   justifyContent: "flex-end",
+  // transform: "translateX(-100%)"
 });
 
 const descriptionRule = () => ({
   padding: "10px",
-  maxWidth: "72ch",
+  width: "50ch",
+  maxWidth: "50vw",
+  textAlign: "right"
 });
 
 function DetailViewOverlay(props) {
@@ -33,7 +38,7 @@ function DetailViewOverlay(props) {
   return (
     <div className={css(containerRule)}>
       <div className={css(descriptionWrapperRule)}>
-        <p className={css(descriptionRule)}>This is filter description</p>
+        <p className={css(descriptionRule)}>filter description you can find some interesting information here</p>
       </div>
       <div>
         <FontPreview

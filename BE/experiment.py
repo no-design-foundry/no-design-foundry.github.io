@@ -1,7 +1,15 @@
-from fontTools.ttLib import TTFont
+import skia
+import contextlib
+from datetime import datetime
+from io import BytesIO
 
-tt_font = TTFont("test_fonts/sourceSerif.otf")
-print(dir(tt_font))
-for byte in tt_font.getTableData("GPOS"):
-    print(byte)
-# print(tt_font["GPOS"])
+
+    # displayImage(data=image.encodeToData())
+with open("test_fonts/VTT.ttf", "rb") as input_file:
+    data = BytesIO(input_file.read())
+
+start = datetime.now()
+font = skia.Typeface.MakeFromData(data)
+print(dir(font))
+end = datetime.now()
+print((end-start).total_seconds())

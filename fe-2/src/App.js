@@ -8,7 +8,6 @@ import DetailView from "./templates/DetailView";
 import DetailViewOverlay from "./templates/DetailViewOverlay";
 import ListView from "./templates/ListView";
 import ListViewOverlay from "./templates/ListViewOverlay";
-import Footer from "./components/Footer";
 
 export const FormInputsContext = createContext();
 export const InputFontContext = createContext();
@@ -52,7 +51,7 @@ const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
   ],
 });
 
-const contentBackgroundRule = () => ({
+const contentBackgroundRule = ({isTouching}) => ({
   zIndex: -1,
   top: 0,
   left: 0,
@@ -60,10 +59,33 @@ const contentBackgroundRule = () => ({
   position: "absolute",
   background: "#eee",
   overflow: "hidden",
+  transform: "translateZ(0)",
+  extend: [
+    {
+      condition: isTouching,
+      style: {
+        height: "100%"
+      }
+    },
+    {
+      condition: !isTouching,
+      style: {
+        width: "100%"
+      }
+    }
+  ]
 });
 
-const appRule = () => ({
-  position: "relative",
+const appRule = ({touchAction}) => ({
+  fontSize: ["22px", "18px"],
+  extend: [
+    {
+      condition: !touchAction,
+      style: {
+        touchAction: "none"
+      }
+    }
+  ]
 });
 
 function App() {
@@ -77,11 +99,6 @@ function App() {
       return collector;
     }, {})
   );
-  function setPreviewedOutputFonts(filterIdentifier, value) {
-    let collector = {};
-    collector[filterIdentifier] = value;
-    _setPreviewedOutputFonts({ ...previewedOutputFonts, ...collector });
-  }
   const [fontVariations, _setFontVariations] = useState(
     filterRoutes.reduce((collector, filterRoute) => {
       if (filterRoute.variableFontControlSliders) {
@@ -95,19 +112,31 @@ function App() {
     }, {})
   );
 
-  function setFontVariations(filterIdentifier, tag, value) {
-    let collector = {...fontVariations}
-    collector[filterIdentifier][tag] = parseInt(value)
-    _setFontVariations(collector);
-  }
-  
-  const [fontSize, setFontSize] = useState(200);
+  const [fontSize, setFontSize] = useState(document.body.clientWidth / 4);
   const contentBackground = useRef();
   const [formInputValues, _setFormInputsValue] = useState(_formInputValues);
   const [contentIsVisible, setContentIsVisible] = useState(true);
   const [navHeight, setNavHeight] = useState(77);
   const [cursorY, setCursorY] = useState(0);
-  const { css } = useFela({ contentIsVisible, navHeight });
+  const [isTouching, setIsTouching] = useState(false);
+  const [touchAction, setTouchAction] = useState(true);
+  const [dragX, setDragX] = useState(0);
+  let lastTouchTimestamp = useRef(Date.now())
+  const touchX = useRef(0);
+  const touchY = useRef(0);
+  const { css } = useFela({ contentIsVisible, navHeight, touchAction, isTouching });
+
+  function setPreviewedOutputFonts(filterIdentifier, value) {
+    let collector = {};
+    collector[filterIdentifier] = value;
+    _setPreviewedOutputFonts({ ...previewedOutputFonts, ...collector });
+  }
+
+  function setFontVariations(filterIdentifier, tag, value) {
+    let collector = { ...fontVariations };
+    collector[filterIdentifier][tag] = parseInt(value);
+    _setFontVariations(collector);
+  }
 
   function setFormInputValue(filterIdentifier, name, value) {
     let collector = { ...formInputValues };
@@ -116,19 +145,65 @@ function App() {
   }
 
   function handleCursorY(e) {
-    setCursorY(e.pageY);
+    if (Date.now() - lastTouchTimestamp.current > 500) {
+      setIsTouching(false)
+      setCursorY(e.pageY);
+    }
+  }
+  
+  function handleTouchStart(e) {
+    lastTouchTimestamp.current = Date.now()
+    setIsTouching(true);
+    if (e.touches.length === 1) {
+      setDragX(e.touches[0].pageX)
+    }
+  }
+
+  function handleTouchEnd(e) {
+  }
+
+  function handleTouchCancel(e) {
+  }
+
+  function handleOnTouchMove(e) {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setDragX(e.touches[0].pageX);
+      if (
+        Math.abs(touch.pageX - touchX.current) >=
+        Math.abs(touch.pageY - touchY.current)
+      ) {
+        setTouchAction(false)
+      }
+      else {
+        setTouchAction(true)
+      }
+      touchX.current = touch.pageX;
+      touchY.current = touch.pageY;
+    } else {
+      setTouchAction(true)
+    }
   }
 
   useEffect(() => {
     window.addEventListener("mousemove", handleCursorY);
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchmove", handleOnTouchMove);
+    window.addEventListener("touchend", handleTouchEnd);
+    window.addEventListener("touchcancel", handleTouchCancel);
     return () => {
       window.removeEventListener("mousemove", handleCursorY);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleOnTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchCancel);
     };
   }, []);
 
   const [previewStrings, _setPreviewString] = useState(
     filterRoutes.reduce((collector, filterRoute) => {
       collector[filterRoute.filterIdentifier] = filterRoute.title;
+      // collector[filterRoute.filterIdentifier] = "";
       return collector;
     }, {})
   );
@@ -215,7 +290,12 @@ function App() {
               <div
                 ref={contentBackground}
                 className={css(contentBackgroundRule)}
-                style={{ height: `${cursorY + 2}px` }}
+                style={{
+                  ...isTouching
+                  ?
+                  {width: `${dragX}px`}
+                  :
+                  {height: `${cursorY}px`}}}
               >
                 <Routes>
                   {data.map((route, index) => {
@@ -248,7 +328,6 @@ function App() {
                     );
                   })}
                 </Routes>
-                <Footer navHeight={navHeight}></Footer>
               </div>
             </FontVariationsContext.Provider>
           </PreviewedOutputFontsContext.Provider>

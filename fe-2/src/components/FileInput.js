@@ -3,6 +3,7 @@ import { useFela } from "react-fela";
 import { InputFontContext } from "../App";
 import { column } from "../rules/rules";
 
+
 const fullscreenDragRule = ({ fileIsDragged }) => ({
   position: "fixed",
   fontSize: "4em",
@@ -18,6 +19,17 @@ const draggedRule = () => ({
   position: "absolute",
   // transform: "translate(-50%, -50%)"
 });
+
+const dropItRule = () => ({
+  display: ["none", "block"]
+})
+
+const buttonRule = () => ({
+  height: "100%",
+  display: "flex",
+  alignItems: "center",
+  fontSize: ".9em"
+})
 
 function FileInput(props) {
   const { label } = props;
@@ -57,7 +69,7 @@ function FileInput(props) {
   }
 
   function handleDragLeave(e) {
-    if (dragState.current == "moving") {
+    if (dragState.current === "moving") {
       e.preventDefault();
       e.stopPropagation();
       setFileIsDragged(false);
@@ -104,10 +116,10 @@ function FileInput(props) {
         style={{ display: "none" }}
         accept=".ttf,.otf,woff,woff2"
       ></input>
-      <button className={css(column(3))} onClick={handleOnClick}>
+      <button className={css(buttonRule, column(3))} onClick={handleOnClick}>
         {inputFont?.name ?? "select file"}
       </button>
-      <span className={css(column("4 / span 2"))}> or drop it</span>
+      <span className={css(dropItRule, column("4 / span 2"))}> or drop it</span>
       {fileIsDragged && (
         <div className={css(fullscreenDragRule)}>
           <span className={css(draggedRule)} style={cursorDrag}>Drop it</span>

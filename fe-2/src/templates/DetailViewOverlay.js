@@ -12,20 +12,6 @@ const containerRule = ({ navHeight }) => ({
   marginTop: `${navHeight}px`,
 });
 
-const descriptionWrapperRule = () => ({
-  position: "absolute",
-  width: "100vw",
-  display: "flex",
-  justifyContent: "flex-end",
-  // transform: "translateX(-100%)"
-});
-
-const descriptionRule = () => ({
-  padding: "10px",
-  width: "50ch",
-  maxWidth: "50vw",
-  textAlign: "right"
-});
 
 function DetailViewOverlay(props) {
   const { filterIdentifier, navHeight, layerColors } = props;
@@ -37,19 +23,18 @@ function DetailViewOverlay(props) {
 
   return (
     <div className={css(containerRule)}>
-      <div className={css(descriptionWrapperRule)}>
-        <p className={css(descriptionRule)}>filter description you can find some interesting information here</p>
-      </div>
       <div>
-        <FontPreview
-          fontFamily={previewedOutputFonts[filterIdentifier][0]}
+        {layerColors.map((layerColor, index) => (
+        <FontPreview 
+          key={`${filterIdentifier}-overlay-${index}`}
+          fontFamily={previewedOutputFonts[filterIdentifier][index]}
           fontSize={fontSize}
           fontVariations={fontVariations[filterIdentifier]}
+          color={layerColor}
         >
           {previewStrings[filterIdentifier]}
         </FontPreview>
-        {/* {layerColors.map((layerColor, index) => (
-        ))} */}
+        ))}
       </div>
     </div>
   );

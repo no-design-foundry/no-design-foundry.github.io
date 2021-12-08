@@ -12,8 +12,9 @@ function Nav(props) {
     const {css} = useFela()
 
     function handleOnResize() {
-        const {clientHeight} = containerRef.current
-        setNavHeight(clientHeight)
+        const {offsetHeight:height} = containerRef.current
+        console.log(height)
+        setNavHeight(height)
     }
 
     useEffect(() => {

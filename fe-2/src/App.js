@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router";
 import Link from "./components/Link";
 import Nav from "./components/Nav";
 import data from "./data";
+// const data = require("./data");
 import DetailView from "./templates/DetailView";
 import DetailViewOverlay from "./templates/DetailViewOverlay";
 import ListView from "./templates/ListView";
@@ -38,6 +39,7 @@ const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
   left: 0,
   background: "#ccc",
   transition: `height ${350}ms`,
+  transform: "translateZ(0)",
   transitionTimingFunction: contentIsVisible
     ? "cubic-bezier(.55,0,1,.45)"
     : "cubic-bezier(0,.55,.45,1)",
@@ -51,7 +53,7 @@ const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
   ],
 });
 
-const contentBackgroundRule = ({isTouching}) => ({
+const contentBackgroundRule = ({isTouching, transitionWidth}) => ({
   zIndex: -1,
   top: 0,
   left: 0,
@@ -71,6 +73,12 @@ const contentBackgroundRule = ({isTouching}) => ({
       condition: !isTouching,
       style: {
         width: "100%"
+      }
+    },
+    {
+      condition: transitionWidth,
+      style: {
+        transition: "width .15s ease-in"
       }
     }
   ]
@@ -120,11 +128,17 @@ function App() {
   const [cursorY, setCursorY] = useState(0);
   const [isTouching, setIsTouching] = useState(false);
   const [touchAction, setTouchAction] = useState(true);
+  const [transitionWidth, setTransitionWidth] = useState(false);
   const [dragX, setDragX] = useState(0);
+  const [listViewFontSize, setListViewFontSize] = useState(200)
   let lastTouchTimestamp = useRef(Date.now())
   const touchX = useRef(0);
   const touchY = useRef(0);
-  const { css } = useFela({ contentIsVisible, navHeight, touchAction, isTouching });
+  const { css } = useFela({ contentIsVisible, navHeight, touchAction, isTouching, transitionWidth });
+
+  useEffect(() => {
+    console.log(transitionWidth)
+  }, [transitionWidth])
 
   function setPreviewedOutputFonts(filterIdentifier, value) {
     let collector = {};
@@ -146,6 +160,7 @@ function App() {
 
   function handleCursorY(e) {
     if (Date.now() - lastTouchTimestamp.current > 500) {
+      setTransitionWidth(false)
       setIsTouching(false)
       setCursorY(e.pageY);
     }
@@ -153,6 +168,7 @@ function App() {
   
   function handleTouchStart(e) {
     lastTouchTimestamp.current = Date.now()
+    setTransitionWidth(true)
     setIsTouching(true);
     if (e.touches.length === 1) {
       setDragX(e.touches[0].pageX)
@@ -166,18 +182,19 @@ function App() {
   }
 
   function handleOnTouchMove(e) {
+    setTransitionWidth(false)
     if (e.touches.length === 1) {
       const touch = e.touches[0];
       setDragX(e.touches[0].pageX);
-      if (
-        Math.abs(touch.pageX - touchX.current) >=
-        Math.abs(touch.pageY - touchY.current)
-      ) {
-        setTouchAction(false)
-      }
-      else {
-        setTouchAction(true)
-      }
+      // if (
+      //   Math.abs(touch.pageX - touchX.current) >=
+      //   Math.abs(touch.pageY - touchY.current)
+      // ) {
+      //   setTouchAction(false)
+      // }
+      // else {
+      //   setTouchAction(true)
+      // }
       touchX.current = touch.pageX;
       touchY.current = touch.pageY;
     } else {
@@ -203,7 +220,6 @@ function App() {
   const [previewStrings, _setPreviewString] = useState(
     filterRoutes.reduce((collector, filterRoute) => {
       collector[filterRoute.filterIdentifier] = filterRoute.title;
-      // collector[filterRoute.filterIdentifier] = "";
       return collector;
     }, {})
   );
@@ -258,7 +274,6 @@ function App() {
                                   <DetailView
                                     {...route}
                                     navHeight={navHeight}
-                                    cursorY={cursorY}
                                     key={route.route}
                                   ></DetailView>
                                 );
@@ -268,9 +283,13 @@ function App() {
                                   <ListView
                                     {...route}
                                     filterRoutes={filterRoutes}
+                                    fontSize={listViewFontSize}
+                                    setFontSize={setListViewFontSize}
                                   ></ListView>
                                 );
                                 break;
+                              default: 
+                                  throw new Error("view not matched")
                             }
                             return (
                               <Route
@@ -316,6 +335,7 @@ function App() {
                             {...route}
                             filterRoutes={filterRoutes}
                             navHeight={navHeight}
+                            fontSize={listViewFontSize}
                           />
                         );
                     }

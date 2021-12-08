@@ -6,20 +6,15 @@ import { RendererProvider } from "react-fela";
 import { createRenderer } from "fela";
 import extend from "fela-plugin-extend";
 import embedded from "fela-plugin-embedded";
-import friendlyPseudoClass from "fela-plugin-friendly-pseudo-class";
 import responsiveValue from "fela-plugin-responsive-value";
-import prefixer from 'fela-plugin-prefixer'
-import validator from 'fela-plugin-validator'
 
 const getMediaQueries = (values, props) => {
-  console.log(values)
   switch(values.length) {
    case 2:
-     return ["@media (min-width: 1024px)"];
-    case 1:
+     return ["@media (min-width: 570px)"];
+    default:
       return []
   }
-  return ["@media (min-width: 800px)", "@media (min-width: 1024px)"];
 };
 
 const renderer = createRenderer({
@@ -76,7 +71,12 @@ renderer.renderStatic(ulStyle, "ul");
 
 const buttonStyle = {
   whiteSpace: "nowrap",
-  padding: "0 0.5ch",
+  background: "transparent",
+  outline: "none",
+  border: "none",
+  appearance: "none",
+  textAlign: "left",
+  textDecoration: "underline"
 };
 renderer.renderStatic(buttonStyle, "button");
 

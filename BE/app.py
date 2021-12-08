@@ -4,10 +4,11 @@ from extractor.formats.opentype import (
     extractGlyphOrder,
     extractOpenTypeInfo,
     extractOpenTypeKerning,
-    extractOpenTypeGlyphs
+    extractOpenTypeGlyphs,
 )
 from fontTools.cffLib import PrivateDict
 from fastapi.responses import StreamingResponse, Response
+from fastapi import HTTPException
 from fastapi import FastAPI, Form, File, Depends, Body, Request
 from typing import Any, Optional
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,7 +20,7 @@ from tools.generic import (
     get_components_in_subsetted_text,
     fonts_to_base64,
     extract_to_ufo,
-    inject_features
+    inject_features,
 )
 import extractor
 from defcon import Font
@@ -34,6 +35,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "*"
 ]
 
 app.add_middleware(
@@ -44,19 +46,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def get_tt_font(bytes_):
     bytes_ = BytesIO(bytes_)
     bytes_.seek(0)
     font = TTFont(bytes_, lazy=True)
     return font
 
+
 def subset_font(tt_font, subsetted_text):
-    
+
     subsetter = Subsetter()
     # keep_glyphs = get_components_in_subsetted_text(tt_font, subsetted_text)
     # subsetter.populate(text=subsetted_text, glyphs=keep_glyphs)
     subsetter.populate(text=subsetted_text)
     subsetter.subset(tt_font)
+
 
 def timer(func):
     @wraps(func)
@@ -66,7 +71,9 @@ def timer(func):
         end = datetime.now()
         print((end - start).total_seconds())
         return response
+
     return temp_func
+
 
 def extractGlyph(source, destination, glyph_name):
     # grab the cmap
@@ -106,43 +113,67 @@ def extractGlyph(source, destination, glyph_name):
     # unicodes
     destinationGlyph.unicodes = reversedMapping.get(glyph_name, [])
 
+
+
 @app.post("/filters/{filter_identifier}")
 async def filter(
     filter_identifier: str,
     font_file: bytes = File(...),
     preview_string: str = Form(..., max_length=32),
-    depth: int= Form(None),
-    resolution: int = Form(None)
+    depth: int = Form(None),
+    resolution: int = Form(None),
 ):
     start = datetime.now()
+    try:
+        if filter_identifier not in ["rasterizer", "rotorizer"]:
+            raise  NotExistingFilterException(f"Filter '{filter_identifier}' doesn't exists")
+        binary_font = BytesIO(font_file)
+        try:
+            tt_font = TTFont(binary_font, lazy=True)
+        except:
+            raise InvalidInputFontData("Your font file is in unreadable format")
+        cmap = tt_font.getBestCmap()
+        glyph_names_to_process = [cmap.get(ord(char), None) for char in preview_string]
+        glyph_names_to_process = [
+            glyph_name for glyph_name in glyph_names_to_process if glyph_name != None
+        ]
+        components = get_components_in_subsetted_text(tt_font, glyph_names_to_process)
+        glyph_names_to_process.extend(components)
+        cmap_reversed = {v: k for k, v in cmap.items() if v in glyph_names_to_process}
 
-    binary_font = BytesIO(font_file)
-    tt_font = TTFont(binary_font, lazy=True)
-    cmap = tt_font.getBestCmap()
-    glyph_names_to_process = [cmap.get(ord(char), None) for char in preview_string]
-    glyph_names_to_process = [glyph_name for glyph_name in glyph_names_to_process if glyph_name != None]
-    components = get_components_in_subsetted_text(tt_font, glyph_names_to_process)
-    glyph_names_to_process.extend(components)
-    cmap_reversed = {v:k for k,v in cmap.items() if v in glyph_names_to_process}
-
-    if filter_identifier in ["rasterizer"]:
-        ufo = Font()
-        extractOpenTypeInfo(tt_font, ufo)
-        for glyph_name in glyph_names_to_process:
-            new_glyph = ufo.newGlyph(glyph_name)
-            new_glyph.unicode = cmap_reversed[glyph_name]
-    else:
-        ufo = None
-    if filter_identifier == "rasterizer":
-        output = [rasterize(ufo=ufo, tt_font=tt_font, binary_font=binary_font, glyph_names_to_process=glyph_names_to_process, resolution=resolution)]
-    elif filter_identifier == "rotorizer":
-        output = rotorize(tt_font=tt_font, depth=depth, glyph_names_to_process=glyph_names_to_process, cmap_reversed=cmap_reversed)
-    else:
-        raise Exception
+        if filter_identifier in ["rasterizer"]:
+            ufo = Font()
+            extractOpenTypeInfo(tt_font, ufo)
+            for glyph_name in glyph_names_to_process:
+                new_glyph = ufo.newGlyph(glyph_name)
+                new_glyph.unicode = cmap_reversed[glyph_name]
+        else:
+            ufo = None
+        if filter_identifier == "rasterizer":
+            output = [
+                rasterize(
+                    ufo=ufo,
+                    tt_font=tt_font,
+                    binary_font=binary_font,
+                    glyph_names_to_process=glyph_names_to_process,
+                    resolution=resolution,
+                )
+            ]
+        elif filter_identifier == "rotorizer":
+            output = rotorize(
+                tt_font=tt_font,
+                depth=depth,
+                glyph_names_to_process=glyph_names_to_process,
+                cmap_reversed=cmap_reversed,
+            )
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=404, detail=e)
     end = datetime.now()
-    total = (end-start).total_seconds()
+    total = (end - start).total_seconds()
     response = fonts_to_base64(output)
     return {"fonts": response, "response_time": total}
+
 
 @app.get("/filters/{filter_identifier}/get")
 def filter_get():
@@ -151,19 +182,21 @@ def filter_get():
     return Response(
         content=response,
         media_type="font/opentype",
-        headers={'Content-Disposition': 'inline; filename="test.ttf"'}
-        )
+        headers={"Content-Disposition": 'inline; filename="test.ttf"'},
+    )
+
 
 @app.post("/debug/{filter_identifier}")
 def filter_get(
     filter_identifier: str,
     font_file: bytes = File(...),
     preview_string: str = Form(..., max_length=32),
-    depth: int= Form(None),
-    resolution: int = Form(None)
-    ):
-        print(depth, resolution)
-        return {"message": "ok"}
+    depth: int = Form(None),
+    resolution: int = Form(None),
+):
+    print(depth, resolution)
+    return {"message": "ok"}
+
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=5000, debug=True, reload=True)

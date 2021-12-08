@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFela } from "react-fela";
 
 const opacityTransition = 350;
-const overlayItemRule = ({ previewedFontFamily, visible }) => ({
+
+const overlayItemRule = ({ previewedFontFamily, visible, color }) => ({
   userSelect: "none",
   position: "absolute",
   transform: "translate(-50%, -50%)",
@@ -15,6 +16,12 @@ const overlayItemRule = ({ previewedFontFamily, visible }) => ({
       style: {
         fontFamily: previewedFontFamily,
       },
+    },
+    {
+      condition: color,
+      style: {
+        color
+      }
     },
     {
       condition: !visible,
@@ -61,10 +68,22 @@ function FontPreview(props) {
     inListView = false,
     fontFamily,
     fontVariations = {},
+    color,
+    onMount
   } = props;
+  const didMount = useRef(false);
+  const contentRef = useRef();
   const [visible, setVisible] = useState(true);
   const [previewedFontFamily, setPreviewedFontFamily] = useState(fontFamily);
   const [previewedChildren, setPreviewedChildren] = useState(props.children);
+
+  useEffect(() => {
+    if (!didMount.current && onMount) {
+      onMount(contentRef.current.offsetWidth, fontSize)
+      didMount.current = true
+    }    
+  }, [fontSize, onMount])
+
   useEffect(() => {
     if (fontFamily !== previewedFontFamily) {
       setVisible(false);
@@ -76,12 +95,13 @@ function FontPreview(props) {
     }
   }, [fontFamily]);
 
-  const { css } = useFela({ visible, inListView, previewedFontFamily });
+  const { css } = useFela({ visible, inListView, previewedFontFamily, color });
   return (
     <div className={css(containerRule)} style={{ fontSize: `${fontSize}px` }}>
       <div>
         <div className={css(overlayItemRule)}>
           <span
+            ref={contentRef}
             className={css(contentRule)}
             style={{
               fontVariationSettings: Object.keys(fontVariations)

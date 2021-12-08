@@ -116,10 +116,10 @@ function FileInput(props) {
         style={{ display: "none" }}
         accept=".ttf,.otf,woff,woff2"
       ></input>
-      <button className={css(buttonRule, column(3))} onClick={handleOnClick}>
-        {inputFont?.name ?? "select file"}
+      <button className={css(column(3))} onClick={handleOnClick}>
+        {inputFont?.name ?? "select file or drop it"}
       </button>
-      <span className={css(dropItRule, column("4 / span 2"))}> or drop it</span>
+      {/* <span className={css(dropItRule, column("4 / span 2"))}> or drop it</span> */}
       {fileIsDragged && (
         <div className={css(fullscreenDragRule)}>
           <span className={css(draggedRule)} style={cursorDrag}>Drop it</span>

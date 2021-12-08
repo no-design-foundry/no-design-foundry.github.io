@@ -9,18 +9,24 @@ const valueIndicatorRule = () => ({
   padding: "0 .2em",
 });
 
-const buttonRule = ({}) => ({
+const buttonRule = () => ({
   height: "100%",
   // overflow: "hidden",
   display: "flex",
   flexDirection: "column",
 })
 
-const placeholderRule = ({animating}) => ({
+const placeholderRule = () => ({
   visibility: "hidden"
 })
 
-const inputRule = ({}) => ({
+const inputRule = () => ({
+  "&::-webkit-slider-thumb": {
+    appearance: "none",
+    "-webkit-appearance": "none",
+    width: "40px",
+    height: "40px"
+  }
 })
 
 function RangeInput(props) {
@@ -55,14 +61,14 @@ function RangeInput(props) {
   useEffect(() => {
     if (inputRef.current.value !== currentValue) {
       inputRef.current.value = currentValue;
+      if (onChange) {
+        onChange(currentValue);
+      }
     }
   }, [currentValue]);
 
   function handleOnChange(e) {
     if (inputRef.current.checkValidity()) {
-      if (onChange) {
-        onChange(e);
-      }
       const value = parseInt(e.target.value);
       setCurrentValue(value);
       if (name) {
@@ -79,9 +85,8 @@ function RangeInput(props) {
       const start = currentValue;
       animationInterval.current = setInterval(() => {
         const position = (start + counter) % 720;
-        setCurrentValue(
-          Math.round(position - 360 < 0 ? position : 360 - (position % 360))
-        );
+        const value = Math.round(position - 360 < 0 ? position : 360 - (position % 360))
+        setCurrentValue(value)
         const offset =
           10 - ((Math.cos((Math.PI * position) / 180) + 1) / 2) * 9;
         counter += offset;
@@ -94,11 +99,11 @@ function RangeInput(props) {
     <>
       <label className={css(column(1))}>{label}</label>
       {animatable && (
-        <div className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
+        <button className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
           <span>{animating ? "stop" : "play"}</span>
           <span className={css(placeholderRule)} aria-label="hidden">play</span>
           <span className={css(placeholderRule)} aria-label="hidden">stop</span>
-        </div>
+        </button>
       )}
       <input
         ref={inputRef}

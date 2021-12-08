@@ -150,7 +150,6 @@ function DetailView(props) {
         return [inputFont, outputFonts];
       })
       .then(([inputFont, outputFonts]) => {
-        // console.log(inputFont, outputFonts)
         setPreviewedInputFont(inputFont.family);
         setPreviewedOutputFonts(
           filterIdentifier,
@@ -158,6 +157,8 @@ function DetailView(props) {
         );
       })
       .catch((thrown) => {
+        const detail = thrown?.response?.data?.detail ?? null
+        console.log(detail)
         if (axios.isCancel(thrown)) {
           console.log(thrown.message);
         } else {
@@ -224,8 +225,8 @@ function DetailView(props) {
                 max={input.max}
                 tag={input.tag}
                 defaultValue={fontVariations[filterIdentifier][input.tag]}
-                onChange={(e) =>
-                  setFontVariations(filterIdentifier, input.tag, e.target.value)
+                onChange={(value) =>
+                  setFontVariations(filterIdentifier, input.tag, value)
                 }
                 animatable={true}
               />
@@ -235,7 +236,7 @@ function DetailView(props) {
               min={20}
               max={400}
               defaultValue={200}
-              onChange={(e) => setFontSize(e.target.value)}
+              onChange={(value) => setFontSize(value)}
             />
             <TextInput
               label={"preview"}

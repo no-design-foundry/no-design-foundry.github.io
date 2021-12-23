@@ -14,7 +14,9 @@ const menuItemRule = () => ({
 })
 
 const aboutRule = () => ({
-  paddingLeft: "2ch"
+  ":before": {
+    content: '", "'
+  }
 })
 
 function Nav(props) {

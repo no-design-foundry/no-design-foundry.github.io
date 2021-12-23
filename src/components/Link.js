@@ -1,17 +1,17 @@
 import React, { useContext } from "react";
 import { useFela } from "react-fela";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { ContentVisibilityContext } from "../App";
 
 const linkRule = () => ({
-  "-webkit-tap-highlight-color": "transparent"
-})
+  "-webkit-tap-highlight-color": "transparent",
+});
 
 export default function (props) {
-  const { to, className } = props;
+  const { to, className = "", isActive } = props;
   const setContentIsVisible = useContext(ContentVisibilityContext);
   const navigate = useNavigate();
-  const {css} = useFela()
+  const { css } = useFela();
 
   function delayAndGo(e) {
     e.preventDefault();
@@ -21,6 +21,14 @@ export default function (props) {
       setContentIsVisible(true);
     }, 350);
   }
-
-  return <Link to={to} onClick={delayAndGo} className={css(linkRule), className}>{props.children}</Link>;
+  const params = {
+    to,
+    onClick: delayAndGo,
+    className: `${css(linkRule)} ${className}`,
+  };
+  return (
+    <NavLink {...params}>{props.children}</NavLink>
+    // ) : (
+    // <Link {...params}>{props.children}</Link>
+  );
 }

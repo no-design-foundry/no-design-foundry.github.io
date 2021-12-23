@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useFela } from "react-fela";
 import { useLocation } from "react-router";
 import Link from "./Link";
+import NavLink from "./NavLink";
 
 const navRule = () => ({
   fontFamily: "test",
@@ -10,13 +11,17 @@ const navRule = () => ({
   top: 0,
 });
 
-const menuItemRule = () => ({
-})
+const menuItemRule = () => ({});
 
 const aboutRule = () => ({
   ":before": {
-    content: '", "'
-  }
+    content: '", "',
+  },
+});
+
+const subUlRule = () => ({
+  display: "flex",
+  flexDirection: "row"
 })
 
 function Nav(props) {
@@ -27,13 +32,13 @@ function Nav(props) {
 
   function handleOnResize() {
     const { height } = homeRef.current.getBoundingClientRect();
-    console.log(height)
+    console.log(height);
     setNavHeight(height + 20);
   }
 
   useEffect(() => {
-    handleOnResize()
-  }, [location])
+    handleOnResize();
+  }, [location]);
 
   useEffect(() => {
     handleOnResize();
@@ -47,13 +52,37 @@ function Nav(props) {
     <nav className={css(navRule)}>
       <ul>
         <li ref={homeRef} className={css(menuItemRule)}>
-          <Link to={"/"}>no design foundry</Link>
-          <Link to={"/about"} className={css(aboutRule)}>about</Link>
+          <ul className={css(subUlRule)}>
+            <li>
+              <NavLink to={"/"}>no design foundry</NavLink>
+            </li>
+            {(location.pathname === "/" || location.pathname === "/about") &&
+            <li>
+              <NavLink to={"/about"} className={css(aboutRule)}>
+                about
+              </NavLink>
+            </li>
+            }
+          </ul>
         </li>
         {location.pathname !== "/" &&
           filterRoutes.map((route, index) => (
-            <li key={`nav_${index}`} className={css(menuItemRule)}>
-              <Link to={route.route}>{route.title}</Link>
+            <li key={`nav_${index}`}>
+              <ul className={css(subUlRule)}>
+                <li className={css(menuItemRule)}>
+                  <NavLink to={route.route}>{route.title}</NavLink>
+                </li>
+                {location.pathname.startsWith(route.route) &&
+                <li>
+                  <NavLink
+                    to={`${route.route}/about`}
+                    className={css(aboutRule)}
+                  >
+                    about
+                  </NavLink>
+                </li>
+                }
+              </ul>
             </li>
           ))}
       </ul>

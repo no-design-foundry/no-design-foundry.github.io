@@ -27,7 +27,7 @@ function DetailViewOverlay(props) {
         {layerColors.map((layerColor, index) => (
         <FontPreview 
           key={`${filterIdentifier}-overlay-${index}`}
-          fontFamily={previewedOutputFonts[filterIdentifier][index]}
+          fontFamily={previewedOutputFonts[filterIdentifier][index] || `${filterIdentifier}-${index}`}
           fontSize={fontSize}
           fontVariations={fontVariations[filterIdentifier]}
           color={layerColor}

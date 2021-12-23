@@ -47,7 +47,7 @@ const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
     {
       condition: !contentIsVisible,
       style: {
-        height: `calc(100% - ${navHeight}px)`,
+        height: `calc(100% - ${navHeight - 10}px)`,
       },
     },
   ],

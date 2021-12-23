@@ -26,7 +26,8 @@ import Log from "../components/Log";
 export const DetailViewContext = createContext();
 
 const formWrapperRule = () => ({
-  marginTop: "auto",
+  position: "fixed",
+  bottom: 0
 });
 const formRule = () => ({
   pointerEvents: "all",

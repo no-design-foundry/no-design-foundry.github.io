@@ -19,7 +19,7 @@ function ListViewOverlay(props) {
         <li key={`overlay-link-${filterRoute.route}`}>
           <Link to={filterRoute.route}>
             <div className={css(fontPreviewContainerRule)}>
-              <FontPreview fontSize={fontSize} inListView={true}>{filterRoute.title}</FontPreview>
+              <FontPreview fontSize={fontSize} inListView={true} fontFamily={`${filterRoute.filterIdentifier}-0`}>{filterRoute.title}</FontPreview>
             </div>
           </Link>
         </li>

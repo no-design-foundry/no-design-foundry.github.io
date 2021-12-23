@@ -57,8 +57,13 @@ const bodyStyle = {
 renderer.renderStatic(bodyStyle, "body");
 
 const htmlStyle = {
-  overflowX: "hidden",
+  overflow: "hidden",
+  height: "100vh",
+  width: "100vw",
+  overscrollBehaviorY: "none",
+  position: "fixed"
 };
+
 renderer.renderStatic(htmlStyle, "html");
 
 const ulStyle = {
@@ -100,6 +105,18 @@ const inputRule = {
   // } 
 }
 renderer.renderStatic(inputRule, "input");
+
+const aActiveRule = {
+  textDecoration: "underline"
+}
+
+renderer.renderStatic(aActiveRule, "a.active")
+
+
+const fonts = ["rasterizer-0", "rotorizer-0", "rotorizer-1"]
+fonts.forEach(font => 
+  renderer.renderFont(font, [`${font}.ttf`])
+)
 
 
 

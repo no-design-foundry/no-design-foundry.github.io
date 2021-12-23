@@ -8,8 +8,6 @@ const containerRule = ({navHeight}) => ({
     marginTop: `${navHeight}px`
 })
 
-
-
 function ListViewOverlay(props) {
   const { filterRoutes, navHeight, fontSize } = props;
   const { css } = useFela({navHeight, fontSize})

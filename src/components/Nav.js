@@ -32,7 +32,6 @@ function Nav(props) {
 
   function handleOnResize() {
     const { height } = homeRef.current.getBoundingClientRect();
-    console.log(height);
     setNavHeight(height + 20);
   }
 

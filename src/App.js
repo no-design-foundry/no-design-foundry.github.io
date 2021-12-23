@@ -43,14 +43,7 @@ const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
   transitionTimingFunction: contentIsVisible
     ? "cubic-bezier(.55,0,1,.45)"
     : "cubic-bezier(0,.55,.45,1)",
-  extend: [
-    {
-      condition: !contentIsVisible,
-      style: {
-        height: `calc(100% - ${navHeight - 10}px)`,
-      },
-    },
-  ],
+  height: contentIsVisible ? 0 : `calc(100% - ${navHeight - 10}px)`,
 });
 
 const contentBackgroundRule = ({ isTouching, transitionWidth }) => ({
@@ -111,6 +104,7 @@ function App() {
   const [listViewFontSize, setListViewFontSize] = useState(200);
   const [detailViewFontSize, setDetailViewFontSize] = useState(200)
 
+  // console.log(contentIsVisible, navHeight)
 
   const { css } = useFela({
     contentIsVisible,

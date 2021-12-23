@@ -19,7 +19,7 @@ export default function (props) {
     setTimeout(() => {
       navigate(to);
       setContentIsVisible(true);
-    }, 350);
+    }, 350 + 50);
   }
   const params = {
     to,

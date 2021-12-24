@@ -30,7 +30,8 @@ const renderer = createRenderer({
       display: true,
       fontSize: true,
       gridTemplateColumns: true,
-      width: true
+      width: true,
+      height: true
     }),
   ],
 });

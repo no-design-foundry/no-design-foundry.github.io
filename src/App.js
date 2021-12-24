@@ -1,10 +1,8 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
 import { useFela } from "react-fela";
 import { Route, Routes } from "react-router";
-import Link from "./components/Link";
 import Nav from "./components/Nav";
 import data from "./data";
-// const data = require("./data");
 import DetailView from "./templates/DetailView";
 import DetailViewOverlay from "./templates/DetailViewOverlay";
 import ListView from "./templates/ListView";
@@ -55,6 +53,9 @@ const contentBackgroundRule = ({ isTouching, transitionWidth }) => ({
   background: "#eee",
   overflow: "hidden",
   transform: "translateZ(0)",
+  "@media(hover:none)": {
+    height: "100% !important"
+  },
   extend: [
     {
       condition: isTouching,
@@ -102,9 +103,8 @@ function App() {
   const [cursorY, setCursorY] = useState(0);
   const [dragX, setDragX] = useState(0);
   const [listViewFontSize, setListViewFontSize] = useState(200);
-  const [detailViewFontSize, setDetailViewFontSize] = useState(200)
+  const [formHeight, setFormHeight] = useState(0)
 
-  // console.log(contentIsVisible, navHeight)
 
   const { css } = useFela({
     contentIsVisible,
@@ -253,6 +253,8 @@ function App() {
                                     {...route}
                                     navHeight={navHeight}
                                     key={route.route}
+                                    setFormHeight={setFormHeight}
+                                    formHeight={formHeight}
                                   ></DetailView>
                                 );
                                 break;
@@ -303,6 +305,8 @@ function App() {
                             {...route}
                             navHeight={navHeight}
                             key={route.route}
+                            setFormHeight={setFormHeight}
+                            formHeight={formHeight}
                           />
                         );
                         break;

@@ -5,7 +5,7 @@ import Link from "../components/Link";
 
 export const fontPreviewContainerRule = ({ fontSize }) => ({
   position: "relative",
-  height: `${fontSize * 1.1}px`,
+  height: `${fontSize * 0.8}px`,
 });
 
 function ListView(props) {

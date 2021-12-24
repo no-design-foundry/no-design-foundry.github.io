@@ -14,16 +14,14 @@ const containerRule = ({ navHeight }) => ({
 
 
 function DetailViewOverlay(props) {
-  const { filterIdentifier, navHeight, layerColors } = props;
+  const { filterIdentifier, navHeight, layerColors, formHeight } = props;
   const { fontSize } = useContext(FontSizeContext);
   const { previewStrings } = useContext(PreviewStringsContext);
   const { previewedOutputFonts } = useContext(PreviewedOutputFontsContext);
   const { fontVariations } = useContext(FontVariationsContext)
   const { css } = useFela({ navHeight });
-
   return (
     <div className={css(containerRule)}>
-      <div>
         {layerColors.map((layerColor, index) => (
         <FontPreview 
           key={`${filterIdentifier}-overlay-${index}`}
@@ -31,11 +29,11 @@ function DetailViewOverlay(props) {
           fontSize={fontSize}
           fontVariations={fontVariations[filterIdentifier]}
           color={layerColor}
+          formHeight={formHeight}
         >
           {previewStrings[filterIdentifier]}
         </FontPreview>
         ))}
-      </div>
     </div>
   );
 }

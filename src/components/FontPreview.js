@@ -5,8 +5,7 @@ const opacityTransition = 350;
 
 const overlayItemRule = ({ previewedFontFamily, visible, color }) => ({
   userSelect: "none",
-  // position: "absolute",
-  // transform: "translate(-50%, -50%)",
+  padding: "10px",
   transitionDuration: `${opacityTransition}ms`,
   transitionProperty: "opacity, filter",
   transitionTimingFunction: "ease-in",
@@ -20,8 +19,8 @@ const overlayItemRule = ({ previewedFontFamily, visible, color }) => ({
     {
       condition: color,
       style: {
-        color
-      }
+        color,
+      },
     },
     {
       condition: !visible,
@@ -33,12 +32,33 @@ const overlayItemRule = ({ previewedFontFamily, visible, color }) => ({
   ],
 });
 
-const contentRule = () => ({
+const contentRule = ({ inListView }) => ({
+  textRendering: "optimizeSpeed",
   whiteSpace: "nowrap",
-  transform: "translateZ(0)"
-})
+  transform: "translateZ(0)",
+  extend: [
+    {
+      condition: inListView,
+      style: {
+        "@media(hover:none)": {
+          animationName: {
+            from: {
+              fontVariationSettings: '"RTTX" 0',
+            },
+            to: {
+              fontVariationSettings: '"RTTX" 360',
+            },
+          },
+          animationDuration: "1s",
+          animationIterationCount: "infinite",
+          animationDirection: "alternate",
+        },
+      },
+    },
+  ],
+});
 
-const containerRule = ({ inListView }) => ({
+const containerRule = ({ inListView, formHeight }) => ({
   zIndex: -1,
   userSelect: "none",
   pointerEvents: "none",
@@ -46,17 +66,15 @@ const containerRule = ({ inListView }) => ({
   top: 0,
   left: 0,
   width: "100vw",
-  height: "100vh",
+  height: `calc(100vh - ${formHeight}px)`,
   display: "flex",
-  justifyContent: "center",
+  alignItems: "flex-start",
   alignItems: "center",
-  overflow: "hidden",
   flexGrow: 1,
   extend: [
     {
       condition: inListView,
       style: {
-        alignItems: "flex-start",
         height: "100%",
       },
     },
@@ -70,7 +88,8 @@ function FontPreview(props) {
     fontFamily,
     fontVariations = {},
     color,
-    onMount
+    onMount,
+    formHeight,
   } = props;
   const didMount = useRef(false);
   const contentRef = useRef();
@@ -80,10 +99,10 @@ function FontPreview(props) {
 
   useEffect(() => {
     if (!didMount.current && onMount) {
-      onMount(contentRef.current.offsetWidth)
-      didMount.current = true
-    }    
-  }, [fontSize, onMount])
+      onMount(contentRef.current.offsetWidth);
+      didMount.current = true;
+    }
+  }, [fontSize, onMount]);
 
   useEffect(() => {
     if (fontFamily !== previewedFontFamily) {
@@ -96,23 +115,28 @@ function FontPreview(props) {
     }
   }, [fontFamily]);
 
-  const { css } = useFela({ visible, inListView, previewedFontFamily, color });
+  const { css } = useFela({
+    visible,
+    inListView,
+    previewedFontFamily,
+    color,
+    formHeight,
+  });
+
   return (
     <div className={css(containerRule)} style={{ fontSize: `${fontSize}px` }}>
-      <div>
-        <div className={css(overlayItemRule)}>
-          <span
-            ref={contentRef}
-            className={css(contentRule)}
-            style={{
-              fontVariationSettings: Object.keys(fontVariations)
-                .map((key) => `"${key}" ${fontVariations[key]}`)
-                .join(", "),
-            }}
-          >
-            {previewedChildren}
-          </span>
-        </div>
+      <div className={css(overlayItemRule)}>
+        <span
+          ref={contentRef}
+          className={css(contentRule)}
+          style={{
+            fontVariationSettings: Object.keys(fontVariations)
+              .map((key) => `"${key}" ${fontVariations[key]}`)
+              .join(", "),
+          }}
+        >
+          {previewedChildren}
+        </span>
       </div>
     </div>
   );

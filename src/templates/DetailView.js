@@ -41,12 +41,11 @@ const formRule = () => ({
   gridAutoRows: "1.2em",
   whiteSpace: "nowrap",
   alignItems: "center",
-  bottom: 0,
-  left: 0,
+  marginBottom: "10px"
 });
 
-const fullscreenRule = ({ navHeight }) => ({
-  minHeight: `100vh`,
+const fullscreenRule = () => ({
+  minHeight: `100%`,
   top: 0,
   position: "absolute",
   width: "100%",
@@ -79,11 +78,12 @@ const CancelToken = axios.CancelToken;
 let lastTimeStamp;
 
 function DetailView(props) {
-  const { inputs, variableFontControlSliders, filterIdentifier, navHeight } =
+  const { inputs, variableFontControlSliders, filterIdentifier, navHeight, formHeight, setFormHeight } =
     props;
   const { previewedInputFont, setPreviewedInputFont } = useContext(
     PreviewedInputFontContext
   );
+  const formRef = useRef()
   const [ logContent, setLogContent ] = useState([])
   const { setPreviewedOutputFonts } = useContext(PreviewedOutputFontsContext);
   const { formInputValues } = useContext(FormInputsContext);
@@ -113,7 +113,7 @@ function DetailView(props) {
     }
   }
 
-
+  
 
   function sendRequest() {
     const formData = new FormData();
@@ -190,6 +190,8 @@ function DetailView(props) {
 
   useEffect(() => {
     isMounted.current = true;
+    const {offsetHeight} = formRef.current
+    setFormHeight(offsetHeight)
     return () => {
       isMounted.current = false;
       setGetFormVisible(false);
@@ -202,7 +204,6 @@ function DetailView(props) {
     if (contentWidth > bodyWidth) {
       const scale = fontSize*(bodyWidth/contentWidth)
       if (scale < fontSizeRef.current) {
-        // setFontSize(scale)
         fontSizeRef.current = scale
       }
     }
@@ -211,7 +212,7 @@ function DetailView(props) {
   return (
     <DetailViewContext.Provider value={{ filterIdentifier }}>
       <div className={css(fullscreenRule)}>
-        <FontPreview fontFamily={previewedInputFont} fontSize={fontSize} onMount={handleOnFontPreviewMount}>
+        <FontPreview fontFamily={previewedInputFont} fontSize={fontSize} onMount={handleOnFontPreviewMount} formHeight={formHeight}>
           {previewStrings[filterIdentifier]}
         </FontPreview>
         <div className={css(formWrapperRule)}>
@@ -232,7 +233,7 @@ function DetailView(props) {
               </div>
             )}
             <Log content={logContent}/>
-          <div className={css(formRule)}>
+          <div ref={formRef} className={css(formRule)}>
             {variableFontControlSliders?.map((input, index) => (
               <RangeInput
                 label={input.label}
@@ -285,7 +286,6 @@ function DetailView(props) {
             >
               {getFormVisible ? "hide" : "get"}
             </button>
-            {/* <button onClick={() => cancelRequest()}>cancel</button> */}
             {getFormVisible && (
               <>
                 <hr className={css(column("1 / span 5"), width("100%"))} />

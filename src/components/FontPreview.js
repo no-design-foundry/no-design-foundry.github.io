@@ -17,10 +17,10 @@ const itemRule = ({
   transitionTimingFunction: "ease-in",
   whiteSpace: "nowrap",
   textRendering: "optimizeSpeed",
-  marginTop: `${-formHeight/2}px`,
-  "@media(hover:none)": {
-    marginTop: `${-formHeight}px `
-  },
+  // marginTop: `${-formHeight/2}px`,
+  // "@media(hover:none)": {
+  //   marginTop: `${-formHeight}px `
+  // },
   extend: [
     {
       condition: previewedFontFamily,

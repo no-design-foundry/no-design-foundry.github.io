@@ -28,13 +28,13 @@ const getRule = () => ({
   textAlign: "right"
 })
 
-const formWrapperRule = () => ({
+const formWrapperRule = ({innerHeight}) => ({
+  top: 0,
   position: "fixed",
-  bottom: 0,
-  height: "100vh",
-  // background: "red",
+  height: `100%`,
   display: "flex",
   alignItems: "flex-end",
+  transition: "height .05s ease-in"
 });
 const formRule = () => ({
   pointerEvents: "all",
@@ -100,11 +100,12 @@ function DetailView(props) {
     formHeight,
     setFormHeight,
     fontSize,
-    setFontSize
+    setFontSize,
   } = props;
   const { previewedInputFont, setPreviewedInputFont } = useContext(
     PreviewedInputFontContext
   );
+  const [innerHeight, setInnerHeight] = useState(window.innerHeight);
   const formRef = useRef();
   const previousDistance = useRef(null);
   const [logContent, setLogContent] = useState([]);
@@ -125,7 +126,7 @@ function DetailView(props) {
   const { fontVariations, setFontVariations } = useContext(
     FontVariationsContext
   );
-  const { css } = useFela({ navHeight, isProcessing });
+  const { css } = useFela({ navHeight, isProcessing, innerHeight });
 
   function cancelRequest() {
     if (cancel.current !== undefined) {
@@ -230,14 +231,20 @@ function DetailView(props) {
     previousDistance.current = null;
   }
 
+  function handleOnResize(e) {
+    setInnerHeight(window.innerHeight)
+  }
+
   useEffect(() => {
     isMounted.current = true;
     const { offsetHeight } = formRef.current;
     setFormHeight(offsetHeight);
     document.body.style.touchAction = "none";
+    window.addEventListener("resize", handleOnResize);
     window.addEventListener("touchmove", handleOnTouchMove);
     window.addEventListener("touchend", handleOnTouchEnd);
     return () => {
+      window.removeEventListener("resize", handleOnResize);
       window.removeEventListener("touchmove", handleOnTouchMove);
       window.removeEventListener("touchend", handleOnTouchEnd);
       document.body.style.removeProperty("touch-action");

@@ -1,0 +1,1 @@
+There was a font that was replaced by an algorithm, started to reproduce. I started working on rotor. First version were done by hand in FontLab, slowly after studying at [TM](https://typemedia.org/) in the Hague,

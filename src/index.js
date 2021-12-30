@@ -7,15 +7,14 @@ import { createRenderer } from "fela";
 import extend from "fela-plugin-extend";
 import embedded from "fela-plugin-embedded";
 import responsiveValue from "fela-plugin-responsive-value";
-import multipleSelectors from 'fela-plugin-multiple-selectors'
-
+import multipleSelectors from "fela-plugin-multiple-selectors";
 
 const getMediaQueries = (values, props) => {
-  switch(values.length) {
-   case 2:
-     return ["@media (min-width: 570px)"];
+  switch (values.length) {
+    case 2:
+      return ["@media (min-width: 570px)"];
     default:
-      return []
+      return [];
   }
 };
 
@@ -31,14 +30,12 @@ const renderer = createRenderer({
       fontSize: true,
       gridTemplateColumns: true,
       width: true,
-      height: true
+      height: true,
     }),
   ],
 });
 
 const resetStyle = {
-  padding: 0,
-  margin: 0,
   boxSizing: "border-box",
   textDecoration: "None",
   fontFamily: "inherit",
@@ -49,21 +46,40 @@ const resetStyle = {
 };
 renderer.renderStatic(resetStyle, "html,body,div,input,label,a,button");
 
+const headlineStyle = {
+  fontFamily: "inherit",
+  fontSize: "inherit",
+  fontWeight: "inherit"
+};
+renderer.renderStatic(
+  headlineStyle,
+  "h1,h2,h3,h4,h5,h6,h6,h8"
+  );
+
+const paddingMarginResetStyle = {
+  padding: 0,
+  margin: 0,
+};
+
+renderer.renderStatic(
+  paddingMarginResetStyle,
+  "html,body,div,input,label,a,button,h1,h2,h3,h4,h5,h6,h6,h8,p"
+);
+
 const bodyStyle = {
   fontFamily: "'Times New Roman', serif",
   maxWidth: "100vw",
   minHeight: "100vh",
+  // maxHeight: "100vh",
   position: "relative",
   overscrollBehavior: "contain",
-  overflow: "scroll",
+  overflow: "auto",
 };
 renderer.renderStatic(bodyStyle, "body");
 
 const htmlStyle = {
-  overflow: "hidden",
-  height: "100vh",
-  width: "100vw",
-  position: "fixed"
+  height: "100%",
+  width: "100%",
 };
 
 renderer.renderStatic(htmlStyle, "html");
@@ -82,7 +98,7 @@ const buttonStyle = {
   border: "none",
   appearance: "none",
   textAlign: "left",
-  textDecoration: "underline"
+  textDecoration: "underline",
 };
 renderer.renderStatic(buttonStyle, "button");
 
@@ -94,23 +110,18 @@ const disabledStyle = {
 renderer.renderStatic(disabledStyle, "*[disabled]");
 
 const inputRule = {
-  minWidth: "80px"
-}
+  minWidth: "80px",
+};
 renderer.renderStatic(inputRule, "input");
 
 const aActiveRule = {
-  textDecoration: "underline"
-}
+  textDecoration: "underline",
+};
 
-renderer.renderStatic(aActiveRule, "a.active")
+renderer.renderStatic(aActiveRule, "a.active");
 
-
-const fonts = ["rasterizer-0", "rotorizer-0", "rotorizer-1"]
-fonts.forEach(font => 
-  renderer.renderFont(font, [`${font}.ttf`])
-)
-
-
+const fonts = ["rasterizer-0", "rotorizer-0", "rotorizer-1"];
+fonts.forEach((font) => renderer.renderFont(font, [`${font}.ttf`]));
 
 ReactDOM.render(
   <BrowserRouter>

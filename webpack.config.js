@@ -20,9 +20,9 @@ module.exports = {
                 }
             },
             {
-                test: /\.css$/i,
-                use: ['style-loader', 'css-loader'],
-            }
+                test: /\.md$/,
+                use: "raw-loader",
+            },
         ]
     },
     plugins: [
@@ -30,5 +30,5 @@ module.exports = {
             template: "./public/index.html",
             filename: "./index.html"
          })
-    ]
+    ],
 }

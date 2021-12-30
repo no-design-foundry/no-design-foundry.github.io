@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router";
 import Nav from "./components/Nav";
 import data from "./data";
 import { getMaxFontSize } from "./misc";
+import About from "./templates/About";
 import DetailView from "./templates/DetailView";
 import DetailViewOverlay from "./templates/DetailViewOverlay";
 import ListView from "./templates/ListView";
@@ -66,9 +67,9 @@ const contentBackgroundRule = ({ isTouching, transitionWidth }) => ({
   background: "#eee",
   overflow: "hidden",
   transform: "translateZ(0)",
-  "@media(hover:none)": {
-    height: "100% !important",
-  },
+  // "@media(hover:none)": {
+  //   height: "100vh !important",
+  // },
   extend: [
     {
       condition: isTouching,
@@ -99,10 +100,10 @@ function App() {
   const [inputFont, setInputFont] = useState(null);
   const [previewedInputFont, setPreviewedInputFont] = useState(null);
   const [fontSizes, _setFontSize] = useState(getMaxFontSizes());
-  function setFontSize(filterIdentifier, value){
-    let value_ = {...fontSizes}
-    value_[filterIdentifier] = value
-    _setFontSize(value_)
+  function setFontSize(filterIdentifier, value) {
+    let value_ = { ...fontSizes };
+    value_[filterIdentifier] = value;
+    _setFontSize(value_);
   }
   const [formInputValues, _setFormInputsValue] = useState(_formInputValues);
   const [contentIsVisible, setContentIsVisible] = useState(true);
@@ -199,8 +200,9 @@ function App() {
   }
 
   function handleOnResize(e) {
-    setListViewFontSize(Math.min(...Object.values(getMaxFontSizes())))
+    setListViewFontSize(Math.min(...Object.values(getMaxFontSizes())));
   }
+
 
   useEffect(() => {
     window.addEventListener("resize", handleOnResize);
@@ -262,7 +264,9 @@ function App() {
                                   setFormHeight={setFormHeight}
                                   formHeight={formHeight}
                                   fontSize={fontSizes[route.filterIdentifier]}
-                                  setFontSize={(value) => setFontSize(route.filterIdentifier, value)}
+                                  setFontSize={(value) =>
+                                    setFontSize(route.filterIdentifier, value)
+                                  }
                                 ></DetailView>
                               );
                               break;
@@ -286,6 +290,14 @@ function App() {
                             ></Route>
                           );
                         })}
+                        {filterRoutes.map((filterRoute, index) => (
+                          <Route
+                            key={`about_route_${index}`}
+                            path={`${filterRoute.route}/about`}
+                            element={<About identifier={filterRoute.filterIdentifier} />}
+                          ></Route>
+                        ))}
+                        <Route path={`/about`} element={<About identifier="foundry"></About>}></Route>
                       </Routes>
                     </main>
                   </PreviewedInputFontContext.Provider>
@@ -318,7 +330,7 @@ function App() {
                         />
                       );
                       break;
-                    default:
+                    case "filterListView":
                       element = (
                         <ListViewOverlay
                           {...route}
@@ -327,6 +339,9 @@ function App() {
                           fontSize={listViewFontSize}
                         />
                       );
+                      break
+                    default:
+                      throw new Error("not matched")
                   }
                   return (
                     <Route

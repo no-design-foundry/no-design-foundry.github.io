@@ -14,8 +14,7 @@ const containerRule = ({ navHeight }) => ({
 
 
 function DetailViewOverlay(props) {
-  const { filterIdentifier, navHeight, layerColors, formHeight } = props;
-  const { fontSize } = useContext(FontSizeContext);
+  const { filterIdentifier, navHeight, layerColors, formHeight, fontSize } = props;
   const { previewStrings } = useContext(PreviewStringsContext);
   const { previewedOutputFonts } = useContext(PreviewedOutputFontsContext);
   const { fontVariations } = useContext(FontVariationsContext)

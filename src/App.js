@@ -3,6 +3,7 @@ import { useFela } from "react-fela";
 import { Route, Routes } from "react-router";
 import Nav from "./components/Nav";
 import data from "./data";
+import { getMaxFontSize } from "./misc";
 import DetailView from "./templates/DetailView";
 import DetailViewOverlay from "./templates/DetailViewOverlay";
 import ListView from "./templates/ListView";
@@ -19,15 +20,27 @@ export const FontVariationsContext = createContext();
 
 const filterRoutes = data.filter((route) => route.type === "filterDetailView");
 const _formInputValues = filterRoutes.reduce((collector, filterRoute) => {
-  collector[filterRoute.filterIdentifier] = filterRoute.inputs.reduce(
+  collector[filterRoute.filterIdentifier] = [
+    ...filterRoute.inputs,
+    ...(filterRoute?.variableFontControlSliders ?? []),
+  ].reduce(
     (inputCollector, input) => {
       inputCollector[input.name] = input.default;
       return inputCollector;
     },
-    {}
+    { fontSize: null }
   );
   return collector;
 }, {});
+
+function getMaxFontSizes() {
+  return filterRoutes.reduce((collector, filterRoute) => {
+    collector[filterRoute.filterIdentifier] = Math.ceil(
+      getMaxFontSize(filterRoute.title, "Times New Roman")
+    );
+    return collector;
+  }, {});
+}
 
 const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
   position: "fixed",
@@ -54,7 +67,7 @@ const contentBackgroundRule = ({ isTouching, transitionWidth }) => ({
   overflow: "hidden",
   transform: "translateZ(0)",
   "@media(hover:none)": {
-    height: "100% !important"
+    height: "100% !important",
   },
   extend: [
     {
@@ -78,38 +91,34 @@ const contentBackgroundRule = ({ isTouching, transitionWidth }) => ({
   ],
 });
 
-const appRule = ({ touchAction }) => ({
+const appRule = () => ({
   fontSize: ["22px", "18px"],
-  extend: [
-    {
-      condition: !touchAction,
-      style: {
-        touchAction: "none",
-      },
-    },
-  ],
 });
 
 function App() {
   const [inputFont, setInputFont] = useState(null);
   const [previewedInputFont, setPreviewedInputFont] = useState(null);
-  const [fontSize, setFontSize] = useState(document.body.clientWidth / 4);
+  const [fontSizes, _setFontSize] = useState(getMaxFontSizes());
+  function setFontSize(filterIdentifier, value){
+    let value_ = {...fontSizes}
+    value_[filterIdentifier] = value
+    _setFontSize(value_)
+  }
   const [formInputValues, _setFormInputsValue] = useState(_formInputValues);
   const [contentIsVisible, setContentIsVisible] = useState(true);
   const [navHeight, setNavHeight] = useState(0);
   const [isTouching, setIsTouching] = useState(false);
-  const [touchAction, setTouchAction] = useState(true);
   const [transitionWidth, setTransitionWidth] = useState(false);
   const [cursorY, setCursorY] = useState(0);
   const [dragX, setDragX] = useState(0);
-  const [listViewFontSize, setListViewFontSize] = useState(200);
-  const [formHeight, setFormHeight] = useState(0)
-
+  const [listViewFontSize, setListViewFontSize] = useState(
+    Math.min(...Object.values(getMaxFontSizes()))
+  );
+  const [formHeight, setFormHeight] = useState(0);
 
   const { css } = useFela({
     contentIsVisible,
     navHeight,
-    touchAction,
     isTouching,
     transitionWidth,
   });
@@ -125,9 +134,6 @@ function App() {
       return collector;
     }, {})
   );
-
-  const mainRule = () => ({
-  })
 
   const [fontVariations, _setFontVariations] = useState(
     filterRoutes.reduce((collector, filterRoute) => {
@@ -177,32 +183,35 @@ function App() {
     }
   }
 
-  function handleTouchEnd(e) {}
-
-  function handleTouchCancel(e) {}
-
   function handleOnTouchMove(e) {
     setTransitionWidth(false);
-    if (e.touches.length === 1) {
-      const touch = e.touches[0];
-      setDragX(e.touches[0].pageX);
-    } else {
-      setTouchAction(true);
+    let value;
+    switch (e.touches.length) {
+      case 1:
+        value = e.touches[0].pageX;
+        break;
+      case 2:
+        const [{ pageX: x1 }, { pageX: x2 }] = e.touches;
+        value = Math.min(x1, x2) + Math.abs(x2 - x1) / 2;
+        break;
     }
+    setDragX(value);
+  }
+
+  function handleOnResize(e) {
+    setListViewFontSize(Math.min(...Object.values(getMaxFontSizes())))
   }
 
   useEffect(() => {
-    window.addEventListener("mousemove", handleCursorY);
+    window.addEventListener("resize", handleOnResize);
+    window.addEventListener("mousemove", handleCursorY, false);
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchmove", handleOnTouchMove);
-    window.addEventListener("touchend", handleTouchEnd);
-    window.addEventListener("touchcancel", handleTouchCancel);
     return () => {
+      window.removeEventListener("resize", handleOnResize);
       window.removeEventListener("mousemove", handleCursorY);
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleOnTouchMove);
-      window.removeEventListener("touchend", handleTouchEnd);
-      window.removeEventListener("touchcancel", handleTouchCancel);
     };
   }, []);
 
@@ -221,119 +230,117 @@ function App() {
 
   return (
     <div className={css(appRule)}>
-      <FontSizeContext.Provider value={{ fontSize, setFontSize }}>
-        <PreviewStringsContext.Provider
-          value={{ previewStrings, setPreviewString }}
+      <PreviewStringsContext.Provider
+        value={{ previewStrings, setPreviewString }}
+      >
+        <PreviewedOutputFontsContext.Provider
+          value={{ previewedOutputFonts, setPreviewedOutputFonts }}
         >
-          <PreviewedOutputFontsContext.Provider
-            value={{ previewedOutputFonts, setPreviewedOutputFonts }}
+          <FontVariationsContext.Provider
+            value={{ fontVariations, setFontVariations }}
           >
-            <FontVariationsContext.Provider
-              value={{ fontVariations, setFontVariations }}
-            >
-              <ContentVisibilityContext.Provider value={setContentIsVisible}>
-                <Nav setNavHeight={setNavHeight} filterRoutes={filterRoutes}/>
-                <FormInputsContext.Provider
-                  value={{ formInputValues, setFormInputValue }}
-                >
-                  <InputFontContext.Provider
-                    value={{ inputFont, setInputFont }}
-                  >
-                    <PreviewedInputFontContext.Provider
-                      value={{ previewedInputFont, setPreviewedInputFont }}
-                    >
-                      <main className={css(mainRule)}>
-                        <Routes>
-                          {data.map((route, index) => {
-                            let element;
-                            switch (route.type) {
-                              case "filterDetailView":
-                                element = (
-                                  <DetailView
-                                    {...route}
-                                    navHeight={navHeight}
-                                    key={route.route}
-                                    setFormHeight={setFormHeight}
-                                    formHeight={formHeight}
-                                  ></DetailView>
-                                );
-                                break;
-                              case "filterListView":
-                                element = (
-                                  <ListView
-                                    {...route}
-                                    filterRoutes={filterRoutes}
-                                    fontSize={listViewFontSize}
-                                    setFontSize={setListViewFontSize}
-                                  ></ListView>
-                                );
-                                break;
-                              default:
-                                throw new Error("view not matched");
-                            }
-                            return (
-                              <Route
-                                path={route.route}
-                                element={element}
-                                key={`route_${index}`}
-                              ></Route>
-                            );
-                          })}
-                        </Routes>
-                      </main>
-                    </PreviewedInputFontContext.Provider>
-                  </InputFontContext.Provider>
-                </FormInputsContext.Provider>
-              </ContentVisibilityContext.Provider>
-              <div className={css(contentOverlayRule)}></div>
-              <div
-                ref={contentBackground}
-                className={css(contentBackgroundRule)}
-                style={{
-                  ...(isTouching
-                    ? { width: `${dragX}px` }
-                    : { height: `${cursorY}px` }),
-                }}
+            <ContentVisibilityContext.Provider value={setContentIsVisible}>
+              <Nav setNavHeight={setNavHeight} filterRoutes={filterRoutes} />
+              <FormInputsContext.Provider
+                value={{ formInputValues, setFormInputValue }}
               >
-                <Routes>
-                  {data.map((route, index) => {
-                    let element;
-                    switch (route.type) {
-                      case "filterDetailView":
-                        element = (
-                          <DetailViewOverlay
-                            {...route}
-                            navHeight={navHeight}
-                            key={route.route}
-                            setFormHeight={setFormHeight}
-                            formHeight={formHeight}
-                          />
-                        );
-                        break;
-                      default:
-                        element = (
-                          <ListViewOverlay
-                            {...route}
-                            filterRoutes={filterRoutes}
-                            navHeight={navHeight}
-                            fontSize={listViewFontSize}
-                          />
-                        );
-                    }
-                    return (
-                      <Route
-                        path={route.route}
-                        element={element}
-                        key={`overlay_route_${index}`}
-                      />
-                    );
-                  })}
-                </Routes>
-              </div>
-            </FontVariationsContext.Provider>
-          </PreviewedOutputFontsContext.Provider>
-        </PreviewStringsContext.Provider>
-      </FontSizeContext.Provider>
+                <InputFontContext.Provider value={{ inputFont, setInputFont }}>
+                  <PreviewedInputFontContext.Provider
+                    value={{ previewedInputFont, setPreviewedInputFont }}
+                  >
+                    <main>
+                      <Routes>
+                        {data.map((route, index) => {
+                          let element;
+                          switch (route.type) {
+                            case "filterDetailView":
+                              element = (
+                                <DetailView
+                                  {...route}
+                                  navHeight={navHeight}
+                                  key={route.route}
+                                  setFormHeight={setFormHeight}
+                                  formHeight={formHeight}
+                                  fontSize={fontSizes[route.filterIdentifier]}
+                                  setFontSize={(value) => setFontSize(route.filterIdentifier, value)}
+                                ></DetailView>
+                              );
+                              break;
+                            case "filterListView":
+                              element = (
+                                <ListView
+                                  {...route}
+                                  filterRoutes={filterRoutes}
+                                  fontSize={listViewFontSize}
+                                ></ListView>
+                              );
+                              break;
+                            default:
+                              throw new Error("view not matched");
+                          }
+                          return (
+                            <Route
+                              path={route.route}
+                              element={element}
+                              key={`route_${index}`}
+                            ></Route>
+                          );
+                        })}
+                      </Routes>
+                    </main>
+                  </PreviewedInputFontContext.Provider>
+                </InputFontContext.Provider>
+              </FormInputsContext.Provider>
+            </ContentVisibilityContext.Provider>
+            <div className={css(contentOverlayRule)}></div>
+            <div
+              ref={contentBackground}
+              className={css(contentBackgroundRule)}
+              style={{
+                ...(isTouching
+                  ? { width: `${dragX}px` }
+                  : { height: `${cursorY}px` }),
+              }}
+            >
+              <Routes>
+                {data.map((route, index) => {
+                  let element;
+                  switch (route.type) {
+                    case "filterDetailView":
+                      element = (
+                        <DetailViewOverlay
+                          {...route}
+                          navHeight={navHeight}
+                          key={route.route}
+                          setFormHeight={setFormHeight}
+                          formHeight={formHeight}
+                          fontSize={fontSizes[route.filterIdentifier]}
+                        />
+                      );
+                      break;
+                    default:
+                      element = (
+                        <ListViewOverlay
+                          {...route}
+                          filterRoutes={filterRoutes}
+                          navHeight={navHeight}
+                          fontSize={listViewFontSize}
+                        />
+                      );
+                  }
+                  return (
+                    <Route
+                      path={route.route}
+                      element={element}
+                      key={`overlay_route_${index}`}
+                    />
+                  );
+                })}
+              </Routes>
+            </div>
+          </FontVariationsContext.Provider>
+        </PreviewedOutputFontsContext.Provider>
+      </PreviewStringsContext.Provider>
     </div>
   );
 }

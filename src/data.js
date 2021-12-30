@@ -10,13 +10,15 @@ export default [
     route: "/rotorizer",
     numberOfLayers: 2,
     layerColors: ["gray", "#000"],
-    variableFontControlSliders: [{
-      "label": "rotation",
-      "tag": "RTTX",
-      "min": 0,
-      "max": 360,
-      "default": 0,
-    }],
+    variableFontControlSliders: [
+      {
+        label: "rotation",
+        tag: "RTTX",
+        min: 0,
+        max: 360,
+        default: 0,
+      },
+    ],
     inputs: [
       {
         type: "range",
@@ -45,5 +47,5 @@ export default [
         default: 20,
       },
     ],
-  }
+  },
 ];

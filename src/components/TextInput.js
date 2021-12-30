@@ -9,13 +9,11 @@ const inputRule = () => ({
 })
 
 function TextInput(props) {
-  const { label, defaultValue, onChange, disabled } = props;
+  const { label, value, onChange, disabled } = props;
   const inputRef = useRef();
   const { css } = useFela();
   useEffect(() => {
-    if (defaultValue) {
-      inputRef.current.value = defaultValue;
-    }
+    inputRef.current.value = value
   }, []);
 
   function handleOnChange() {

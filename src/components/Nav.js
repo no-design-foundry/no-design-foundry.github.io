@@ -7,8 +7,8 @@ import NavLink from "./NavLink";
 const navRule = () => ({
   fontFamily: "test",
   padding: "10px",
-  position: "sticky",
-  top: 0,
+  // position: "sticky",
+  // top: 0,
 });
 
 const menuItemRule = () => ({});

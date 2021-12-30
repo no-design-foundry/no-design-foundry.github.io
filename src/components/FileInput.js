@@ -3,7 +3,6 @@ import { useFela } from "react-fela";
 import { InputFontContext } from "../App";
 import { column } from "../rules/rules";
 
-
 const fullscreenDragRule = ({ fileIsDragged }) => ({
   position: "fixed",
   fontSize: "4em",
@@ -15,27 +14,25 @@ const fullscreenDragRule = ({ fileIsDragged }) => ({
   bottom: 0,
 });
 
+
 const draggedRule = () => ({
   position: "absolute",
   // transform: "translate(-50%, -50%)"
 });
 
 const dropItRule = () => ({
-  display: ["none", "block"]
-})
+  display: ["none", "inline"],
+});
 
 const buttonRule = () => ({
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  fontSize: ".9em"
-})
+  whiteSpace: "no-wrap"
+});
 
 function FileInput(props) {
   const { label } = props;
   const fileInputRef = useRef();
   const dragState = useRef();
-  const [ cursorDrag, setCursorDrag ] = useState({});
+  const [cursorDrag, setCursorDrag] = useState({});
   const { inputFont, setInputFont } = useContext(InputFontContext);
   const [fileIsDragged, setFileIsDragged] = useState(false);
   const { css } = useFela({ fileIsDragged });
@@ -79,7 +76,7 @@ function FileInput(props) {
 
   function handleDragOver(e) {
     const { clientX: left, clientY: top } = e;
-    setCursorDrag({left, top});
+    setCursorDrag({ left, top });
     e.preventDefault();
     e.stopPropagation();
   }
@@ -116,13 +113,15 @@ function FileInput(props) {
         style={{ display: "none" }}
         accept=".ttf,.otf,woff,woff2"
       ></input>
-      <button className={css(column(3))} onClick={handleOnClick}>
-        {inputFont?.name ?? "select file or drop it"}
+      <button className={css(column(3), buttonRule)} onClick={handleOnClick}>
+        <span>{inputFont?.name ?? "select file"}</span>{!inputFont?.name && <span className={css(dropItRule)}> or drop it</span>}
       </button>
       {/* <span className={css(dropItRule, column("4 / span 2"))}> or drop it</span> */}
       {fileIsDragged && (
         <div className={css(fullscreenDragRule)}>
-          <span className={css(draggedRule)} style={cursorDrag}>Drop it</span>
+          <span className={css(draggedRule)} style={cursorDrag}>
+            Drop it
+          </span>
         </div>
       )}
     </>

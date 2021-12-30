@@ -6,7 +6,6 @@ import React, {
   useState,
 } from "react";
 import {
-  FontSizeContext,
   FormInputsContext,
   InputFontContext,
   PreviewedInputFontContext,
@@ -25,23 +24,32 @@ import Log from "../components/Log";
 
 export const DetailViewContext = createContext();
 
+const getRule = () => ({
+  textAlign: "right"
+})
+
 const formWrapperRule = () => ({
   position: "fixed",
-  bottom: 0
+  bottom: 0,
+  height: "100vh",
+  // background: "red",
+  display: "flex",
+  alignItems: "flex-end",
 });
 const formRule = () => ({
   pointerEvents: "all",
   display: "grid",
   gridTemplateColumns: [
-    "min-content min-content auto 3ch",
+    "min-content min-content auto 3ch 5ch",
     "repeat(4, min-content) 3ch",
   ],
-  width: ["100%", "auto"],
+  width: ["calc(100% - 10px)", "auto"],
   gap: "0px 6px",
   gridAutoRows: "1.2em",
   whiteSpace: "nowrap",
   alignItems: "center",
-  marginBottom: "10px"
+  justifyContent: "center",
+  marginBottom: "10px",
 });
 
 const fullscreenRule = () => ({
@@ -52,7 +60,7 @@ const fullscreenRule = () => ({
   display: "flex",
   flexDirection: "column",
   padding: "10px",
-  pointerEvents: "none"
+  pointerEvents: "none",
 });
 
 const isProcessingWrapperRule = () => ({
@@ -74,23 +82,37 @@ const isProcessingRule = ({ isProcessing }) => ({
   animationPlayState: isProcessing ? "processing" : "paused",
 });
 
+const fontSizeSliderRule = () => ({
+  "@media(hover:none)": {
+    display: "none",
+  },
+});
+
 const CancelToken = axios.CancelToken;
 let lastTimeStamp;
 
 function DetailView(props) {
-  const { inputs, variableFontControlSliders, filterIdentifier, navHeight, formHeight, setFormHeight } =
-    props;
+  const {
+    inputs,
+    variableFontControlSliders,
+    filterIdentifier,
+    navHeight,
+    formHeight,
+    setFormHeight,
+    fontSize,
+    setFontSize
+  } = props;
   const { previewedInputFont, setPreviewedInputFont } = useContext(
     PreviewedInputFontContext
   );
-  const formRef = useRef()
-  const [ logContent, setLogContent ] = useState([])
+  const formRef = useRef();
+  const previousDistance = useRef(null);
+  const [logContent, setLogContent] = useState([]);
   const { setPreviewedOutputFonts } = useContext(PreviewedOutputFontsContext);
   const { formInputValues } = useContext(FormInputsContext);
-  const { fontSize, setFontSize } = useContext(FontSizeContext);
+  const fontSizeRef = useRef(fontSize);
   const { inputFont } = useContext(InputFontContext);
   const isMounted = useRef(false);
-  const fontSizeRef = useRef(200)
   const cancel = useRef(undefined);
   const { previewStrings, setPreviewString } = useContext(
     PreviewStringsContext
@@ -113,8 +135,6 @@ function DetailView(props) {
     }
   }
 
-  
-
   function sendRequest() {
     const formData = new FormData();
     formData.append("font_file", inputFont);
@@ -133,7 +153,7 @@ function DetailView(props) {
       headers: { "Content-Type": "multipart/form-data" },
     })
       .then((response) => {
-        setLogContent(response.data.warnings)
+        setLogContent(response.data.warnings);
         const outputFontsArrays = response.data.fonts.map((fontBase64) =>
           Uint8Array.from(atob(fontBase64), (c) => c.charCodeAt(0))
         );
@@ -162,7 +182,6 @@ function DetailView(props) {
         );
       })
       .catch((thrown) => {
-        const detail = thrown?.response?.data?.detail ?? null
         if (axios.isCancel(thrown)) {
           console.log(thrown.message);
         } else {
@@ -188,51 +207,72 @@ function DetailView(props) {
     }
   }, [formInputValues, inputFont, previewedString, filterIdentifier]);
 
+
+  function handleOnTouchMove(e) {
+    switch (e.touches.length) {
+      case 2:
+        const [{ pageX: x1, pageY: y1 }, { pageX: x2, pageY: y2 }] = e.touches;
+        const distance = Math.hypot(y2 - y1, x2 - x1) * 2;
+        if (previousDistance.current) {
+          const value =
+            fontSizeRef.current - (previousDistance.current - distance);
+          if (value > 20) {
+            setFontSize(value);
+            fontSizeRef.current = value;
+          }
+        }
+        previousDistance.current = distance;
+        break;
+    }
+  }
+
+  function handleOnTouchEnd(e) {
+    previousDistance.current = null;
+  }
+
   useEffect(() => {
     isMounted.current = true;
-    const {offsetHeight} = formRef.current
-    setFormHeight(offsetHeight)
+    const { offsetHeight } = formRef.current;
+    setFormHeight(offsetHeight);
+    document.body.style.touchAction = "none";
+    window.addEventListener("touchmove", handleOnTouchMove);
+    window.addEventListener("touchend", handleOnTouchEnd);
     return () => {
+      window.removeEventListener("touchmove", handleOnTouchMove);
+      window.removeEventListener("touchend", handleOnTouchEnd);
+      document.body.style.removeProperty("touch-action");
       isMounted.current = false;
       setGetFormVisible(false);
       cancelRequest();
     };
   }, []);
-
-  function handleOnFontPreviewMount(contentWidth) {
-    const bodyWidth = document.body.clientWidth - 20
-    if (contentWidth > bodyWidth) {
-      const scale = fontSize*(bodyWidth/contentWidth)
-      if (scale < fontSizeRef.current) {
-        fontSizeRef.current = scale
-      }
-    }
-  }
-
+  
   return (
     <DetailViewContext.Provider value={{ filterIdentifier }}>
       <div className={css(fullscreenRule)}>
-        <FontPreview fontFamily={previewedInputFont} fontSize={fontSize} onMount={handleOnFontPreviewMount} formHeight={formHeight}>
+        <FontPreview
+          fontFamily={previewedInputFont}
+          fontSize={fontSize}
+          formHeight={formHeight}
+        >
           {previewStrings[filterIdentifier]}
         </FontPreview>
         <div className={css(formWrapperRule)}>
-            {isProcessing && (
-              <div
-                className={css(isProcessingWrapperRule)}
-              >
-                {[..."loading..........."].map((letter, index) => (
-                  <span
-                    key={`loading-${index}`}
-                    className={css(isProcessingRule, () => ({
-                      animationDelay: `${index / 10}s`,
-                    }))}
-                  >
-                    {letter}
-                  </span>
-                ))}
-              </div>
-            )}
-            <Log content={logContent}/>
+          {isProcessing && (
+            <div className={css(isProcessingWrapperRule)}>
+              {[..."processing..........."].map((letter, index) => (
+                <span
+                  key={`processing-${index}`}
+                  className={css(isProcessingRule, () => ({
+                    animationDelay: `${index / 10}s`,
+                  }))}
+                >
+                  {letter}
+                </span>
+              ))}
+            </div>
+          )}
+          <Log content={logContent} />
           <div ref={formRef} className={css(formRule)}>
             {variableFontControlSliders?.map((input, index) => (
               <RangeInput
@@ -241,7 +281,7 @@ function DetailView(props) {
                 min={input.min}
                 max={input.max}
                 tag={input.tag}
-                defaultValue={fontVariations[filterIdentifier][input.tag]}
+                value={fontVariations[filterIdentifier][input.tag]}
                 onChange={(value) =>
                   setFontVariations(filterIdentifier, input.tag, value)
                 }
@@ -250,18 +290,20 @@ function DetailView(props) {
             ))}
             <RangeInput
               label={"font size"}
+              name="fontSize"
               min={20}
-              max={400}
-              defaultValue={200}
+              max={1000}
+              value={fontSize}
               onChange={(value) => setFontSize(value)}
+              rules={[fontSizeSliderRule]}
             />
+            <FileInput label="font file"></FileInput>
             <TextInput
               label={"preview"}
-              defaultValue={previewStrings[filterIdentifier]}
+              value={previewStrings[filterIdentifier]}
               onChange={(value) => setPreviewedString(value)}
               disabled={!Boolean(inputFont)}
             ></TextInput>
-            <FileInput label="font file"></FileInput>
             {inputs.map((input, index) => {
               switch (input.type) {
                 case "range":
@@ -272,6 +314,7 @@ function DetailView(props) {
                       key={`input_${filterIdentifier}_${index}`}
                       min={input.min}
                       max={input.max}
+                      value={formInputValues[filterIdentifier][input.name]}
                       disabled={!Boolean(inputFont)}
                     ></RangeInput>
                   );
@@ -280,7 +323,7 @@ function DetailView(props) {
               }
             })}
             <button
-              className={css(column(1))}
+              className={css(column(5), getRule)}
               onClick={() => setGetFormVisible(!getFormVisible)}
               disabled={!Boolean(inputFont)}
             >

@@ -9,21 +9,8 @@ export const fontPreviewContainerRule = ({ fontSize }) => ({
 });
 
 function ListView(props) {
-  const { filterRoutes, fontSize, setFontSize } = props;
+  const { filterRoutes, fontSize } = props;
   const { css } = useFela({ fontSize });
-  const fontSizeRef = useRef(200);
-
-  function handleOnFontPreviewMount(contentWidth) {
-    const bodyWidth = document.body.clientWidth - 20;
-    if (contentWidth > bodyWidth) {
-      const scale = fontSize * (bodyWidth / contentWidth);
-      if (scale < fontSizeRef.current) {
-        setFontSize(scale);
-        fontSizeRef.current = scale;
-      }
-    }
-  }
-
   return (
     <ul>
       {filterRoutes.map((filterRoute, index) => (
@@ -33,7 +20,6 @@ function ListView(props) {
               <FontPreview
                 fontSize={fontSize}
                 inListView={true}
-                onMount={handleOnFontPreviewMount}
               >
                 {filterRoute.title}
               </FontPreview>

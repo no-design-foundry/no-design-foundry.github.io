@@ -8,7 +8,7 @@ const linkRule = () => ({
 });
 
 export default function (props) {
-  const { to, className = "", isActive } = props;
+  const { to, className = "" } = props;
   const setContentIsVisible = useContext(ContentVisibilityContext);
   const navigate = useNavigate();
   const { css } = useFela();

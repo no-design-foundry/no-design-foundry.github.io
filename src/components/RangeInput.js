@@ -11,7 +11,6 @@ const valueIndicatorRule = () => ({
 
 const buttonRule = () => ({
   height: "100%",
-  // overflow: "hidden",
   display: "flex",
   flexDirection: "column",
 })
@@ -20,58 +19,38 @@ const placeholderRule = () => ({
   visibility: "hidden"
 })
 
-const inputRule = () => ({
-  '::-webkit-slider-thumb, ::-moz-range-thumb, ::-ms-thumb': {
-    appearance: "none",
-    "-webkit-appearance": "none",
-    width: "25px",
-    height: "25px",
-    background: "black"
-  }
-})
-
 function RangeInput(props) {
   const {
     label,
     name,
     min,
     max,
-    tag,
-    defaultValue,
+    value,
     onChange,
     animatable = false,
     disabled = false,
+    rules = []
   } = props;
   const inputRef = useRef();
   const animationInterval = useRef();
   const [animating, setAnimating] = useState();
   const { filterIdentifier } = useContext(DetailViewContext);
-  const { formInputValues, setFormInputValue } = useContext(FormInputsContext);
-  const [currentValue, setCurrentValue] = useState(
-    formInputValues[filterIdentifier][name]
-  );
+  const { setFormInputValue } = useContext(FormInputsContext);
+  const [currentValue, setCurrentValue] = useState(value);
   const { css } = useFela({animating});
-
+  
   useEffect(() => {
-    inputRef.current.value = currentValue || defaultValue;
-    if (!currentValue) {
-      setCurrentValue(defaultValue);
+    inputRef.current.value = currentValue;
+    return () => {
+      clearInterval(animationInterval.current)
     }
   }, []);
-
-  useEffect(() => {
-    if (inputRef.current.value !== currentValue) {
-      inputRef.current.value = currentValue;
-      if (onChange) {
-        onChange(currentValue);
-      }
-    }
-  }, [currentValue]);
-
+  
   function handleOnChange(e) {
     if (inputRef.current.checkValidity()) {
       const value = parseInt(e.target.value);
       setCurrentValue(value);
+      onChange(e.target.value);
       if (name) {
         setFormInputValue(filterIdentifier, name, value);
       }
@@ -88,6 +67,10 @@ function RangeInput(props) {
         const position = (start + counter) % 720;
         const value = Math.round(position - 360 < 0 ? position : 360 - (position % 360))
         setCurrentValue(value)
+        inputRef.current.value = value;
+        if (onChange) {
+          onChange(value)
+        }
         const offset =
           10 - ((Math.cos((Math.PI * position) / 180) + 1) / 2) * 9;
         counter += offset;
@@ -98,9 +81,9 @@ function RangeInput(props) {
 
   return (
     <>
-      <label className={css(column(1))}>{label}</label>
+      <label className={css(column(1), ...rules)}>{label}</label>
       {animatable && (
-        <button className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
+        <button className={css(buttonRule, column(2), ...rules)} onClick={handleOnClickAnimate}>
           <span>{animating ? "stop" : "play"}</span>
           <span className={css(placeholderRule)} aria-label="hidden">play</span>
           <span className={css(placeholderRule)} aria-label="hidden">stop</span>
@@ -108,14 +91,14 @@ function RangeInput(props) {
       )}
       <input
         ref={inputRef}
-        className={css(inputRule, column(3))}
+        className={css(column(3), ...rules)}
         type="range"
         onChange={handleOnChange}
         min={min}
         max={max}
         disabled={disabled}
       ></input>
-      <div className={css(valueIndicatorRule)} disabled={disabled}>
+      <div className={css(valueIndicatorRule, ...rules)} disabled={disabled}>
         {currentValue}
       </div>
     </>

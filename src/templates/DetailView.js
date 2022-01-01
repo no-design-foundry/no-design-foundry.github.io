@@ -31,9 +31,10 @@ const getRule = () => ({
 const formWrapperRule = ({innerHeight}) => ({
   top: 0,
   position: "fixed",
+  flexDirection: "column",
   height: `100%`,
   display: "flex",
-  alignItems: "flex-end",
+  justifyContent: "flex-end",
   transition: "height .05s ease-in"
 });
 const formRule = () => ({
@@ -50,6 +51,7 @@ const formRule = () => ({
   alignItems: "center",
   justifyContent: "center",
   marginBottom: "10px",
+  
 });
 
 const fullscreenRule = () => ({
@@ -297,7 +299,6 @@ function DetailView(props) {
             ))}
             <RangeInput
               label={"font size"}
-              name="fontSize"
               min={20}
               max={1000}
               value={fontSize}

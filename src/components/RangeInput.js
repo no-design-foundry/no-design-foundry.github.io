@@ -50,7 +50,9 @@ function RangeInput(props) {
     if (inputRef.current.checkValidity()) {
       const value = parseInt(e.target.value);
       setCurrentValue(value);
-      onChange(e.target.value);
+      if (onChange) {
+        onChange(e.target.value);
+      }
       if (name) {
         setFormInputValue(filterIdentifier, name, value);
       }

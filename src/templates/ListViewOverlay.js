@@ -24,6 +24,13 @@ function ListViewOverlay(props) {
                   inListView={true}
                   fontFamily={`${filterRoute.filterIdentifier}-${index}`}
                   color={color}
+                  fontVariations={(filterRoute?.variableFontControlSliders ?? []).reduce(
+                    (collector, route) => {
+                      collector[route.tag] = route.default
+                      return collector
+                    },
+                    {}
+                  )}
                 >
                   {filterRoute.title}
                 </FontPreview>

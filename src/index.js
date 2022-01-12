@@ -49,12 +49,9 @@ renderer.renderStatic(resetStyle, "html,body,div,input,label,a,button");
 const headlineStyle = {
   fontFamily: "inherit",
   fontSize: "inherit",
-  fontWeight: "inherit"
+  fontWeight: "inherit",
 };
-renderer.renderStatic(
-  headlineStyle,
-  "h1,h2,h3,h4,h5,h6,h6,h8"
-  );
+renderer.renderStatic(headlineStyle, "h1,h2,h3,h4,h5,h6,h6,h8");
 
 const paddingMarginResetStyle = {
   padding: 0,
@@ -67,10 +64,10 @@ renderer.renderStatic(
 );
 
 const bodyStyle = {
-  fontFamily: "'Times New Roman', serif",
+  fontFamily: `"Times New Roman"`,
+  // fontFamily: `vtt, sans-serif`,
   maxWidth: "100vw",
   minHeight: "100vh",
-  // maxHeight: "100vh",
   position: "relative",
   overscrollBehavior: "contain",
   overflow: "auto",
@@ -120,8 +117,15 @@ const aActiveRule = {
 
 renderer.renderStatic(aActiveRule, "a.active");
 
-const fonts = ["rasterizer-0", "rotorizer-0", "rotorizer-1"];
-fonts.forEach((font) => renderer.renderFont(font, [`${font}.ttf`]));
+const fonts = [
+  ["rasterizer-0", "ttf"],
+  ["rotorizer-0", "ttf"],
+  ["rotorizer-1", "ttf"],
+  ["vtt", "woff2"],
+];
+fonts.forEach(([font, extension]) =>
+  renderer.renderFont(font, [`${font}.${extension}`])
+);
 
 ReactDOM.render(
   <BrowserRouter>

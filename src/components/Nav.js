@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { useFela } from "react-fela";
 import { useLocation } from "react-router";
-import Link from "./Link";
 import NavLink from "./NavLink";
 
 const navRule = () => ({
-  fontFamily: "test",
   padding: "10px",
   // position: "sticky",
   // top: 0,

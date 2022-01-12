@@ -58,35 +58,42 @@ const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
   height: contentIsVisible ? 0 : `calc(100% - ${navHeight - 10}px)`,
 });
 
-const contentBackgroundRule = ({ isTouching, transitionWidth }) => ({
+const contentBackgroundRule = ({
+  isTouching,
+  transitionWidth,
+  transitionHeight,
+}) => ({
   zIndex: -1,
   top: 0,
   left: 0,
   width: "100%",
+  height: "100%",
   position: "absolute",
   background: "#eee",
   overflow: "hidden",
   transform: "translateZ(0)",
-  // "@media(hover:none)": {
-  //   height: "100vh !important",
-  // },
   extend: [
     {
       condition: isTouching,
       style: {
-        height: "100%",
+        height: "100% !important",
       },
     },
     {
       condition: !isTouching,
       style: {
-        width: "100%",
+        width: "100% !important",
       },
     },
     {
-      condition: transitionWidth,
+      condition: transitionWidth | transitionHeight,
       style: {
-        transition: "width .15s ease-in",
+        transitionProperty: [
+          ...(transitionWidth ? ["width"] : []),
+          ...(transitionHeight ? ["height"] : []),
+        ].join(","),
+        transitionDuration: ".15s",
+        transitionTimingFunction: "linear",
       },
     },
   ],
@@ -110,8 +117,7 @@ function App() {
   const [navHeight, setNavHeight] = useState(0);
   const [isTouching, setIsTouching] = useState(false);
   const [transitionWidth, setTransitionWidth] = useState(false);
-  const [cursorY, setCursorY] = useState(0);
-  const [dragX, setDragX] = useState(0);
+  const [transitionHeight, setTransitionHeight] = useState(true);
   const [listViewFontSize, setListViewFontSize] = useState(
     Math.min(...Object.values(getMaxFontSizes()))
   );
@@ -122,6 +128,7 @@ function App() {
     navHeight,
     isTouching,
     transitionWidth,
+    transitionHeight,
   });
 
   const contentBackground = useRef();
@@ -167,12 +174,26 @@ function App() {
     _setFormInputsValue(collector);
   }
 
-  function handleCursorY(e) {
-    if (Date.now() - lastTouchTimestamp.current > 500) {
-      setTransitionWidth(false);
-      setIsTouching(false);
-      setCursorY(e.pageY);
+  // if (Date.now() - lastTouchTimestamp.current > 500) {
+  // if (transitionHeight) {
+  //   setTimeout(()=>{
+  //     setTransitionHeight(false)
+  //   }, 500)
+  // }
+  // }
+
+  function handleMouseEnter() {
+    if (transitionHeight) {
+      setTimeout(() => {
+        setTransitionHeight(false);
+      }, 500);
     }
+    setTransitionWidth(false);
+    setIsTouching(false);
+  }
+
+  function handleCursorY(e) {
+    contentBackground.current.style.height = `${e.pageY}px`;
   }
 
   function handleTouchStart(e) {
@@ -180,7 +201,7 @@ function App() {
     setTransitionWidth(true);
     setIsTouching(true);
     if (e.touches.length === 1) {
-      setDragX(e.touches[0].pageX);
+      contentBackground.current.style.width = `${e.touches[0].pageX}px`;
     }
   }
 
@@ -196,22 +217,23 @@ function App() {
         value = Math.min(x1, x2) + Math.abs(x2 - x1) / 2;
         break;
     }
-    setDragX(value);
+    contentBackground.current.style.width = `${value}px`;
   }
 
   function handleOnResize(e) {
     setListViewFontSize(Math.min(...Object.values(getMaxFontSizes())));
   }
 
-
   useEffect(() => {
     window.addEventListener("resize", handleOnResize);
     window.addEventListener("mousemove", handleCursorY, false);
+    document.body.addEventListener("mouseenter", handleMouseEnter);
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchmove", handleOnTouchMove);
     return () => {
       window.removeEventListener("resize", handleOnResize);
       window.removeEventListener("mousemove", handleCursorY);
+      document.body.removeEventListener("mouseenter", handleMouseEnter);
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleOnTouchMove);
     };
@@ -294,10 +316,17 @@ function App() {
                           <Route
                             key={`about_route_${index}`}
                             path={`${filterRoute.route}/about`}
-                            element={<About identifier={filterRoute.filterIdentifier} />}
+                            element={
+                              <About
+                                identifier={filterRoute.filterIdentifier}
+                              />
+                            }
                           ></Route>
                         ))}
-                        <Route path={`/about`} element={<About identifier="foundry"></About>}></Route>
+                        <Route
+                          path={`/about`}
+                          element={<About identifier="foundry"></About>}
+                        ></Route>
                       </Routes>
                     </main>
                   </PreviewedInputFontContext.Provider>
@@ -305,15 +334,7 @@ function App() {
               </FormInputsContext.Provider>
             </ContentVisibilityContext.Provider>
             <div className={css(contentOverlayRule)}></div>
-            <div
-              ref={contentBackground}
-              className={css(contentBackgroundRule)}
-              style={{
-                ...(isTouching
-                  ? { width: `${dragX}px` }
-                  : { height: `${cursorY}px` }),
-              }}
-            >
+            <div ref={contentBackground} className={css(contentBackgroundRule)}>
               <Routes>
                 {data.map((route, index) => {
                   let element;
@@ -339,9 +360,9 @@ function App() {
                           fontSize={listViewFontSize}
                         />
                       );
-                      break
+                      break;
                     default:
-                      throw new Error("not matched")
+                      throw new Error("not matched");
                   }
                   return (
                     <Route

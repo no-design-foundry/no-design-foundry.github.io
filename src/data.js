@@ -16,7 +16,7 @@ export default [
         tag: "RTTX",
         min: 0,
         max: 360,
-        default: 0,
+        default: 130,
       },
     ],
     inputs: [

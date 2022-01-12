@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useFela } from "react-fela";
+import { dictToFontVariationSettings } from "../misc";
 
 const opacityTransition = 350;
 
@@ -8,7 +9,7 @@ const itemRule = ({
   visible,
   color,
   inListView,
-  formHeight,
+  fontVariations,
 }) => ({
   userSelect: "none",
   padding: "10px",
@@ -17,10 +18,6 @@ const itemRule = ({
   transitionTimingFunction: "ease-in",
   whiteSpace: "nowrap",
   textRendering: "optimizeSpeed",
-  // marginTop: `${-formHeight/2}px`,
-  // "@media(hover:none)": {
-  //   marginTop: `${-formHeight}px `
-  // },
   extend: [
     {
       condition: previewedFontFamily,
@@ -41,12 +38,6 @@ const itemRule = ({
         filter: "blur(.025em)",
       },
     },
-    {
-      condition: inListView,
-      style: {
-        fontVariationSettings: '"RTTX" 150',
-      },
-    },
   ],
 });
 
@@ -59,10 +50,9 @@ const containerRule = ({ inListView, formHeight }) => ({
   left: 0,
   width: "100vw",
   height: "100vh",
-  // marginTop: "25px",
-  overflow: "hidden",
-  // height: "100%",
+  overflowX: "hidden",
   display: "flex",
+  transform: "translateZ(0)",
   alignItems: "center",
   justifyContent: inListView ? "flex-start" : "center",
   extend: [
@@ -112,18 +102,14 @@ function FontPreview(props) {
     previewedFontFamily,
     color,
     formHeight,
+    fontVariations
   });
-
   return (
     <div className={css(containerRule)} style={{ fontSize: `${fontSize}px` }}>
       <span
         ref={contentRef}
         className={css(itemRule)}
-        style={{
-          fontVariationSettings: Object.keys(fontVariations)
-            .map((key) => `"${key}" ${fontVariations[key]}`)
-            .join(", "),
-        }}
+        style={{...dictToFontVariationSettings(fontVariations)}}
       >
         {previewedChildren}
       </span>

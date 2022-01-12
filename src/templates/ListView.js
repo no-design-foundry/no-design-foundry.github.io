@@ -13,7 +13,7 @@ function ListView(props) {
   const { css } = useFela({ fontSize });
   return (
     <ul>
-      {filterRoutes.map((filterRoute, index) => (
+      {filterRoutes.map((filterRoute) => (
         <li key={`list-view-${filterRoute.route}`}>
           <Link to={filterRoute.route}>
             <div className={css(fontPreviewContainerRule)}>

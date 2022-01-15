@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
 import { useFela } from "react-fela";
 import {
-  FontSizeContext,
   FontVariationsContext,
   PreviewedOutputFontsContext,
   PreviewStringsContext,
-} from "../App";
+} from "../Contexts";
 import FontPreview from "../components/FontPreview";
 
 const containerRule = ({ navHeight }) => ({

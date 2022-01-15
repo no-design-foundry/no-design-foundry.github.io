@@ -11,7 +11,11 @@ const abouts = {
 }
 
 const articleRule = () => ({
-    padding: "0 10px 10px 10px"
+    padding: "calc(1em - 10px) 10px 10px 10px",
+    maxWidth: "50ch",
+    "& p + p": {
+        marginTop: "1em",
+    }
 })
 
 function About(props) {

@@ -5,6 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="A designless foundry"/>
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <style>
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 20px;
+        width: 20px;
+        border-radius: 3px;
+        background: #ffffff;
+        cursor: pointer;
+      }
+      
+      /* All the same stuff for Firefox */
+      input[type=range]::-moz-range-thumb {
+        height: 20px;
+        width: 20px;
+        border-radius: 3px;
+        background: #ffffff;
+        cursor: pointer;
+      }
+      
+      /* All the same stuff for IE */
+      input[type=range]::-ms-thumb {
+        height: 20px;
+        width: 20px;
+        border-radius: 3px;
+        background: #ffffff;
+        cursor: pointer;
+      }
+    </style>
     <script type="text/javascript">
       (function(l) {
         if (l.search[1] === '/' ) {

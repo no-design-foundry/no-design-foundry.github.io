@@ -19,8 +19,8 @@ const aboutRule = () => ({
 
 const subUlRule = () => ({
   display: "flex",
-  flexDirection: "row"
-})
+  flexDirection: "row",
+});
 
 function Nav(props) {
   const homeRef = useRef();
@@ -51,15 +51,24 @@ function Nav(props) {
         <li ref={homeRef} className={css(menuItemRule)}>
           <ul className={css(subUlRule)}>
             <li>
-              <NavLink to={"/"}>no design foundry</NavLink>
-            </li>
-            {(location.pathname === "/" || location.pathname === "/about") &&
-            <li>
-              <NavLink to={"/about"} className={css(aboutRule)}>
-                about
+              <NavLink
+                to={"/"}
+                condition={(pathname) => ["/", "/about"].includes(pathname)}
+              >
+                no design foundry
               </NavLink>
             </li>
-            }
+            {(location.pathname === "/" || location.pathname === "/about") && (
+              <li>
+                <NavLink
+                  to={"/about"}
+                  className={css(aboutRule)}
+                  condition={(pathname) => pathname === "/about"}
+                >
+                  about
+                </NavLink>
+              </li>
+            )}
           </ul>
         </li>
         {location.pathname !== "/" &&
@@ -69,16 +78,16 @@ function Nav(props) {
                 <li className={css(menuItemRule)}>
                   <NavLink to={route.route}>{route.title}</NavLink>
                 </li>
-                {location.pathname.startsWith(route.route) &&
-                <li>
-                  <NavLink
-                    to={`${route.route}/about`}
-                    className={css(aboutRule)}
-                  >
-                    about
-                  </NavLink>
-                </li>
-                }
+                {location.pathname.startsWith(route.route) && (
+                  <li>
+                    <NavLink
+                      to={`${route.route}/about`}
+                      className={css(aboutRule)}
+                    >
+                      about
+                    </NavLink>
+                  </li>
+                )}
               </ul>
             </li>
           ))}

@@ -3,16 +3,20 @@ import { useFela } from "react-fela";
 import FontPreview from "../components/FontPreview";
 import Link from "../components/Link";
 
+export const ulRule = () => ({
+  // overflowX: "hidden"
+})
+
 export const fontPreviewContainerRule = ({ fontSize }) => ({
   position: "relative",
-  height: `${fontSize * 0.8}px`,
+  height: `${fontSize * 1}px`,
 });
 
 function ListView(props) {
   const { filterRoutes, fontSize } = props;
   const { css } = useFela({ fontSize });
   return (
-    <ul>
+    <ul className={css(ulRule)}> 
       {filterRoutes.map((filterRoute) => (
         <li key={`list-view-${filterRoute.route}`}>
           <Link to={filterRoute.route}>

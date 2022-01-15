@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useContext, useState } from "react";
 import { useFela } from "react-fela";
-import { FormInputsContext } from "../App";
+import { FormInputsContext } from "../Contexts";
 import { column } from "../rules/rules";
 import { DetailViewContext } from "../templates/DetailView";
 
@@ -29,7 +29,6 @@ function RangeInput(props) {
     onChange,
     animatable = false,
     disabled = false,
-    rules = []
   } = props;
   const inputRef = useRef();
   const animationInterval = useRef();
@@ -83,9 +82,9 @@ function RangeInput(props) {
 
   return (
     <>
-      <label className={css(column(1), ...rules)}>{label}</label>
+      <label className={css(column(1))}>{label}</label>
       {animatable && (
-        <button className={css(buttonRule, column(2), ...rules)} onClick={handleOnClickAnimate}>
+        <button className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
           <span>{animating ? "stop" : "play"}</span>
           <span className={css(placeholderRule)} aria-label="hidden">play</span>
           <span className={css(placeholderRule)} aria-label="hidden">stop</span>
@@ -93,14 +92,14 @@ function RangeInput(props) {
       )}
       <input
         ref={inputRef}
-        className={css(column(3), ...rules)}
+        className={css(column(3))}
         type="range"
         onChange={handleOnChange}
         min={min}
         max={max}
         disabled={disabled}
       ></input>
-      <div className={css(valueIndicatorRule, ...rules)} disabled={disabled}>
+      <div className={css(valueIndicatorRule)} disabled={disabled}>
         {currentValue}
       </div>
     </>

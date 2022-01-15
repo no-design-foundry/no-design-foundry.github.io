@@ -26,7 +26,7 @@ export default [
         name: "depth",
         min: 2,
         max: 600,
-        default: 20,
+        default: 100,
       },
     ],
   },

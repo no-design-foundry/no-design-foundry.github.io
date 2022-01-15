@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useEffect, useState } from "react";
 import { useFela } from "react-fela";
-import { InputFontContext } from "../App";
+import { InputFontContext } from "../Contexts";
 import { column } from "../rules/rules";
 
 const fullscreenDragRule = ({ fileIsDragged }) => ({

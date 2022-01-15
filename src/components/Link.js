@@ -21,14 +21,9 @@ export default function (props) {
       setContentIsVisible(true);
     }, 350 + 50);
   }
-  const params = {
-    to,
-    onClick: delayAndGo,
-    className: `${css(linkRule)} ${className}`,
-  };
   return (
-    <NavLink {...params}>{props.children}</NavLink>
-    // ) : (
-    // <Link {...params}>{props.children}</Link>
+    <Link to={to} onClick={delayAndGo} className={className}>
+      {props.children}
+    </Link>
   );
 }

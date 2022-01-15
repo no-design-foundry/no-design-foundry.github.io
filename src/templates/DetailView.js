@@ -12,7 +12,8 @@ import {
   PreviewedOutputFontsContext,
   PreviewStringsContext,
   FontVariationsContext,
-} from "../App";
+  FontPreviewMarginsContext,
+} from "../Contexts";
 import FileInput from "../components/FileInput";
 import RangeInput from "../components/RangeInput";
 import TextInput from "../components/TextInput";
@@ -25,17 +26,17 @@ import Log from "../components/Log";
 export const DetailViewContext = createContext();
 
 const getRule = () => ({
-  textAlign: "right"
-})
+  textAlign: "right",
+});
 
-const formWrapperRule = ({innerHeight}) => ({
+const formWrapperRule = ({ innerHeight }) => ({
   top: 0,
   position: "fixed",
   flexDirection: "column",
   height: `100%`,
   display: "flex",
   justifyContent: "flex-end",
-  transition: "height .05s ease-in"
+  transition: "height .05s ease-in",
 });
 const formRule = () => ({
   pointerEvents: "all",
@@ -51,7 +52,6 @@ const formRule = () => ({
   alignItems: "center",
   justifyContent: "center",
   marginBottom: "10px",
-  
 });
 
 const fullscreenRule = () => ({
@@ -63,6 +63,7 @@ const fullscreenRule = () => ({
   flexDirection: "column",
   padding: "10px",
   pointerEvents: "none",
+  // overflow: "hidden",
 });
 
 const isProcessingWrapperRule = () => ({
@@ -98,9 +99,6 @@ function DetailView(props) {
     inputs,
     variableFontControlSliders,
     filterIdentifier,
-    navHeight,
-    formHeight,
-    setFormHeight,
     fontSize,
     setFontSize,
   } = props;
@@ -128,7 +126,8 @@ function DetailView(props) {
   const { fontVariations, setFontVariations } = useContext(
     FontVariationsContext
   );
-  const { css } = useFela({ navHeight, isProcessing, innerHeight });
+  const { setFontPreviewMargins } = useContext(FontPreviewMarginsContext);
+  const { css } = useFela({ isProcessing, innerHeight });
 
   function cancelRequest() {
     if (cancel.current !== undefined) {
@@ -146,6 +145,7 @@ function DetailView(props) {
       formData.append(key, formInputValues[filterIdentifier][key])
     );
     setIsProcessing(true);
+    let margins = {}
     axios({
       method: "post",
       cancelToken: new CancelToken(function executor(c) {
@@ -157,6 +157,9 @@ function DetailView(props) {
     })
       .then((response) => {
         setLogContent(response.data.warnings);
+        if (response.data.margins) {
+          margins = response.data.margins
+        }
         const outputFontsArrays = response.data.fonts.map((fontBase64) =>
           Uint8Array.from(atob(fontBase64), (c) => c.charCodeAt(0))
         );
@@ -193,6 +196,7 @@ function DetailView(props) {
       })
       .finally(() => {
         setIsProcessing(false);
+        setFontPreviewMargins(margins)
       });
   }
 
@@ -209,7 +213,6 @@ function DetailView(props) {
       }, 500);
     }
   }, [formInputValues, inputFont, previewedString, filterIdentifier]);
-
 
   function handleOnTouchMove(e) {
     switch (e.touches.length) {
@@ -234,13 +237,11 @@ function DetailView(props) {
   }
 
   function handleOnResize(e) {
-    setInnerHeight(window.innerHeight)
+    setInnerHeight(window.innerHeight);
   }
 
   useEffect(() => {
     isMounted.current = true;
-    const { offsetHeight } = formRef.current;
-    setFormHeight(offsetHeight);
     document.body.style.touchAction = "none";
     window.addEventListener("resize", handleOnResize);
     window.addEventListener("touchmove", handleOnTouchMove);
@@ -255,15 +256,11 @@ function DetailView(props) {
       cancelRequest();
     };
   }, []);
-  
+
   return (
     <DetailViewContext.Provider value={{ filterIdentifier }}>
       <div className={css(fullscreenRule)}>
-        <FontPreview
-          fontFamily={previewedInputFont}
-          fontSize={fontSize}
-          formHeight={formHeight}
-        >
+        <FontPreview fontFamily={previewedInputFont} fontSize={fontSize}>
           {previewStrings[filterIdentifier]}
         </FontPreview>
         <div className={css(formWrapperRule)}>
@@ -294,7 +291,7 @@ function DetailView(props) {
                 onChange={(value) =>
                   setFontVariations(filterIdentifier, input.tag, value)
                 }
-                animatable={true}
+                // animatable={true}
               />
             ))}
             <RangeInput

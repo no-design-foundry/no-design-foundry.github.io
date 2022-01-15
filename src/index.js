@@ -9,6 +9,7 @@ import embedded from "fela-plugin-embedded";
 import responsiveValue from "fela-plugin-responsive-value";
 import multipleSelectors from "fela-plugin-multiple-selectors";
 
+
 const getMediaQueries = (values, props) => {
   switch (values.length) {
     case 2:
@@ -64,8 +65,9 @@ renderer.renderStatic(
 );
 
 const bodyStyle = {
-  fontFamily: `"Times New Roman"`,
-  // fontFamily: `vtt, sans-serif`,
+  // fontFamily: `"Times New Roman"`,
+  fontFamily: `vtt, sans-serif`,
+  fontSize: "20px",
   maxWidth: "100vw",
   minHeight: "100vh",
   position: "relative",

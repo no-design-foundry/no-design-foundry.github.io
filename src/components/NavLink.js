@@ -7,7 +7,7 @@ const linkRule = ({pathname, condition}) => ({
     extend: [{
         condition: condition(pathname),
         style: {
-            textDecoration: "underline",
+            textDecoration: "underline !important",
         }
     }]
 })

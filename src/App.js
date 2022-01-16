@@ -83,7 +83,8 @@ const contentBackgroundRule = ({
 });
 
 const appRule = () => ({
-  fontSize: ["22px", "18px"],
+  fontSize: ["23px", "19px"],
+  lineHeight: ["1.3em", "1.15em"]
 });
 
 function App() {

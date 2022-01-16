@@ -13,7 +13,7 @@ import multipleSelectors from "fela-plugin-multiple-selectors";
 const getMediaQueries = (values, props) => {
   switch (values.length) {
     case 2:
-      return ["@media (min-width: 570px)"];
+      return ["@media (min-width: 800px)"];
     default:
       return [];
   }
@@ -30,15 +30,16 @@ const renderer = createRenderer({
       display: true,
       fontSize: true,
       gridTemplateColumns: true,
+      lineHeight: true,
       width: true,
       height: true,
+      borderRadius: true
     }),
   ],
 });
 
 const resetStyle = {
   boxSizing: "border-box",
-  textDecoration: "None",
   fontFamily: "inherit",
   fontSize: "inherit",
   color: "inherit",
@@ -67,12 +68,12 @@ renderer.renderStatic(
 const bodyStyle = {
   // fontFamily: `"Times New Roman"`,
   fontFamily: `vtt, sans-serif`,
-  fontSize: "20px",
+  
   maxWidth: "100vw",
   minHeight: "100vh",
   position: "relative",
   overscrollBehavior: "contain",
-  overflow: "auto",
+  overflow: "auto"
 };
 renderer.renderStatic(bodyStyle, "body");
 

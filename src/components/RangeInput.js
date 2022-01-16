@@ -19,6 +19,25 @@ const placeholderRule = () => ({
   visibility: "hidden"
 })
 
+const inputRule = () => ({
+  appearance: "none",
+  "-webkit-appearance": "none",
+  height: ["12px", "8px"],
+  borderRadius: ["6px", "4px"],
+  boxShadow: "inset 0 2px 2px #00000066",
+  "&::-webkit-slider-thumb, &::-moz-range-thumb": {
+    appearance: "none",
+    "-webkit-appearance": "none",
+    height: ["24px", "18px"],
+    width: ["24px", "18px"],
+    background: "#333",
+    borderRadius: "100%",
+    filter: "drop-shadow(0 2px 3px #00000066)",
+    border: "none",
+    outline: "none"
+  }
+})
+
 function RangeInput(props) {
   const {
     label,
@@ -92,12 +111,15 @@ function RangeInput(props) {
       )}
       <input
         ref={inputRef}
-        className={css(column(3))}
+        className={css(column(3), inputRule)}
         type="range"
         onChange={handleOnChange}
         min={min}
         max={max}
         disabled={disabled}
+        style={{
+          background: `linear-gradient(to right, #CCC 0%, #CCC ${currentValue/max*100}%, #EEE ${currentValue/max*100}%, #EEE 100%)`,
+        }}
       ></input>
       <div className={css(valueIndicatorRule)} disabled={disabled}>
         {currentValue}

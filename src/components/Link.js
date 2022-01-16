@@ -4,7 +4,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { ContentVisibilityContext } from "../App";
 
 const linkRule = () => ({
-  "-webkit-tap-highlight-color": "transparent",
+  textDecoration: "None"
 });
 
 export default function (props) {
@@ -22,7 +22,7 @@ export default function (props) {
     }, 350 + 50);
   }
   return (
-    <Link to={to} onClick={delayAndGo} className={className}>
+    <Link to={to} onClick={delayAndGo} className={`${css(linkRule)} ${className}`}>
       {props.children}
     </Link>
   );

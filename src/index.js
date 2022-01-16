@@ -103,7 +103,7 @@ const buttonStyle = {
 renderer.renderStatic(buttonStyle, "button");
 
 const disabledStyle = {
-  color: "gray",
+  color: "#CCC",
   userSelect: "none",
   pointerEvents: "none",
 };

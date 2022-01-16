@@ -19,11 +19,12 @@ const placeholderRule = () => ({
   visibility: "hidden"
 })
 
-const inputRule = () => ({
+const borderRadius = ["12px", "8px"]
+const inputRule = ({position}) => ({
   appearance: "none",
   "-webkit-appearance": "none",
   height: ["12px", "8px"],
-  borderRadius: ["6px", "4px"],
+  borderRadius,
   boxShadow: "inset 0 2px 2px #00000066",
   "&::-webkit-slider-thumb, &::-moz-range-thumb": {
     appearance: "none",
@@ -34,7 +35,26 @@ const inputRule = () => ({
     borderRadius: "100%",
     filter: "drop-shadow(0 2px 3px #00000066)",
     border: "none",
-    outline: "none"
+    outline: "none",
+  },
+  
+  background: "#EEE",
+  "&::-moz-range-progress": {
+    boxShadow: "inset 0 2px 2px #00000066",
+    background: "#CCC",
+    height: "100%",
+    borderRadius
+  },
+  "@supports not selector(::-moz-range-progress)": {
+    background: `linear-gradient(to right, #CCC 0%, #CCC ${position}%, #EEE ${position}%, #EEE 100%)`,
+    "&:disabled": {
+      background: `linear-gradient(to right, #DDD 0%, #DDD ${position}%, #EEE ${position}%, #EEE 100%) !important`,
+    },
+  },
+  "&:disabled": {
+    "&::-webkit-slider-thumb, &::-moz-range-thumb": {
+      background: "#EEE"
+    }
   }
 })
 
@@ -55,7 +75,7 @@ function RangeInput(props) {
   const { filterIdentifier } = useContext(DetailViewContext);
   const { setFormInputValue } = useContext(FormInputsContext);
   const [currentValue, setCurrentValue] = useState(value);
-  const { css } = useFela({animating});
+  const { css } = useFela({animating, position:currentValue/max*100});
   
   useEffect(() => {
     inputRef.current.value = currentValue;
@@ -117,9 +137,6 @@ function RangeInput(props) {
         min={min}
         max={max}
         disabled={disabled}
-        style={{
-          background: `linear-gradient(to right, #CCC 0%, #CCC ${currentValue/max*100}%, #EEE ${currentValue/max*100}%, #EEE 100%)`,
-        }}
       ></input>
       <div className={css(valueIndicatorRule)} disabled={disabled}>
         {currentValue}

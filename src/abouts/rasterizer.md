@@ -1,4 +1,4 @@
-A font that had this filter applied to went through the process of rasterisation. It's the same rasterization that rasterizes fonts on your iPhone or a Android phone, a coffee machines or something completely else. Software behind it is called [FreeType](https://freetype.org/) and it's an open source rasterizer that is used in the industry. 
+A font that had this filter applied on went through the process of rasterisation. It's the same rasterization that rasterizes fonts on your iPhone or a Android phone, a coffee machines or something completely else. Software behind it is called [FreeType](https://freetype.org/) and it's an open source rasterizer that is used in the industry. 
 
 Such rasterisation is very complex process, it uses font's information called hinting. Hinting simply hints the rasterizer what to do. It can tell it to make sure to have this stroke the same amount of pixels as this stroke or show overshoot only if the font size is above 20px. If the font doesn't contain any hinting, then the rasterizer tries to do its best job.
 

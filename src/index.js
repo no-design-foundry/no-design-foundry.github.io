@@ -45,6 +45,11 @@ const resetStyle = {
   color: "inherit",
   "-webkit-font-smoothing": "antialiased",
   "-moz-osx-font-smoothing": "grayscale",
+  "&:focus": {
+    outline: "none",
+    background: "none",
+    boxShadow: "none"
+  }
 };
 renderer.renderStatic(resetStyle, "html,body,div,input,label,a,button");
 
@@ -68,9 +73,9 @@ renderer.renderStatic(
 const bodyStyle = {
   // fontFamily: `"Times New Roman"`,
   fontFamily: `vtt, sans-serif`,
-  
   maxWidth: "100vw",
   minHeight: "100vh",
+  touchAction: "pan-y",
   position: "relative",
   overscrollBehavior: "contain",
   overflow: "auto"
@@ -106,6 +111,8 @@ const disabledStyle = {
   color: "#CCC",
   userSelect: "none",
   pointerEvents: "none",
+  opacity: "1 !important",
+  "-webkit-text-fill-color": "#CCC"
 };
 renderer.renderStatic(disabledStyle, "*[disabled]");
 

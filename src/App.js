@@ -75,8 +75,8 @@ const contentBackgroundRule = ({
           ...(transitionWidth ? ["width"] : []),
           ...(transitionHeight ? ["height"] : []),
         ].join(","),
-        transitionDuration: ".05s",
-        transitionTimingFunction: "ease-in",
+        transitionDuration: ".15s",
+        transitionTimingFunction: "linear",
       },
     },
   ],
@@ -84,10 +84,11 @@ const contentBackgroundRule = ({
 
 const appRule = () => ({
   fontSize: ["23px", "19px"],
-  lineHeight: ["1.3em", "1.15em"]
+  lineHeight: ["1.3em", "1.15em"],
 });
 
 function App() {
+  const lastInnerWidth = useRef(window.innerWidth);
   const [contentIsVisible, setContentIsVisible] = useState(true);
   const [fontSizes, setFontSizes] = useState(getMaxFontSizes());
   function setFontSize(filterIdentifier, value) {
@@ -120,17 +121,22 @@ function App() {
       setTransitionWidth(false);
       if (transitionHeight) {
         setTimeout(() => {
-          setTransitionHeight(false);
+          // setTransitionHeight(false);
         }, 500);
       }
-
     }
   }
 
   function handleCursorY(e) {
+    if (transitionHeight) {
+      const {clientHeight} = contentBackground.current
+      if (clientHeight - 10 <= e.pageY) {
+        setTransitionHeight(false)
+      }
+    }
     if (Date.now() - lastTouchTimestamp.current > 500) {
-      setIsTouching(false);
-      setTransitionHeight(false);
+      // setIsTouching(false);
+      // setTransitionHeight(false);
       contentBackground.current.style.height = `${e.pageY}px`;
     }
   }
@@ -160,10 +166,17 @@ function App() {
   }
 
   function handleOnResize(e) {
-    setListViewFontSize(Math.min(...Object.values(getMaxFontSizes())));
+    const { innerWidth, innerHeight } = window;
+    // console.log(innerHeight)
+    if (innerWidth !== lastInnerWidth.current) {
+      setListViewFontSize(Math.min(...Object.values(getMaxFontSizes())));
+      // document.body.style.minHeight = `${window.innerHeight}px`;
+      lastInnerWidth.current = innerWidth;
+    }
   }
 
   useEffect(() => {
+    // new ResizeObserver((el)=>console.log(contentBackground.current.offsetHeight, contentBackground.current.style.height)).observe(contentBackground.current)
     isMounted.current = true;
     window.addEventListener("resize", handleOnResize);
     window.addEventListener("mousemove", handleCursorY, false);
@@ -186,97 +199,97 @@ function App() {
   return (
     <ContentVisibilityContext.Provider value={setContentIsVisible}>
       <Contexts>
-      <div className={css(appRule)}>
-        <Nav setNavHeight={setNavHeight} filterRoutes={filterRoutes} />
-        <main>
-          <Routes>
-            {data.map((route, index) => {
-              let element;
-              switch (route.type) {
-                case "filterDetailView":
-                  element = (
-                    <DetailView
-                      {...route}
-                      navHeight={navHeight}
-                      key={route.route}
-                      fontSize={fontSizes[route.filterIdentifier]}
-                      setFontSize={(value) =>
-                        setFontSize(route.filterIdentifier, value)
-                      }
-                    ></DetailView>
-                  );
-                  break;
-                case "filterListView":
-                  element = (
-                    <ListView
-                      {...route}
-                      filterRoutes={filterRoutes}
-                      fontSize={listViewFontSize}
-                    ></ListView>
-                  );
-                  break;
-              }
-              return (
+        <div className={css(appRule)}>
+          <Nav setNavHeight={setNavHeight} filterRoutes={filterRoutes} />
+          <main>
+            <Routes>
+              {data.map((route, index) => {
+                let element;
+                switch (route.type) {
+                  case "filterDetailView":
+                    element = (
+                      <DetailView
+                        {...route}
+                        navHeight={navHeight}
+                        key={route.route}
+                        fontSize={fontSizes[route.filterIdentifier]}
+                        setFontSize={(value) =>
+                          setFontSize(route.filterIdentifier, value)
+                        }
+                      ></DetailView>
+                    );
+                    break;
+                  case "filterListView":
+                    element = (
+                      <ListView
+                        {...route}
+                        filterRoutes={filterRoutes}
+                        fontSize={listViewFontSize}
+                      ></ListView>
+                    );
+                    break;
+                }
+                return (
+                  <Route
+                    path={route.route}
+                    element={element}
+                    key={`route_${index}`}
+                  ></Route>
+                );
+              })}
+              {filterRoutes.map((filterRoute, index) => (
                 <Route
-                  path={route.route}
-                  element={element}
-                  key={`route_${index}`}
+                  key={`about_route_${index}`}
+                  path={`${filterRoute.route}/about`}
+                  element={<About identifier={filterRoute.filterIdentifier} />}
                 ></Route>
-              );
-            })}
-            {filterRoutes.map((filterRoute, index) => (
+              ))}
               <Route
-                key={`about_route_${index}`}
-                path={`${filterRoute.route}/about`}
-                element={<About identifier={filterRoute.filterIdentifier} />}
+                path={`/about`}
+                element={<About identifier="foundry"></About>}
               ></Route>
-            ))}
-            <Route
-              path={`/about`}
-              element={<About identifier="foundry"></About>}
-            ></Route>
-          </Routes>
-        </main>
-        <div className={css(contentOverlayRule)}></div>
-        <div ref={contentBackground} className={css(contentBackgroundRule)}>
-          <Routes>
-            {data.map((route, index) => {
-              let element;
-              switch (route.type) {
-                case "filterDetailView":
-                  element = (
-                    <DetailViewOverlay
-                      {...route}
-                      navHeight={navHeight}
-                      key={route.route}
-                      fontSize={fontSizes[route.filterIdentifier]}
-                    />
-                  );
-                  break;
-                case "filterListView":
-                  element = (
-                    <ListViewOverlay
-                      {...route}
-                      filterRoutes={filterRoutes}
-                      navHeight={navHeight}
-                      fontSize={listViewFontSize}
-                    />
-                  );
-                  break;
-                default:
-                  throw new Error("not matched");
-              }
-              return (
-                <Route
-                  path={route.route}
-                  element={element}
-                  key={`overlay_route_${index}`}
-                />
-              );
-            })}
-          </Routes>
+            </Routes>
+          </main>
+          <div className={css(contentOverlayRule)}></div>
+          <div ref={contentBackground} className={css(contentBackgroundRule)}>
+            <Routes>
+              {data.map((route, index) => {
+                let element;
+                switch (route.type) {
+                  case "filterDetailView":
+                    element = (
+                      <DetailViewOverlay
+                        {...route}
+                        navHeight={navHeight}
+                        key={route.route}
+                        fontSize={fontSizes[route.filterIdentifier]}
+                      />
+                    );
+                    break;
+                  case "filterListView":
+                    element = (
+                      <ListViewOverlay
+                        {...route}
+                        filterRoutes={filterRoutes}
+                        navHeight={navHeight}
+                        fontSize={listViewFontSize}
+                      />
+                    );
+                    break;
+                  default:
+                    throw new Error("not matched");
+                }
+                return (
+                  <Route
+                    path={route.route}
+                    element={element}
+                    key={`overlay_route_${index}`}
+                  />
+                );
+              })}
+            </Routes>
+          </div>
         </div>
-      </div>
       </Contexts>
     </ContentVisibilityContext.Provider>
   );

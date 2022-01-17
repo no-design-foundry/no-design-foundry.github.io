@@ -30,10 +30,10 @@ const getRule = () => ({
 });
 
 const formWrapperRule = ({ innerHeight }) => ({
-  top: 0,
+  bottom: 0,
   position: "fixed",
+  transform: "translateZ(0)",
   flexDirection: "column",
-  height: `100%`,
   display: "flex",
   justifyContent: "flex-end",
   transition: "height .05s ease-in",
@@ -41,10 +41,7 @@ const formWrapperRule = ({ innerHeight }) => ({
 const formRule = () => ({
   pointerEvents: "all",
   display: "grid",
-  gridTemplateColumns: [
-    "min-content min-content auto 3ch 5ch",
-    "repeat(4, min-content) 3ch",
-  ],
+  gridTemplateColumns: ["auto auto 3ch auto", "repeat(4, min-content) 3ch"],
   width: ["calc(100% - 10px)", "auto"],
   gap: "0px 6px",
   gridAutoRows: "1.2em",
@@ -83,12 +80,6 @@ const isProcessingRule = ({ isProcessing }) => ({
   animationIterationCount: "infinite",
   animationDirection: "alternate-reverse",
   animationPlayState: isProcessing ? "processing" : "paused",
-});
-
-const fontSizeSliderRule = () => ({
-  "@media(hover:none)": {
-    display: "none",
-  },
 });
 
 const CancelToken = axios.CancelToken;
@@ -145,7 +136,7 @@ function DetailView(props) {
       formData.append(key, formInputValues[filterIdentifier][key])
     );
     setIsProcessing(true);
-    let margins = {}
+    let margins = {};
     axios({
       method: "post",
       cancelToken: new CancelToken(function executor(c) {
@@ -158,7 +149,7 @@ function DetailView(props) {
       .then((response) => {
         setLogContent(response.data.warnings);
         if (response.data.margins) {
-          margins = response.data.margins
+          margins = response.data.margins;
         }
         const outputFontsArrays = response.data.fonts.map((fontBase64) =>
           Uint8Array.from(atob(fontBase64), (c) => c.charCodeAt(0))
@@ -196,7 +187,7 @@ function DetailView(props) {
       })
       .finally(() => {
         setIsProcessing(false);
-        setFontPreviewMargins(margins)
+        setFontPreviewMargins(margins);
       });
   }
 
@@ -215,21 +206,21 @@ function DetailView(props) {
   }, [formInputValues, inputFont, previewedString, filterIdentifier]);
 
   function handleOnTouchMove(e) {
-    switch (e.touches.length) {
-      case 2:
-        const [{ pageX: x1, pageY: y1 }, { pageX: x2, pageY: y2 }] = e.touches;
-        const distance = Math.hypot(y2 - y1, x2 - x1) * 2;
-        if (previousDistance.current) {
-          const value =
-            fontSizeRef.current - (previousDistance.current - distance);
-          if (value > 20) {
-            setFontSize(value);
-            fontSizeRef.current = value;
-          }
-        }
-        previousDistance.current = distance;
-        break;
-    }
+    // switch (e.touches.length) {
+    //   case 2:
+    //     const [{ pageX: x1, pageY: y1 }, { pageX: x2, pageY: y2 }] = e.touches;
+    //     const distance = Math.hypot(y2 - y1, x2 - x1) * 2;
+    //     if (previousDistance.current) {
+    //       const value =
+    //         fontSizeRef.current - (previousDistance.current - distance);
+    //       if (value > 20) {
+    //         setFontSize(value);
+    //         fontSizeRef.current = value;
+    //       }
+    //     }
+    //     previousDistance.current = distance;
+    //     break;
+    // }
   }
 
   function handleOnTouchEnd(e) {
@@ -240,7 +231,10 @@ function DetailView(props) {
     setInnerHeight(window.innerHeight);
   }
 
+  const innerHeightMeasurerRef = useRef();
+
   useEffect(() => {
+    // new ResizeObserver(()=>{document.body.clientHeight}).observe(document.body)
     isMounted.current = true;
     document.body.style.touchAction = "none";
     window.addEventListener("resize", handleOnResize);
@@ -300,7 +294,6 @@ function DetailView(props) {
               max={1000}
               value={fontSize}
               onChange={(value) => setFontSize(value)}
-              rules={[fontSizeSliderRule]}
             />
             <FileInput label="font file"></FileInput>
             <TextInput
@@ -328,7 +321,7 @@ function DetailView(props) {
               }
             })}
             <button
-              className={css(column(5), getRule)}
+              className={css(column(4), getRule)}
               onClick={() => setGetFormVisible(!getFormVisible)}
               disabled={!Boolean(inputFont)}
             >

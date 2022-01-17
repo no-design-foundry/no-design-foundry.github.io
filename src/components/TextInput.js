@@ -28,7 +28,7 @@ function TextInput(props) {
       <label className={css(column(1))}>{label}</label>
       <input
         ref={inputRef}
-        className={css(inputRule, column(3))}
+        className={css(inputRule, column(2))}
         type="text"
         onChange={handleOnChange}
         disabled={disabled}

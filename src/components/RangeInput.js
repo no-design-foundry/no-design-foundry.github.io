@@ -9,16 +9,6 @@ const valueIndicatorRule = () => ({
   padding: "0 .2em",
 });
 
-const buttonRule = () => ({
-  height: "100%",
-  display: "flex",
-  flexDirection: "column",
-})
-
-const placeholderRule = () => ({
-  visibility: "hidden"
-})
-
 const borderRadius = ["12px", "8px"]
 const inputRule = ({position}) => ({
   appearance: "none",
@@ -29,13 +19,14 @@ const inputRule = ({position}) => ({
   "&::-webkit-slider-thumb, &::-moz-range-thumb": {
     appearance: "none",
     "-webkit-appearance": "none",
-    height: ["24px", "18px"],
-    width: ["24px", "18px"],
+    height: ["26px", "18px"],
+    width: ["26px", "18px"],
     background: "#333",
     borderRadius: "100%",
     filter: "drop-shadow(0 2px 3px #00000066)",
     border: "none",
     outline: "none",
+    cursor: "pointer"
   },
   
   background: "#EEE",
@@ -60,6 +51,7 @@ const inputRule = ({position}) => ({
 
 function RangeInput(props) {
   const {
+    className,
     label,
     name,
     min,
@@ -97,48 +89,48 @@ function RangeInput(props) {
     }
   }
 
-  function handleOnClickAnimate() {
-    if (animating === true) {
-      clearInterval(animationInterval.current);
-    } else {
-      let counter = 0;
-      const start = currentValue;
-      animationInterval.current = setInterval(() => {
-        const position = (start + counter) % 720;
-        const value = Math.round(position - 360 < 0 ? position : 360 - (position % 360))
-        setCurrentValue(value)
-        inputRef.current.value = value;
-        if (onChange) {
-          onChange(value)
-        }
-        const offset =
-          10 - ((Math.cos((Math.PI * position) / 180) + 1) / 2) * 9;
-        counter += offset;
-      }, 1000 / 30);
-    }
-    setAnimating(!animating);
-  }
+  // function handleOnClickAnimate() {
+  //   if (animating === true) {
+  //     clearInterval(animationInterval.current);
+  //   } else {
+  //     let counter = 0;
+  //     const start = currentValue;
+  //     animationInterval.current = setInterval(() => {
+  //       const position = (start + counter) % 720;
+  //       const value = Math.round(position - 360 < 0 ? position : 360 - (position % 360))
+  //       setCurrentValue(value)
+  //       inputRef.current.value = value;
+  //       if (onChange) {
+  //         onChange(value)
+  //       }
+  //       const offset =
+  //         10 - ((Math.cos((Math.PI * position) / 180) + 1) / 2) * 9;
+  //       counter += offset;
+  //     }, 1000 / 30);
+  //   }
+  //   setAnimating(!animating);
+  // }
 
   return (
     <>
-      <label className={css(column(1))}>{label}</label>
-      {animatable && (
+      <label className={[css(column(1)), className].join(" ")}>{label}</label>
+      {/* {animatable && (
         <button className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
           <span>{animating ? "stop" : "play"}</span>
           <span className={css(placeholderRule)} aria-label="hidden">play</span>
           <span className={css(placeholderRule)} aria-label="hidden">stop</span>
         </button>
-      )}
+      )} */}
       <input
         ref={inputRef}
-        className={css(column(3), inputRule)}
+        className={[css(column(2), inputRule), className].join(" ")}
         type="range"
         onChange={handleOnChange}
         min={min}
         max={max}
         disabled={disabled}
       ></input>
-      <div className={css(valueIndicatorRule)} disabled={disabled}>
+      <div className={[css(valueIndicatorRule), className].join(" ")} disabled={disabled}>
         {currentValue}
       </div>
     </>

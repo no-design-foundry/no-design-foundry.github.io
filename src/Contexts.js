@@ -7,7 +7,6 @@ import { fontPreviewOpacityTransition } from "./components/FontPreview";
 export const FormInputsContext = createContext();
 export const InputFontContext = createContext();
 export const PreviewStringsContext = createContext();
-export const FontSizeContext = createContext();
 export const PreviewedInputFontContext = createContext();
 export const PreviewedOutputFontsContext = createContext();
 export const FontVariationsContext = createContext();

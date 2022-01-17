@@ -60,7 +60,7 @@ const fullscreenRule = () => ({
   flexDirection: "column",
   padding: "10px",
   pointerEvents: "none",
-  // overflow: "hidden",
+  overflow: "hidden",
 });
 
 const isProcessingWrapperRule = () => ({

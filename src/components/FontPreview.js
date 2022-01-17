@@ -15,6 +15,7 @@ const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBotto
   textRendering: "optimizeSpeed",
   marginBottom: `${(inListView || (!inListView && marginBottom)) ? -0.226 : marginBottom}em`,
   marginTop: `${(inListView || (!inListView && marginTop))? -0.204 : marginTop}em`,
+  transform: "translateZ(0)",
   extend: [
     {
       condition: previewedFontFamily,
@@ -48,7 +49,6 @@ const containerRule = ({ inListView }) => ({
   width: "100vw",
   height: "100vh",
   display: "flex",
-  transform: "translateZ(0)",
   alignItems: "center",
   justifyContent: inListView ? "flex-start" : "center",
   extend: [
@@ -103,11 +103,11 @@ function FontPreview(props) {
   });
 
   return (
-    <div className={css(containerRule)} style={{ fontSize: `${fontSize}px` }}>
+    <div className={css(containerRule)}>
       <span
         ref={contentRef}
         className={css(itemRule)}
-        style={{ ...dictToFontVariationSettings(fontVariations) }}
+        style={{ ...dictToFontVariationSettings(fontVariations), fontSize: `${fontSize}px`}}
       >
         {previewedChildren}
       </span>

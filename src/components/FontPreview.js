@@ -7,7 +7,6 @@ export const fontPreviewOpacityTransition = 350;
 
 const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBottom, marginTop }) => ({
   userSelect: "none",
-  padding: "10px",
   transitionDuration: `${fontPreviewOpacityTransition}ms`,
   transitionProperty: "opacity, filter",
   transitionTimingFunction: "ease-in",

@@ -113,7 +113,7 @@ function RangeInput(props) {
 
   return (
     <>
-      <label className={[css(column(1)), className].join(" ")}>{label}</label>
+      <label className={[css(column(1)), className].join(" ")} disabled={disabled}>{label}</label>
       {/* {animatable && (
         <button className={css(buttonRule, column(2))} onClick={handleOnClickAnimate}>
           <span>{animating ? "stop" : "play"}</span>

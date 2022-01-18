@@ -25,7 +25,7 @@ function TextInput(props) {
   }
   return (
     <>
-      <label className={css(column(1))}>{label}</label>
+      <label className={css(column(1))} disabled={disabled}>{label}</label>
       <input
         ref={inputRef}
         className={css(inputRule, column(2))}

@@ -64,21 +64,17 @@ const containerRule = ({ inListView }) => ({
 
 function FontPreview(props) {
   const {
-    fontSize,
     inListView = false,
-    fontFamily,
-    fontVariations = {},
     color,
+    children,
+    fontSize
   } = props;
   const contentRef = useRef();
   const [visible, setVisible] = useState(false);
-  const [previewedFontFamily, setPreviewedFontFamily] = useState(fontFamily);
-  const [previewedChildren, setPreviewedChildren] = useState(props.children);
   const { marginBottom, marginTop } = useContext(FontPreviewMarginsContext).fontPreviewMargins;
   const fontPreviews = useContext(FontPreviewsContext)
 
   useEffect(() => {
-    console.log(fontPreviews)
     if (fontPreviews) {
       fontPreviews.current.push(contentRef.current)
     }
@@ -88,22 +84,14 @@ function FontPreview(props) {
   }, []);
 
   useEffect(() => {
-    if (fontFamily !== previewedFontFamily) {
-      setVisible(false);
-      setTimeout(() => {
-        setPreviewedFontFamily(fontFamily);
-        setPreviewedChildren(props.children);
-        setVisible(true);
-      }, fontPreviewOpacityTransition + 50);
-    }
-  }, [fontFamily]);
+    contentRef.current.style.fontSize = fontSize + "px"
+  }, [fontSize]);
+  
 
   const { css } = useFela({
     visible,
     inListView,
-    previewedFontFamily,
     color,
-    fontVariations,
     marginTop,
     marginBottom
   });
@@ -113,11 +101,9 @@ function FontPreview(props) {
       <span
         ref={contentRef}
         className={css(itemRule)}
-        // style={{fontSize: `${fontSize}px`}}
       >
-        {previewedChildren}
+          {children}
       </span>
-      {/* <RangeInput filterIdentifier="none"></RangeInput> */}
     </div>
   );
 }

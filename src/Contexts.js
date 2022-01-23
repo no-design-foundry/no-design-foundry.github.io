@@ -11,6 +11,7 @@ export const PreviewedInputFontContext = createContext();
 export const PreviewedOutputFontsContext = createContext();
 export const FontVariationsContext = createContext();
 export const FontPreviewMarginsContext = createContext();
+export const FontPreviewsContext = createContext();
 
 function Contexts(props) {
   const [inputFont, setInputFont] = useState(null);
@@ -19,11 +20,12 @@ function Contexts(props) {
     marginBottom: 0,
     marginTop: 0,
   });
+  const fontPreviews = useRef([])
 
   function setFontPreviewMargins(margins) {
-    setTimeout(()=>{
-      _setFontPreviewMargins(margins)
-    }, fontPreviewOpacityTransition)
+    setTimeout(() => {
+      _setFontPreviewMargins(margins);
+    }, fontPreviewOpacityTransition);
   }
 
   const [previewedOutputFonts, _setPreviewedOutputFonts] = useState(
@@ -73,7 +75,6 @@ function Contexts(props) {
 
   const isMounted = useRef(false);
 
-
   useEffect(() => {
     if (isMounted.current) {
       // setTimeout(()=>{
@@ -92,8 +93,8 @@ function Contexts(props) {
   }, [inputFont]);
 
   useEffect(() => {
-    isMounted.current = true
-  }, [])
+    isMounted.current = true;
+  }, []);
 
   function setPreviewedOutputFonts(filterIdentifier, value) {
     let collector = {};
@@ -135,8 +136,12 @@ function Contexts(props) {
               <PreviewedInputFontContext.Provider
                 value={{ previewedInputFont, setPreviewedInputFont }}
               >
-                <FontPreviewMarginsContext.Provider value={{fontPreviewMargins, setFontPreviewMargins}}>
-                {props.children}
+                <FontPreviewMarginsContext.Provider
+                  value={{ fontPreviewMargins, setFontPreviewMargins }}
+                >
+                  <FontPreviewsContext.Provider value={fontPreviews}>
+                    {props.children}
+                  </FontPreviewsContext.Provider>
                 </FontPreviewMarginsContext.Provider>
               </PreviewedInputFontContext.Provider>
             </InputFontContext.Provider>

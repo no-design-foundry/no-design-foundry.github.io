@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useFela } from "react-fela";
 import { dictToFontVariationSettings } from "../misc";
-import { FontPreviewMarginsContext } from "../Contexts";
+import { FontPreviewMarginsContext, FontPreviewsContext } from "../Contexts";
+import RangeInput from "./RangeInput";
 
 export const fontPreviewOpacityTransition = 350;
 
@@ -15,6 +16,7 @@ const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBotto
   marginBottom: `${(inListView || (!inListView && marginBottom)) ? -0.226 : marginBottom}em`,
   marginTop: `${(inListView || (!inListView && marginTop))? -0.204 : marginTop}em`,
   transform: "translateZ(0)",
+  willChange: "font-size, font-variation-settings, opacity, filter",
   extend: [
     {
       condition: previewedFontFamily,
@@ -41,7 +43,7 @@ const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBotto
 const containerRule = ({ inListView }) => ({
   zIndex: -1,
   userSelect: "none",
-  pointerEvents: "none",
+  // pointerEvents: "none",
   position: "absolute",
   top: 0,
   left: 0,
@@ -73,8 +75,13 @@ function FontPreview(props) {
   const [previewedFontFamily, setPreviewedFontFamily] = useState(fontFamily);
   const [previewedChildren, setPreviewedChildren] = useState(props.children);
   const { marginBottom, marginTop } = useContext(FontPreviewMarginsContext).fontPreviewMargins;
+  const fontPreviews = useContext(FontPreviewsContext)
 
   useEffect(() => {
+    console.log(fontPreviews)
+    if (fontPreviews) {
+      fontPreviews.current.push(contentRef.current)
+    }
     setTimeout(() => {
       setVisible(true);
     }, 100);
@@ -106,10 +113,11 @@ function FontPreview(props) {
       <span
         ref={contentRef}
         className={css(itemRule)}
-        style={{ ...dictToFontVariationSettings(fontVariations), fontSize: `${fontSize}px`}}
+        // style={{fontSize: `${fontSize}px`}}
       >
         {previewedChildren}
       </span>
+      {/* <RangeInput filterIdentifier="none"></RangeInput> */}
     </div>
   );
 }

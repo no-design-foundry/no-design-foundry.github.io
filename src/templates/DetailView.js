@@ -13,6 +13,7 @@ import {
   PreviewStringsContext,
   FontVariationsContext,
   FontPreviewMarginsContext,
+  FontPreviewsContext,
 } from "../Contexts";
 import FileInput from "../components/FileInput";
 import RangeInput from "../components/RangeInput";
@@ -119,6 +120,7 @@ function DetailView(props) {
   );
   const { setFontPreviewMargins } = useContext(FontPreviewMarginsContext);
   const { css } = useFela({ isProcessing, innerHeight });
+  const fontPreviews = useContext(FontPreviewsContext)
 
   function cancelRequest() {
     if (cancel.current !== undefined) {
@@ -231,7 +233,6 @@ function DetailView(props) {
     setInnerHeight(window.innerHeight);
   }
 
-  const innerHeightMeasurerRef = useRef();
 
   useEffect(() => {
     // new ResizeObserver(()=>{document.body.clientHeight}).observe(document.body)
@@ -248,6 +249,7 @@ function DetailView(props) {
       isMounted.current = false;
       setGetFormVisible(false);
       cancelRequest();
+      fontPreviews.current = []
     };
   }, []);
 
@@ -279,7 +281,7 @@ function DetailView(props) {
                 label={input.label}
                 key={`font_ui_${index}`}
                 min={input.min}
-                max={input.max}
+                max={1000}
                 tag={input.tag}
                 value={fontVariations[filterIdentifier][input.tag]}
                 onChange={(value) =>
@@ -293,7 +295,9 @@ function DetailView(props) {
               min={20}
               max={1000}
               value={fontSize}
-              onChange={(value) => setFontSize(value)}
+              onChange={(value) => 
+                fontPreviews.current.forEach(fontPreview => fontPreview.style.fontSize = value+"px")
+              }
             />
             <FileInput label="font file"></FileInput>
             <TextInput

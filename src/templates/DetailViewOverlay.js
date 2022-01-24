@@ -46,4 +46,4 @@ function DetailViewOverlay(props) {
   );
 }
 
-export default DetailViewOverlay;
+export default React.memo(DetailViewOverlay);

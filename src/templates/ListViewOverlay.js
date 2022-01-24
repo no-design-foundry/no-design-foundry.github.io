@@ -1,6 +1,7 @@
 import React from "react";
 import { useFela } from "react-fela";
 import FontPreview from "../components/FontPreview";
+import Layer from "../components/Layer";
 import Link from "../components/Link";
 import { fontPreviewContainerRule } from "./ListView";
 
@@ -17,24 +18,28 @@ function ListViewOverlay(props) {
         <li key={`overlay-link-${filterRoute.route}`}>
           <Link to={filterRoute.route}>
             <div className={css(fontPreviewContainerRule)}>
-              {filterRoute.layerColors.map((color, index) => (
-                <FontPreview
-                  key={`overlay-font-preview-${index}`}
-                  fontSize={fontSize}
-                  inListView={true}
-                  fontFamily={`${filterRoute.filterIdentifier}-${index}`}
-                  color={color}
-                  fontVariations={(filterRoute?.variableFontControlSliders ?? []).reduce(
-                    (collector, route) => {
-                      collector[route.tag] = route.default
-                      return collector
-                    },
-                    {}
-                  )}
-                >
-                  {filterRoute.title}
-                </FontPreview>
-              ))}
+              <FontPreview
+                key={`overlay-font-preview-${filterRoute.route}`}
+                fontSize={fontSize}
+                inListView={true}
+                fontVariations={(
+                  filterRoute?.variableFontControlSliders ?? []
+                ).reduce((collector, route) => {
+                  collector[route.tag] = route.default;
+                  return collector;
+                }, {})}
+              >
+                {filterRoute.layerColors.map((color, index) => (
+                  <Layer
+                    color={color}
+                    key={`listViewOverlay-${color}-${index}`}
+                    fontFamily={`${filterRoute.filterIdentifier}-${index}`}
+                    color={color}
+                  >
+                    {filterRoute.title}
+                  </Layer>
+                ))}
+              </FontPreview>
             </div>
           </Link>
         </li>
@@ -43,4 +48,4 @@ function ListViewOverlay(props) {
   );
 }
 
-export default ListViewOverlay;
+export default React.memo(ListViewOverlay);

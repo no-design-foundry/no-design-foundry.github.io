@@ -2,6 +2,9 @@ export const column = (nth) => () => ({
     gridColumn: nth
   })
 
-export const width = (value) => () => ({
-    width: value
-  })
+
+export const pageFade = ({mounted}) => ({
+  transition: "opacity .35s ease-in",
+  opacity: mounted ? 1 : 0
+})
+

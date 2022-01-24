@@ -73,6 +73,8 @@ renderer.renderStatic(
 const bodyStyle = {
   // fontFamily: `"Times New Roman"`,
   fontFamily: `vtt, sans-serif`,
+  // "-webkit-font-smoothing": "antialiased",
+  // "-moz-osx-font-smoothing": "grayscale",
   maxWidth: "100vw",
   minHeight: "100vh",
   touchAction: "pan-y",

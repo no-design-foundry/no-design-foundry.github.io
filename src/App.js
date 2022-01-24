@@ -10,7 +10,6 @@ import DetailViewOverlay from "./templates/DetailViewOverlay";
 import ListView from "./templates/ListView";
 import ListViewOverlay from "./templates/ListViewOverlay";
 import Contexts from "./Contexts";
-import PageFade from "./components/PageFade";
 
 export const ContentVisibilityContext = createContext();
 
@@ -26,21 +25,6 @@ function getMaxFontSizes() {
     return collector;
   }, {});
 }
-
-const contentOverlayRule = ({ contentIsVisible, navHeight }) => ({
-  position: "fixed",
-  bottom: 0,
-  width: "100%",
-  height: "0px",
-  left: 0,
-  background: "#ccc",
-  transition: `height ${350}ms`,
-  transform: "translateZ(0)",
-  transitionTimingFunction: contentIsVisible
-    ? "cubic-bezier(.55,0,1,.45)"
-    : "cubic-bezier(0,.55,.45,1)",
-  height: contentIsVisible ? 0 : `calc(100% - ${navHeight - 10}px)`,
-});
 
 const contentBackgroundRule = ({
   isTouching,
@@ -167,7 +151,7 @@ function App() {
   }
 
   function handleOnResize(e) {
-    const { innerWidth, innerHeight } = window;
+    const { innerWidth } = window;
     // console.log(innerHeight)
     if (innerWidth !== lastInnerWidth.current) {
       setListViewFontSize(Math.min(...Object.values(getMaxFontSizes())));
@@ -262,14 +246,13 @@ function App() {
                 return (
                   <Route
                     path={route.route}
-                    element={<PageFade key={route.route}>{element}</PageFade>}
+                    element={element}
                     key={`route_${index}`}
                   ></Route>
                 );
               })}
             </Routes>
           </main>
-          {/* <div className={css(contentOverlayRule)}></div> */}
           <div ref={contentBackground} className={css(contentBackgroundRule)}>
             <Routes>
               {data.map((route, index) => {

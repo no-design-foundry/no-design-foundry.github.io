@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React from 'react'
 import { useFela } from 'react-fela'
 import { useLocation } from 'react-router-dom'
 import Link from './Link'

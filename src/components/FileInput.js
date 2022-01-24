@@ -128,4 +128,4 @@ function FileInput(props) {
   );
 }
 
-export default FileInput;
+export default React.memo(FileInput);

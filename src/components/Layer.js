@@ -16,4 +16,4 @@ function Layer(props) {
   return <div className={css(layerRule)}>{children}</div>
 }
 
-export default Layer;
+export default React.memo(Layer);

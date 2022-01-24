@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { useFela } from "react-fela";
 import FontPreview from "../components/FontPreview";
 import Link from "../components/Link";

@@ -6,11 +6,11 @@ import RangeInput from "./RangeInput";
 
 export const fontPreviewOpacityTransition = 350;
 
-const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBottom, marginTop }) => ({
+const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBottom, marginTop, fontVariations }) => ({
   userSelect: "none",
   transitionDuration: `${fontPreviewOpacityTransition}ms`,
-  transitionProperty: "opacity, filter",
   transitionTimingFunction: "ease-in",
+  transitionProperty: "opacity, filter",
   whiteSpace: "nowrap",
   textRendering: "optimizeSpeed",
   marginBottom: `${(inListView || (!inListView && marginBottom)) ? -0.226 : marginBottom}em`,
@@ -37,13 +37,18 @@ const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBotto
         filter: "blur(.025em)",
       },
     },
+    {
+      condition: fontVariations,
+      style: {
+        fontVariationSettings: dictToFontVariationSettings(fontVariations)
+      }
+    }
   ],
 });
 
 const containerRule = ({ inListView }) => ({
   zIndex: -1,
   userSelect: "none",
-  // pointerEvents: "none",
   position: "absolute",
   top: 0,
   left: 0,
@@ -67,6 +72,7 @@ function FontPreview(props) {
     inListView = false,
     color,
     children,
+    fontVariations={},
     fontSize
   } = props;
   const contentRef = useRef();
@@ -93,7 +99,8 @@ function FontPreview(props) {
     inListView,
     color,
     marginTop,
-    marginBottom
+    marginBottom,
+    fontVariations
   });
 
   return (
@@ -108,4 +115,4 @@ function FontPreview(props) {
   );
 }
 
-export default FontPreview;
+export default React.memo(FontPreview);

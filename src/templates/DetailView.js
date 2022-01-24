@@ -13,6 +13,7 @@ import {
   PreviewStringsContext,
   FontVariationsContext,
   FontPreviewMarginsContext,
+  FontPreviewsContext,
 } from "../Contexts";
 import FileInput from "../components/FileInput";
 import RangeInput from "../components/RangeInput";
@@ -22,6 +23,7 @@ import { column, width } from "../rules/rules";
 import FontPreview from "../components/FontPreview";
 import axios from "axios";
 import Log from "../components/Log";
+import { dictToFontVariationSettings } from "../misc";
 
 export const DetailViewContext = createContext();
 
@@ -91,7 +93,7 @@ function DetailView(props) {
     variableFontControlSliders,
     filterIdentifier,
     fontSize,
-    setFontSize,
+    setFontSize
   } = props;
   const { previewedInputFont, setPreviewedInputFont } = useContext(
     PreviewedInputFontContext
@@ -102,7 +104,6 @@ function DetailView(props) {
   const [logContent, setLogContent] = useState([]);
   const { setPreviewedOutputFonts } = useContext(PreviewedOutputFontsContext);
   const { formInputValues } = useContext(FormInputsContext);
-  const fontSizeRef = useRef(fontSize);
   const { inputFont } = useContext(InputFontContext);
   const isMounted = useRef(false);
   const cancel = useRef(undefined);
@@ -119,6 +120,7 @@ function DetailView(props) {
   );
   const { setFontPreviewMargins } = useContext(FontPreviewMarginsContext);
   const { css } = useFela({ isProcessing, innerHeight });
+  const fontPreviews = useContext(FontPreviewsContext);
 
   function cancelRequest() {
     if (cancel.current !== undefined) {
@@ -127,6 +129,11 @@ function DetailView(props) {
       cancel.current = undefined;
     }
   }
+
+  // useEffect(() => {
+  //   fontPreviews.current.forEach(fontPreview => fontPreview.style.fontSize = fontSize + "px")
+  // }, [fontSize]);
+  
 
   function sendRequest() {
     const formData = new FormData();
@@ -231,8 +238,6 @@ function DetailView(props) {
     setInnerHeight(window.innerHeight);
   }
 
-  const innerHeightMeasurerRef = useRef();
-
   useEffect(() => {
     // new ResizeObserver(()=>{document.body.clientHeight}).observe(document.body)
     isMounted.current = true;
@@ -248,6 +253,7 @@ function DetailView(props) {
       isMounted.current = false;
       setGetFormVisible(false);
       cancelRequest();
+      fontPreviews.current = [];
     };
   }, []);
 
@@ -282,9 +288,14 @@ function DetailView(props) {
                 max={input.max}
                 tag={input.tag}
                 value={fontVariations[filterIdentifier][input.tag]}
-                onChange={(value) =>
-                  setFontVariations(filterIdentifier, input.tag, value)
-                }
+                onChange={(value) => {
+                  // setFontVariations(filterIdentifier, input.tag, value);
+                  fontPreviews.current.forEach(
+                    fontPreview =>
+                      fontPreview.style.fontVariationSettings = dictToFontVariationSettings({ RTTX: value })
+                      // fontPreview.style.fontVariationSettings = "'RTTX' 50"
+                  );
+                }}
                 // animatable={true}
               />
             ))}
@@ -293,7 +304,11 @@ function DetailView(props) {
               min={20}
               max={1000}
               value={fontSize}
-              onChange={(value) => setFontSize(value)}
+              onChange={(value) =>
+                fontPreviews.current.forEach(
+                  (fontPreview) => (fontPreview.style.fontSize = value + "px")
+                )
+              }
             />
             <FileInput label="font file"></FileInput>
             <TextInput

@@ -14,7 +14,7 @@ export function dictToFontVariationSettings(dict) {
     collector.push(`"${key}" ${dict[key]}`)
     return collector
   }, []).join(", ")
-  return value ? {fontVariationSettings:value} : {}
+  return value ? value : null
 }
 
 

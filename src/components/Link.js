@@ -14,12 +14,12 @@ export default function (props) {
   const { css } = useFela();
 
   function delayAndGo(e) {
-    e.preventDefault();
-    setContentIsVisible(false);
-    setTimeout(() => {
-      navigate(to);
-      setContentIsVisible(true);
-    }, 350 + 50);
+    // e.preventDefault();
+    // setContentIsVisible(false);
+    // setTimeout(() => {
+    //   navigate(to);
+    //   setContentIsVisible(true);
+    // }, 350 + 50);
   }
   return (
     <Link to={to} onClick={delayAndGo} className={`${css(linkRule)} ${className}`}>

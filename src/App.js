@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, createContext } from "react";
 import { useFela } from "react-fela";
-import { Route, Routes } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
 import Nav from "./components/Nav";
 import data from "./data";
 import { getMaxFontSize } from "./misc";
@@ -10,6 +10,7 @@ import DetailViewOverlay from "./templates/DetailViewOverlay";
 import ListView from "./templates/ListView";
 import ListViewOverlay from "./templates/ListViewOverlay";
 import Contexts from "./Contexts";
+import PageFade from "./components/PageFade";
 
 export const ContentVisibilityContext = createContext();
 
@@ -196,6 +197,30 @@ function App() {
     };
   }, []);
 
+  const routes = [
+    ...data, 
+    ...data.reduce((collector, currentValue) => {
+      collector.push({
+        type: "about",
+        route: (currentValue.route !== "/" ? currentValue.route : "") + "/about",
+        identifier: currentValue.route !== "/" ? currentValue.filterIdentifier : "foundry"
+      })
+      return collector
+    }, [])
+  ]
+
+  const location = useLocation()
+
+  useEffect(() => {
+    setContentIsVisible(false)
+    setTimeout(() => {
+      setContentIsVisible(true)
+    }, (3500));
+    return () => {
+    };
+  }, [location.pathname]);
+  
+
   return (
     <ContentVisibilityContext.Provider value={setContentIsVisible}>
       <Contexts>
@@ -203,7 +228,7 @@ function App() {
           <Nav setNavHeight={setNavHeight} filterRoutes={filterRoutes} />
           <main>
             <Routes>
-              {data.map((route, index) => {
+              {routes.map((route, index) => {
                 let element;
                 switch (route.type) {
                   case "filterDetailView":
@@ -228,29 +253,23 @@ function App() {
                       ></ListView>
                     );
                     break;
+                  case "about":
+                      element = (
+                      <About identifier={route.identifier} />
+                      )
+                    break;
                 }
                 return (
                   <Route
                     path={route.route}
-                    element={element}
+                    element={<PageFade key={route.route}>{element}</PageFade>}
                     key={`route_${index}`}
                   ></Route>
                 );
               })}
-              {filterRoutes.map((filterRoute, index) => (
-                <Route
-                  key={`about_route_${index}`}
-                  path={`${filterRoute.route}/about`}
-                  element={<About identifier={filterRoute.filterIdentifier} />}
-                ></Route>
-              ))}
-              <Route
-                path={`/about`}
-                element={<About identifier="foundry"></About>}
-              ></Route>
             </Routes>
           </main>
-          <div className={css(contentOverlayRule)}></div>
+          {/* <div className={css(contentOverlayRule)}></div> */}
           <div ref={contentBackground} className={css(contentBackgroundRule)}>
             <Routes>
               {data.map((route, index) => {

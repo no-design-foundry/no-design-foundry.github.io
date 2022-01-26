@@ -171,7 +171,7 @@ function Form(props) {
 
   // form auto-submit
   useEffect(() => {
-    if (isMounted.current && inputFont) {
+    if (isMounted && inputFont) {
       const now = Date.now();
       lastTimeStamp = now;
       setTimeout(function () {
@@ -182,6 +182,7 @@ function Form(props) {
       }, 500);
     }
   }, [formInputValues, inputFont, previewedString, filterIdentifier]);
+
   return (
     <div className={css(formWrapperRule)}>
       {isProcessing && (

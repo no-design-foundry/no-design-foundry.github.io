@@ -13,6 +13,7 @@ import {
 import { useFela } from "react-fela";
 import FontPreview from "../components/FontPreview";
 import Form from "../components/Form";
+import Layer from "../components/Layer";
 
 export const DetailViewContext = createContext();
 
@@ -63,8 +64,10 @@ function DetailView(props) {
   return (
     <DetailViewContext.Provider value={{ filterIdentifier }}>
       <div className={css(fullscreenRule)}>
-        <FontPreview fontFamily={previewedInputFont} fontSize={fontSize}>
-          {previewStrings[filterIdentifier]}
+        <FontPreview fontSize={fontSize}>
+          <Layer fontFamily={previewedInputFont}>
+            {previewStrings[filterIdentifier]}
+          </Layer>
         </FontPreview>
         <Form
           variableFontControlSliders={variableFontControlSliders}

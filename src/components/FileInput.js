@@ -1,12 +1,13 @@
 import React, { useContext, useRef, useEffect, useState } from "react";
 import { useFela } from "react-fela";
-import { InputFontContext } from "../Contexts";
+import { InputFontContext, SetCursorFileDrag } from "../Contexts";
 import { column } from "../rules/rules";
 
 const fullscreenDragRule = ({ fileIsDragged }) => ({
   position: "fixed",
   fontSize: "4em",
   top: 0,
+  zIndex: 10000,
   backgroundColor: "#fff",
   opacity: 1,
   left: 0,
@@ -32,7 +33,7 @@ function FileInput(props) {
   const { label } = props;
   const fileInputRef = useRef();
   const dragState = useRef();
-  const [cursorDrag, setCursorDrag] = useState({});
+  const setCursorFileDrag = useContext(SetCursorFileDrag)
   const { inputFont, setInputFont } = useContext(InputFontContext);
   const [fileIsDragged, setFileIsDragged] = useState(false);
   const { css } = useFela({ fileIsDragged });
@@ -55,28 +56,27 @@ function FileInput(props) {
       setInputFont(e.dataTransfer.files[0]);
       dragState.current = null;
     }
-    setFileIsDragged(false);
+    setCursorFileDrag(false);
   }
 
   function handleDragEnter(e) {
     dragState.current = "entered";
     e.preventDefault();
     e.stopPropagation();
-    setFileIsDragged(true);
   }
 
   function handleDragLeave(e) {
     if (dragState.current === "moving") {
       e.preventDefault();
       e.stopPropagation();
-      setFileIsDragged(false);
+      setCursorFileDrag(false);
       dragState.current = "left";
     }
   }
 
   function handleDragOver(e) {
     const { clientX: left, clientY: top } = e;
-    setCursorDrag({ left, top });
+    setCursorFileDrag({ left, top });
     e.preventDefault();
     e.stopPropagation();
   }
@@ -117,13 +117,13 @@ function FileInput(props) {
         <span>{inputFont?.name ?? "select file"}</span>{!inputFont?.name && <span className={css(dropItRule)}> or drop it</span>}
       </button>
       {/* <span className={css(dropItRule, column("4 / span 2"))}> or drop it</span> */}
-      {fileIsDragged && (
+      {/* {fileIsDragged && (
         <div className={css(fullscreenDragRule)}>
           <span className={css(draggedRule)} style={cursorDrag}>
             Drop it
           </span>
         </div>
-      )}
+      )} */}
     </>
   );
 }

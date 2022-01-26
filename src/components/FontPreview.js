@@ -2,28 +2,30 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import { useFela } from "react-fela";
 import { dictToFontVariationSettings } from "../misc";
 import { FontPreviewMarginsContext, FontPreviewsContext } from "../Contexts";
-import RangeInput from "./RangeInput";
 
-export const fontPreviewOpacityTransition = 350;
 
-const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBottom, marginTop, fontVariations }) => ({
+const itemRule = ({
+  fontFamily,
+  inListView,
+  visible,
+  color,
+  marginBottom,
+  marginTop,
+  fontVariations,
+}) => ({
   userSelect: "none",
-  transitionDuration: `${fontPreviewOpacityTransition}ms`,
-  transitionTimingFunction: "ease-in",
-  transitionProperty: "opacity, filter",
   whiteSpace: "nowrap",
   textRendering: "optimizeSpeed",
-  marginBottom: `${(inListView || (!inListView && marginBottom)) ? -0.226 : marginBottom}em`,
-  marginTop: `${(inListView || (!inListView && marginTop))? -0.204 : marginTop}em`,
+  marginBottom: `${
+    inListView || (!inListView && marginBottom) ? -0.226 : marginBottom
+  }em`,
+  marginTop: `${
+    inListView || (!inListView && marginTop) ? -0.204 : marginTop
+  }em`,
   transform: "translateZ(0)",
   willChange: "font-size, font-variation-settings, opacity, filter",
+  fontFamily: fontFamily ? fontFamily : "unset",
   extend: [
-    {
-      condition: previewedFontFamily,
-      style: {
-        fontFamily: previewedFontFamily,
-      },
-    },
     {
       condition: color,
       style: {
@@ -31,18 +33,11 @@ const itemRule = ({ previewedFontFamily, inListView, visible, color, marginBotto
       },
     },
     {
-      condition: !visible,
-      style: {
-        opacity: 0,
-        filter: "blur(.025em)",
-      },
-    },
-    {
       condition: fontVariations,
       style: {
-        fontVariationSettings: dictToFontVariationSettings(fontVariations)
-      }
-    }
+        fontVariationSettings: dictToFontVariationSettings(fontVariations),
+      },
+    },
   ],
 });
 
@@ -72,44 +67,37 @@ function FontPreview(props) {
     inListView = false,
     color,
     children,
-    fontVariations={},
-    fontSize
+    fontVariations = {},
+    fontSize,
   } = props;
   const contentRef = useRef();
-  const [visible, setVisible] = useState(false);
-  const { marginBottom, marginTop } = useContext(FontPreviewMarginsContext).fontPreviewMargins;
-  const fontPreviews = useContext(FontPreviewsContext)
+  const { marginBottom, marginTop } = useContext(
+    FontPreviewMarginsContext
+  ).fontPreviewMargins;
+  const fontPreviews = useContext(FontPreviewsContext);
 
   useEffect(() => {
     if (fontPreviews) {
-      fontPreviews.current.push(contentRef.current)
+      fontPreviews.current.push(contentRef.current);
     }
-    setTimeout(() => {
-      setVisible(true);
-    }, 100);
   }, []);
 
   useEffect(() => {
-    contentRef.current.style.fontSize = fontSize + "px"
+    contentRef.current.style.fontSize = fontSize + "px";
   }, [fontSize]);
-  
 
   const { css } = useFela({
-    visible,
     inListView,
     color,
     marginTop,
     marginBottom,
-    fontVariations
+    fontVariations,
   });
 
   return (
     <div className={css(containerRule)}>
-      <span
-        ref={contentRef}
-        className={css(itemRule)}
-      >
-          {children}
+      <span ref={contentRef} className={css(itemRule)}>
+        {children}
       </span>
     </div>
   );

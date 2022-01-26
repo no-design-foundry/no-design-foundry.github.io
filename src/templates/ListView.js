@@ -1,6 +1,7 @@
 import React from "react";
 import { useFela } from "react-fela";
 import FontPreview from "../components/FontPreview";
+import Layer from "../components/Layer";
 import Link from "../components/Link";
 
 export const ulRule = () => ({
@@ -25,7 +26,9 @@ function ListView(props) {
                 fontSize={fontSize}
                 inListView={true}
               >
-                {filterRoute.title}
+                <Layer>
+                  {filterRoute.title}
+                </Layer>
               </FontPreview>
             </div>
           </Link>

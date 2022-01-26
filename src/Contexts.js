@@ -1,8 +1,6 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
-// import opentype from "opentype.js";
-
+import { useFela } from "react-fela";
 import { filterRoutes } from "./App";
-import { fontPreviewOpacityTransition } from "./components/FontPreview";
 
 export const FormInputsContext = createContext();
 export const InputFontContext = createContext();
@@ -12,15 +10,34 @@ export const PreviewedOutputFontsContext = createContext();
 export const FontVariationsContext = createContext();
 export const FontPreviewMarginsContext = createContext();
 export const FontPreviewsContext = createContext();
+export const SetCursorFileDrag = createContext();
+
+const fontPreviewOpacityTransition = 350;
+
+const dropItRule = () => ({
+  zIndex: 1000,
+  position: "fixed",
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  background: "#eee"
+})
+
+const dropItTitleRule = () => ({
+  position: "absolute",
+  whiteSpace: "nowrap"
+})
 
 function Contexts(props) {
   const [inputFont, setInputFont] = useState(null);
   const [previewedInputFont, setPreviewedInputFont] = useState(null);
+  const [cursorFileDrag, setCursorFileDrag] = useState(false);
   const [fontPreviewMargins, _setFontPreviewMargins] = useState({
     marginBottom: 0,
     marginTop: 0,
   });
-  const fontPreviews = useRef([])
+  const fontPreviews = useRef([]);
 
   function setFontPreviewMargins(margins) {
     setTimeout(() => {
@@ -119,6 +136,8 @@ function Contexts(props) {
     _setPreviewString(collector);
   }
 
+  const { css } = useFela();
+
   return (
     <PreviewStringsContext.Provider
       value={{ previewStrings, setPreviewString }}
@@ -140,7 +159,18 @@ function Contexts(props) {
                   value={{ fontPreviewMargins, setFontPreviewMargins }}
                 >
                   <FontPreviewsContext.Provider value={fontPreviews}>
-                    {props.children}
+                    <SetCursorFileDrag.Provider value={setCursorFileDrag}>
+                      {cursorFileDrag ? (
+                        <div className={css(dropItRule)}>
+                          <div className={css(dropItTitleRule)} style={cursorFileDrag}>
+                            Drop it!
+                          </div>
+                        </div>
+                      ) : (
+                        <></>
+                      )}
+                      {props.children}
+                    </SetCursorFileDrag.Provider>
                   </FontPreviewsContext.Provider>
                 </FontPreviewMarginsContext.Provider>
               </PreviewedInputFontContext.Provider>

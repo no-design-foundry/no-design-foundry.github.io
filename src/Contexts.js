@@ -13,31 +13,65 @@ export const FontPreviewsContext = createContext();
 export const SetCursorFileDrag = createContext();
 
 const fontPreviewOpacityTransition = 350;
+const dragIndicationTransition = 100;
 
-const dropItRule = () => ({
+const dropItRule = ({dragIndicationVisible}) => ({
   zIndex: 1000,
   position: "fixed",
   top: 0,
   right: 0,
   bottom: 0,
   left: 0,
-  background: "#eee"
+  background: "#eee",
+  transition: `opacity ${dragIndicationTransition}ms ease-in`,
+  opacity: dragIndicationVisible ? 1 : 0
 })
 
 const dropItTitleRule = () => ({
   position: "absolute",
-  whiteSpace: "nowrap"
+  whiteSpace: "nowrap",
+  fontSize: "50px"
 })
 
 function Contexts(props) {
   const [inputFont, setInputFont] = useState(null);
   const [previewedInputFont, setPreviewedInputFont] = useState(null);
-  const [cursorFileDrag, setCursorFileDrag] = useState(false);
+  // const [cursorFileDrag, setCursorFileDrag] = useState(false);
   const [fontPreviewMargins, _setFontPreviewMargins] = useState({
     marginBottom: 0,
     marginTop: 0,
   });
+  const [dragIndicationVisible, setDragIndicationVisible] = useState(false)
+  const [dragIndication, setDragIndication] = useState(false)
+  const dropIndicationRef = useRef()
+  
   const fontPreviews = useRef([]);
+
+  useEffect(() => {
+    if (dragIndication) {
+      setDragIndicationVisible(true)
+    }
+  }, [dragIndication])
+
+  useEffect(() => {
+    if (!dragIndicationVisible) {
+      setTimeout(() => {
+        setDragIndication(false)
+      }, dragIndicationTransition)
+    }
+  }, [dragIndicationVisible])
+  
+  function setCursorFileDrag(value) {
+    if (value) {
+      setDragIndication(true)
+      dropIndicationRef.current.style.left = value.left + "px"
+      dropIndicationRef.current.style.top = value.top + "px"
+    }
+    else {
+      setDragIndicationVisible(false)
+    }
+  }
+
 
   function setFontPreviewMargins(margins) {
     setTimeout(() => {
@@ -136,7 +170,7 @@ function Contexts(props) {
     _setPreviewString(collector);
   }
 
-  const { css } = useFela();
+  const { css } = useFela({dragIndicationVisible});
 
   return (
     <PreviewStringsContext.Provider
@@ -160,9 +194,9 @@ function Contexts(props) {
                 >
                   <FontPreviewsContext.Provider value={fontPreviews}>
                     <SetCursorFileDrag.Provider value={setCursorFileDrag}>
-                      {cursorFileDrag ? (
+                      {dragIndication ? (
                         <div className={css(dropItRule)}>
-                          <div className={css(dropItTitleRule)} style={cursorFileDrag}>
+                          <div ref={dropIndicationRef} className={css(dropItTitleRule)}>
                             Drop it!
                           </div>
                         </div>

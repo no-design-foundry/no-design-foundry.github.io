@@ -17,12 +17,12 @@ const layerRule = ({ visible, fontFamily, color }) => ({
 function Layer(props) {
   const { fontFamily, children, color } = props;
   const [previewedFontFamily, setPreviewedFontFamily] = useState(null)
+  const [previewedChildren, setPreviewedChildren] = useState(children)
   const [visible, setVisible] = useState(false);
 
+
   useEffect(()=>{
-    setTimeout(() => {
-      setVisible(true);
-    }, 0);
+    setVisible(true);
     return () => {
       setVisible(false)
     }
@@ -31,13 +31,19 @@ function Layer(props) {
   useEffect(() => {
     setVisible(false)
     setTimeout(() => {
-      setVisible(true)
       setPreviewedFontFamily(fontFamily)
-    }, fontPreviewOpacityTransition + 50)
-  }, [fontFamily])
+      setPreviewedChildren(children)
+    }, fontPreviewOpacityTransition)
+  }, [fontFamily, children])
+
+  useEffect(() => {
+    setTimeout(()=>{
+      setVisible(true)
+    }, 100)
+  }, [previewedFontFamily, previewedChildren])
 
   const { css } = useFela({ visible, fontFamily: previewedFontFamily, color });
-  return <div className={css(layerRule)}>{children}</div>
+  return <div className={css(layerRule)}>{previewedChildren}</div>
 }
 
 export default React.memo(Layer);

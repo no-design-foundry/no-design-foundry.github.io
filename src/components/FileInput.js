@@ -60,9 +60,11 @@ function FileInput(props) {
   }
 
   function handleDragEnter(e) {
-    dragState.current = "entered";
     e.preventDefault();
     e.stopPropagation();
+    dragState.current = "entered";
+    const { clientX: left, clientY: top } = e;
+    setCursorFileDrag({left, top})
   }
 
   function handleDragLeave(e) {
@@ -75,10 +77,10 @@ function FileInput(props) {
   }
 
   function handleDragOver(e) {
-    const { clientX: left, clientY: top } = e;
-    setCursorFileDrag({ left, top });
     e.preventDefault();
     e.stopPropagation();
+    const { clientX: left, clientY: top } = e;
+    setCursorFileDrag({ left, top });
   }
 
   function handleOnChange(e) {

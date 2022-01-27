@@ -18,6 +18,9 @@ import TextInput from "../components/TextInput";
 import RangeInput from "../components/RangeInput";
 import FileInput from "../components/FileInput";
 
+var FileSaver = require('file-saver');
+
+
 const isProcessingWrapperRule = () => ({
   display: "flex",
   alignItems: "flex-end",
@@ -37,7 +40,7 @@ const isProcessingRule = ({ isProcessing }) => ({
   animationPlayState: isProcessing ? "processing" : "paused",
 });
 
-const formWrapperRule = ({ innerHeight }) => ({
+const formWrapperRule = () => ({
   bottom: 0,
   position: "fixed",
   transform: "translateZ(0)",
@@ -64,7 +67,8 @@ const CancelToken = axios.CancelToken;
 let lastTimeStamp;
 
 function Form(props) {
-  const { filterIdentifier, inputs, fontSize, variableFontControlSliders } = props;
+  const { filterIdentifier, inputs, fontSize, variableFontControlSliders } =
+    props;
 
   const { formInputValues } = useContext(FormInputsContext);
   const { setPreviewedOutputFonts } = useContext(PreviewedOutputFontsContext);
@@ -81,7 +85,7 @@ function Form(props) {
   const cancel = useRef(undefined);
 
   const [logContent, setLogContent] = useState([]);
-  const [isMounted, setIsMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [previewedString, setPreviewedString] = useState(
     previewStrings[filterIdentifier]
   );
@@ -89,14 +93,14 @@ function Form(props) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    setMounted(true);
     return () => {
       setGetFormVisible(false);
       cancelRequest();
     };
   }, []);
 
-  const { css } = useFela({});
+  const { css } = useFela({ mounted });
 
   function cancelRequest() {
     if (cancel.current !== undefined) {
@@ -106,13 +110,37 @@ function Form(props) {
     }
   }
 
-  function sendRequest() {
+  function prepareFormData() {
     const formData = new FormData();
     formData.append("font_file", inputFont);
     formData.append("preview_string", previewedString);
     Object.keys(formInputValues[filterIdentifier]).forEach((key) =>
       formData.append(key, formInputValues[filterIdentifier][key])
     );
+    return formData;
+  }
+
+  function sendGetRequest() {
+    const formData = prepareFormData();
+    axios({
+      method: "post",
+      url: `http://0.0.0.0:5000/filters/${filterIdentifier}/get`,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+      responseType: "blob",
+    }).then((response) => {
+      console.log(response)
+      // const fileNameHeader = "x-suggested-filename";
+      // const suggestedFileName = response.headers[fileNameHeader];
+      // const effectiveFileName = (suggestedFileName === undefined
+      //             ? "allergierOchPreferenser.xls"
+      //             : suggestedFileName);
+      // FileSaver.saveAs(response.data, effectiveFileName);
+    });
+  }
+
+  function sendPreviewRequest() {
+    const formData = prepareFormData();
     setIsProcessing(true);
     let margins = {};
     axios({
@@ -171,20 +199,20 @@ function Form(props) {
 
   // form auto-submit
   useEffect(() => {
-    if (isMounted && inputFont) {
+    if (mounted && inputFont) {
       const now = Date.now();
       lastTimeStamp = now;
       setTimeout(function () {
         if (now === lastTimeStamp) {
           setPreviewString(filterIdentifier, previewedString);
-          sendRequest();
+          sendPreviewRequest();
         }
       }, 500);
     }
   }, [formInputValues, inputFont, previewedString, filterIdentifier]);
 
   return (
-    <div className={css(formWrapperRule)}>
+    <div className={css(formWrapperRule, pageFade)}>
       {isProcessing && (
         <div className={css(isProcessingWrapperRule)}>
           {[..."processing..........."].map((letter, index) => (
@@ -264,10 +292,10 @@ function Form(props) {
         {getFormVisible && (
           <>
             <hr className={css(column("1 / span 5"))} />
-            <TextInput label={"font name"} />
-            <button className={css(column("5"))}>download</button>
-            <TextInput label={"email"} />
-            <button className={css(column("5"))}>send</button>
+            <TextInput name="font_name" label={"font name"} value="My Font" />
+            <button className={css(column("5"))} onClick={sendGetRequest}>
+              download
+            </button>
           </>
         )}
       </div>

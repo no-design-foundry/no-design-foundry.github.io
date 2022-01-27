@@ -4,7 +4,7 @@ export const column = (nth) => () => ({
 
 
 export const pageFade = ({mounted}) => ({
-  transition: "opacity .5s ease-in",
+  transition: "opacity .55s ease-in",
   opacity: mounted ? 1 : 0
 })
 

@@ -80,7 +80,8 @@ const bodyStyle = {
   touchAction: "pan-y",
   position: "relative",
   overscrollBehavior: "contain",
-  overflow: "auto"
+  overflow: "auto",
+  "-webkit-tap-highlight-color": "transparent"
 };
 renderer.renderStatic(bodyStyle, "body");
 

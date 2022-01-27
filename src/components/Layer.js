@@ -16,14 +16,17 @@ const layerRule = ({ visible, fontFamily, color }) => ({
 
 function Layer(props) {
   const { fontFamily, children, color } = props;
-  const [previewedFontFamily, setPreviewedFontFamily] = useState(null)
+  const [previewedFontFamily, setPreviewedFontFamily] = useState(fontFamily)
   const [previewedChildren, setPreviewedChildren] = useState(children)
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false)
 
 
   useEffect(()=>{
+    // setMounted(true)
     setVisible(true);
     return () => {
+      // setMounted(false)
       setVisible(false)
     }
   }, [])

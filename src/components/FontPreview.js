@@ -14,6 +14,7 @@ const getLayerRule =
     transitionProperty: "opacity, filter",
     transitionDuration: `${duration}ms`,
     transitionTimingFunction: "ease-in",
+    textRendering: "optimizeSpeed",
     color: layerColors[index],
     extend: [
       {
@@ -40,33 +41,21 @@ const getLayerRule =
 
 function FontPreview({ children, className }) {
   const { identifier, layerColors } = useContext(FilterContext);
-  const { outputFonts } = useContext(OutputFontContext);
+  const ref = useRef()
+  const { outputFonts, setPreviewRef } = useContext(OutputFontContext);
   const fontFamilies = outputFonts?.[identifier]
-  // const [opacity, setOpacity] = useState(1);
-  // const mounted = useRef(false);
-  // const [currentFontFamilies, setCurrentFontFamilies] = useState(fontFamilies);
   const { css } = useFela({
-    // opacity,
     layerColors,
     identifier,
     fontFamilies,
   });
 
-  // useEffect(() => {
-  //   if (fontFamilies?.length && mounted.current) {
-  //     setOpacity(0);
-  //     setTimeout(() => {
-  //       setCurrentFontFamilies(fontFamilies);
-  //       setOpacity(1);
-  //     }, duration + 50);
-  //   }
-  //   mounted.current = true;
-  //   return () => {
-  //     setCurrentFontFamilies([])
-  //   }
-  // }, [fontFamilies]);
+  useEffect(() => {
+      setPreviewRef(ref)
+  }, [ref])
+
   return (
-    <div className={className}>
+    <div ref={ref} className={className}>
       {layerColors.map((color, index) => (
         <div
           key={`${identifier}-${color}`}

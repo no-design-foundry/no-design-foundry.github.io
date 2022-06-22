@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useRef } from "react";
 import FilterInfoContext from "../contexts/FilterContext";
+import OutputFontContext from "../contexts/OutputFontContext";
 import InputWrapper from "./InputWrapper";
 import Slider from "./Slider";
 
 function FontControls() {
+  const { previewRef } = useContext(OutputFontContext)
   const { variableFontControlSliders = [], identifier } = useContext(FilterInfoContext);
   const currentVariableSettings = useRef(variableFontControlSliders.reduce((collector, slider) => {
     collector[slider.tag] = slider.defaultValue
@@ -15,12 +17,12 @@ function FontControls() {
   }
 
   function handleOnFontSizeInput(e) {
-    document.querySelector("[data-font-preview]").style.fontSize=`${e.target.value}px`
+    previewRef.current.style.fontSize=`${e.target.value}px`
   }
 
   function handleOnVariableInput({tag, value}) {
     currentVariableSettings.current[tag] = parseFloat(value)
-    document.querySelector("[data-font-preview]").style.fontVariationSettings = variableSettingsToString()
+    previewRef.current.style.fontVariationSettings = variableSettingsToString()
   }
 
   useEffect(() => {

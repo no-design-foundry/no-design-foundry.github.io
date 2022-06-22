@@ -9,7 +9,6 @@ export function InputMemoryContextWrapper({ children }) {
     return data?.[identifier]?.[name];
   }
   function setInputMemory(identifier, name, value) {
-    console.log(data)
     if (!(identifier in data)) {
       let collector = {};
       collector[identifier] = { name: value };

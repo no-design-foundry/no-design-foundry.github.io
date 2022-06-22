@@ -53,7 +53,6 @@ function App() {
                 }
               ></Route>
             ))}
-
             {data.map((filter) => (
               <Route
                 key={`${filter.identifier}-about`}

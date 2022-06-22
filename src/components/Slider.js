@@ -4,9 +4,9 @@ import FilterContext from "../contexts/FilterContext";
 import InputMemoryContext from "../contexts/InputMemoryContext";
 import Input from "./Input";
 
-const borderRadius = "14px"
+const borderRadius = "14px";
 
-const inputRule = ({position}) => ({
+const inputRule = ({ position }) => ({
   appearance: "none",
   "-webkit-appearance": "none",
   height: "3px",
@@ -22,15 +22,15 @@ const inputRule = ({position}) => ({
     // filter: "drop-shadow(0 2px 3px #00000066)",
     border: "none",
     outline: "none",
-    cursor: "pointer"
+    cursor: "pointer",
   },
-  
+
   background: "#EEE",
   "&::-moz-range-progress": {
     // boxShadow: "inset 0 2px 2px #00000066",
     background: "#CCC",
     height: "100%",
-    borderRadius
+    borderRadius,
   },
   "@supports not selector(::-moz-range-progress)": {
     // background: "red",
@@ -41,29 +41,47 @@ const inputRule = ({position}) => ({
   },
   "&:disabled": {
     "&::-webkit-slider-thumb, &::-moz-range-thumb": {
-      background: "#EEE"
-    }
-  }
-})
+      background: "#EEE",
+    },
+  },
+});
 
 function Slider(props) {
-  const { children, label, name, min, max, defaultValue, onInput, required=false } = props;
-  const [position, setPosition] = useState((defaultValue-min)/(max-min))
-  const inputIdentifier = name || label.replace(" ", "")
-  const {css} = useFela({position: position*100})
+  const {
+    children,
+    label,
+    name,
+    min,
+    max,
+    defaultValue,
+    onInput,
+    required = false,
+  } = props;
+  const [position, setPosition] = useState((defaultValue - min) / (max - min));
+  const inputIdentifier = name || label.replace(" ", "");
+  const { css } = useFela({ position: position * 100 });
 
   function handleOnInput(e) {
     if (onInput) {
-      onInput(e)
+      onInput(e);
     }
-    const {value} = e.target
-    setPosition((value-min)/(max-min))
+    const { value } = e.target;
+    setPosition((value - min) / (max - min));
   }
-  
+
   return (
     <>
       <label htmlFor={name}>{label}</label>
-      <Input identifier={inputIdentifier} name={name} type="range" className={css(inputRule)} {...{defaultValue, min, max, required }} onInput={handleOnInput}/>
+      <input
+        name={name}
+        type="range"
+        className={css(inputRule)}
+        defaultValue={defaultValue}
+        min={min}
+        max={max}
+        required={required}
+        onInput={handleOnInput}
+      />
     </>
   );
 }

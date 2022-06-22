@@ -4,6 +4,7 @@ import FontPreview from "../components/FontPreview";
 import Form from "../components/Form";
 import FilterContext from "../contexts/FilterContext";
 import { Transition } from "react-transition-group";
+import OutputFontContext from "../contexts/OutputFontContext";
 
 const wrapperRule = () => ({
   position: "absolute",
@@ -30,14 +31,15 @@ const getTransitionRule = (state) => () => ({
 });
 
 function Detail() {
+  const { identifier } = useContext(FilterContext);
+  const { previewStrings } = useContext(OutputFontContext);
   const { title } = useContext(FilterContext);
   const { css } = useFela();
   return (
-    <div
-      className={css(wrapperRule)}
-      data-font-preview
-    >
-      <FontPreview className={css(previewRule)}>{title}</FontPreview>
+    <div className={css(wrapperRule)} data-font-preview>
+      <FontPreview className={css(previewRule)}>
+        {previewStrings?.[identifier] ?? title}
+      </FontPreview>
     </div>
   );
 }

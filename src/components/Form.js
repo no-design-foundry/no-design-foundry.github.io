@@ -8,21 +8,21 @@ import FileInput from "./FileInput";
 import { urls } from "../variables";
 import axios from "axios";
 import OutputFontContext from "../contexts/OutputFontContext";
+import Log from "./Log";
 
 const formRule = () => ({
   display: "grid",
   gridTemplateColumns: "repeat(2, min-content)",
   gridAutoRows: "min-content",
-  position: "fixed",
-  bottom: "5px",
   gridGap: "0px 1ch",
   alignItems: "center",
   "& > label": {
     whiteSpace: "nowrap",
   },
-  // "& > input": {
-  //   height: "1em"
-  // }
+});
+
+const processingRule = () => ({
+  gridColumn: "1/-1",
 });
 
 const downloadRule = () => ({
@@ -30,16 +30,22 @@ const downloadRule = () => ({
   gridColumn: 2,
 });
 
+const wrapperRule = () => ({
+  position: "fixed",
+  bottom: "5px",
+})
+
 let lastTimeStamp;
 function Form() {
   const { identifier, title, inputs } = useContext(FilterInfoContext);
   const formRef = useRef();
-  const { setOutputFonts } = useContext(OutputFontContext);
+  const { setOutputFonts, setPreviewString } = useContext(OutputFontContext);
   const [processing, setProcessing] = useState(false);
+  const [logMessages, setLogMessages] = useState([]);
   const { css } = useFela();
   function handleOnChange(e) {
     if (formRef.current.checkValidity() && e.target.name?.length) {
-      console.log(e.target.name)
+      console.log(e.target.name);
       const now = Date.now();
       lastTimeStamp = now;
       setTimeout(function () {
@@ -51,6 +57,11 @@ function Form() {
           axios
             .post(url, data, {
               headers: { "Content-Type": "multipart/form-data" },
+            })
+            .then((response) => {
+              setPreviewString(identifier, response.data.preview_string)
+              setLogMessages(response.data.warnings)
+              return response
             })
             .then((response) => {
               const outputFontsArrays = response.data.fonts.map((fontBase64) =>
@@ -72,40 +83,49 @@ function Form() {
               ),
             ])
             .then(([inputFont, outputFonts]) => {
-              // document.fonts.add(inputFont);
               outputFonts.forEach((outputFont) =>
                 document.fonts.add(outputFont)
               );
-              setOutputFonts(identifier, outputFonts.map((font) => font.family))
+              setOutputFonts(
+                identifier,
+                outputFonts.map((font) => font.family)
+              );
             })
             .catch((response) => console.log(response))
-            .finally(setProcessing(false));
+            .finally((response) => {
+              setProcessing(false);
+            });
         }
       }, 500);
     }
   }
   return (
-    <form ref={formRef} className={css(formRule)} onChange={handleOnChange}>
-      {processing && <div>processing...</div>}
-      <FontControls></FontControls>
-      {inputs.map((input, index) => {
-        const { type, ...kwargs } = input;
-        return (
-          <Slider key={`${identifier}-${index}`} {...kwargs} required={true} />
-        );
-      })}
-      <FileInput required={true} />
-      <TextInput
-        key={identifier}
-        {...{
-          label: "preview",
-          name: "preview_string",
-          defaultValue: title,
-          required: true,
-        }}
-      />
-      <button className={css(downloadRule)}>download</button>
-    </form>
+    <div className={css(wrapperRule)}>
+      {logMessages.length != 0 && <ul>{logMessages.map((message) => message)}</ul>}
+      <form ref={formRef} className={css(formRule)} onChange={handleOnChange}>
+        {processing && <div className={css(processingRule)}>processing...</div>}
+        <FontControls></FontControls>
+        {inputs.map((input, index) => {
+          const { type, ...kwargs } = input;
+          return (
+            <Slider
+              key={`${identifier}-${index}`}
+              {...kwargs}
+              required={true}
+            />
+          );
+        })}
+        <FileInput required={true} />
+        <TextInput
+          key={identifier}
+          label="preview"
+          name="preview_string"
+          defaultValue={title}
+          required={true}
+        />
+        <button className={css(downloadRule)}>download</button>
+      </form>
+    </div>
   );
 }
 

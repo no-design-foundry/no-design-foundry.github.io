@@ -1,0 +1,75 @@
+// fonts
+
+@font-face {
+    font-family: "rasterizer-0";
+    src: url(./rasterizer-0.ttf);
+}
+
+@font-face {
+    font-family: "rotorizer-0";
+    src: url(./rotorizer-0.ttf);
+}
+
+@font-face {
+    font-family: "rotorizer-1";
+    src: url(./rotorizer-1.ttf);
+}
+
+@font-face {
+    font-family: "vtt";
+    src: url(./vtt.woff2);
+}
+
+ul {
+    list-style: none;
+}
+
+body {
+    font-size: 20px;
+    line-height: 1.2em;
+    font-family: "vtt", sans-serif;
+    > * {
+        padding: 8px;
+    }
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    font-size: inherit;
+    font-family: inherit;
+    outline: none;
+    border: none;
+    appearance: none;
+    background: inherit;
+    box-sizing: content-box;
+    // text-decoration-thickness: .05em;
+}
+
+input {
+    &[type=text] {
+        // border-bottom: 1px solid blue;
+    }
+}
+
+button, input {
+    color: blue
+}
+
+button {
+    text-align: left;
+}
+
+a, a:visited, a:hover, a:focus, a:active {
+    color: blue;
+    position: relative;
+    display: inline-block;
+}
+
+a, a:visited, a:focus, a:active {
+    text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: inherit;
+}

@@ -24,7 +24,7 @@ function Input(props) {
   }, [])
 
   return (
-    <input name={inputIdentifier} {...kwargs} onInput={handleOnInput}/>
+    <input name={name} {...kwargs} onInput={handleOnInput}/>
   )
 }
 

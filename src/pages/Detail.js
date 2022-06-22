@@ -1,7 +1,9 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useFela } from "react-fela";
+import FontPreview from "../components/FontPreview";
 import Form from "../components/Form";
 import FilterContext from "../contexts/FilterContext";
+import { Transition } from "react-transition-group";
 
 const wrapperRule = () => ({
   position: "absolute",
@@ -14,29 +16,28 @@ const wrapperRule = () => ({
   alignItems: "center",
   justifyContent: "center",
   pointerEvents: "none",
-  userSelect: "none"
-})
+  userSelect: "none",
+});
 
-const previewRule = (color, layerIndex) => ({ identifier }) => ({
-    position: "absolute",
-    fontFamily: `${identifier}-${layerIndex}`,
-    color,
-    display: "inline-block"
-  });
+const previewRule = () => ({
+  position: "absolute",
+  display: "inline-block",
+});
+
+const getTransitionRule = (state) => () => ({
+  opacity: ["entering", "exiting"].includes(state) ? 0 : 1,
+  transition: "opacity 1s ease-in",
+});
 
 function Detail() {
-  const { title, identifier, layerColors } = useContext(FilterContext);
-  const { css } = useFela({ identifier });
+  const { title } = useContext(FilterContext);
+  const { css } = useFela();
   return (
-    <div className={css(wrapperRule)} data-font-preview>
-       {layerColors.map((layerColor, index) => (
-        <div
-          key={`${identifier}-${index}`}
-          className={css(previewRule(layerColor, index))}
-        >
-          {title}
-        </div>
-      ))}
+    <div
+      className={css(wrapperRule)}
+      data-font-preview
+    >
+      <FontPreview className={css(previewRule)}>{title}</FontPreview>
     </div>
   );
 }

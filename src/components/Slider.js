@@ -49,6 +49,9 @@ const inputRule = ({position}) => ({
 function Slider(props) {
   const { children, label, name, min, max, defaultValue, onInput, required=false } = props;
   const [position, setPosition] = useState((defaultValue-min)/(max-min))
+  const inputIdentifier = name || label.replace(" ", "")
+  const {css} = useFela({position: position*100})
+
   function handleOnInput(e) {
     if (onInput) {
       onInput(e)
@@ -56,12 +59,11 @@ function Slider(props) {
     const {value} = e.target
     setPosition((value-min)/(max-min))
   }
-  const {css} = useFela({position: position*100})
-  const inputIdentifier = name || label.replace(" ", "")
+  
   return (
     <>
-      <label identifier={inputIdentifier} htmlFor={name}>{label}</label>
-      <Input identifier={inputIdentifier} type="range" className={css(inputRule)} {...{defaultValue, min, max, required }} onInput={handleOnInput}/>
+      <label htmlFor={name}>{label}</label>
+      <Input identifier={inputIdentifier} name={name} type="range" className={css(inputRule)} {...{defaultValue, min, max, required }} onInput={handleOnInput}/>
     </>
   );
 }

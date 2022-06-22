@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { InputMemoryContextWrapper } from "./contexts/InputMemoryContext";
 import Renderer from "./contexts/Renderer";
@@ -9,7 +10,9 @@ root.render(
   <React.StrictMode>
     <InputMemoryContextWrapper>
       <Renderer>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </Renderer>
     </InputMemoryContextWrapper>
   </React.StrictMode>

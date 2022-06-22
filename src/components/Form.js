@@ -7,6 +7,7 @@ import { useFela } from "react-fela";
 import FileInput from "./FileInput";
 import { urls } from "../variables";
 import axios from "axios";
+import OutputFontContext from "../contexts/OutputFontContext";
 
 const formRule = () => ({
   display: "grid",
@@ -33,29 +34,50 @@ let lastTimeStamp;
 function Form() {
   const { identifier, title, inputs } = useContext(FilterInfoContext);
   const formRef = useRef();
+  const { setOutputFonts } = useContext(OutputFontContext);
   const [processing, setProcessing] = useState(false);
   const { css } = useFela();
   function handleOnChange(e) {
     if (formRef.current.checkValidity() && e.target.name?.length) {
+      console.log(e.target.name)
       const now = Date.now();
       lastTimeStamp = now;
       setTimeout(function () {
         if (now === lastTimeStamp) {
           const data = new FormData(formRef.current);
+          const inputFontFile = formRef.current.font_file.files[0];
           const url = urls.preview(identifier);
-          setProcessing(true)
+          setProcessing(true);
           axios
             .post(url, data, {
               headers: { "Content-Type": "multipart/form-data" },
-              responseType: "blob",
             })
-            .then((response) => [
-              new FontFace(
-                `preview-output-font-${Date.now()}`,
-                response.data
-              )
-              ])
-              .then(response => console.log(response))
+            .then((response) => {
+              const outputFontsArrays = response.data.fonts.map((fontBase64) =>
+                Uint8Array.from(atob(fontBase64), (c) => c.charCodeAt(0))
+              );
+              return Promise.all([
+                inputFontFile.arrayBuffer(),
+                outputFontsArrays,
+              ]);
+            })
+            .then(([inputFontBuffer, outputFontsArrays]) => [
+              new FontFace(`preview-input-font-${Date.now()}`, inputFontBuffer),
+              outputFontsArrays.map(
+                (outputFontArray, index) =>
+                  new FontFace(
+                    `preview-output-font-${Date.now()}-${index}`,
+                    outputFontArray
+                  )
+              ),
+            ])
+            .then(([inputFont, outputFonts]) => {
+              // document.fonts.add(inputFont);
+              outputFonts.forEach((outputFont) =>
+                document.fonts.add(outputFont)
+              );
+              setOutputFonts(identifier, outputFonts.map((font) => font.family))
+            })
             .catch((response) => console.log(response))
             .finally(setProcessing(false));
         }

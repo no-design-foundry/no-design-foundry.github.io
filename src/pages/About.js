@@ -9,6 +9,9 @@ const mdRule = () => ({
   maxWidth: "50vw",
   "& > p:not(:last-child)": {
     marginBottom: ".5em"
+  },
+  portrait: {
+    maxWidth: "unset"
   }
 })
 

@@ -4,23 +4,17 @@ const InputMemoryContext = createContext();
 export default InputMemoryContext;
 
 export function InputMemoryContextWrapper({ children }) {
-  const [data, setData] = useState({});
-  function getInputMemory(identifier, name) {
-    return data?.[identifier]?.[name];
+  const [ data, setData ] = useState({});
+  function setInputMemory(identifier, value) {
+    let collector = {};
+    collector[identifier] = value;
+    setData({ ...data, ...collector });
   }
-  function setInputMemory(identifier, name, value) {
-    if (!(identifier in data)) {
-      let collector = {};
-      collector[identifier] = { name: value };
-      setData({ ...data, ...collector });
-    } else {
-      let collector = data;
-      collector[identifier][name] = value;
-      setData({ ...collector });
-    }
+  function getInputMemory(identifier) {
+    return data[identifier];
   }
   return (
-    <InputMemoryContext.Provider value={{ getInputMemory, setInputMemory }}>
+    <InputMemoryContext.Provider value={{ setInputMemory, getInputMemory }}>
       {children}
     </InputMemoryContext.Provider>
   );

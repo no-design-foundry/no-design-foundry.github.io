@@ -46,14 +46,21 @@ body {
     // text-decoration-thickness: .05em;
 }
 
-input {
-    &[type=text] {
-        // border-bottom: 1px solid blue;
+button, input {
+    color: blue
+}
+
+input:not([type=range])[disabled] {
+    color: black;
+    &, label[disabled] {
+        opacity: .2 !important;
+        pointer-events: none;
+        user-select: none !important;
     }
 }
 
-button, input {
-    color: blue
+input {
+    overflow: visible;
 }
 
 button {

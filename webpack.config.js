@@ -28,11 +28,12 @@ module.exports = {
         ],
       },
       {
-        test: /\.md$/,
-        use: "raw-loader",
+        test: /\.(jpe?g|png|ttf|eot|svg|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+        use: ['base64-inline-loader'],
+        type: 'javascript/auto'
       },
       {
-        test: /\.py$/,
+        test: /\.md$/,
         use: "raw-loader",
       },
     ],

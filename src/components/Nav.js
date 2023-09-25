@@ -16,6 +16,9 @@ const linkRule = ({ linkActive, aboutLinkActive, isHome, identifier, variableSli
       condition: isHome,
       style: {
         fontSize: "100px",
+        portrait: {
+          fontSize: "60px",
+        },
         lineHeight: 1.07,
         "& > *:not(:first-child)": {
           position: "absolute",
@@ -54,6 +57,8 @@ const aboutLinkRule = ({ aboutLinkActive }) => ({
 
 const navRule = () => ({
   marginBottom: "1em",
+  position: "sticky",
+  top: 0,
 });
 
 function NavLink({ to, children, colors, identifier }) {

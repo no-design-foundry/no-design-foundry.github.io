@@ -46,7 +46,7 @@ function App() {
                 key={filter.identifier}
                 path={filter.route}
                 element={
-                  <FilterContextWrapper data={filter}>
+                  <FilterContextWrapper data={filter} key={filter.identifier}>
                     <Detail></Detail>
                     <Form></Form>
                   </FilterContextWrapper>

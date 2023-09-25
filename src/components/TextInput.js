@@ -1,22 +1,23 @@
-import React from 'react'
-import { useFela } from 'react-fela'
-
-const inputWrapperRule = () => ({
-  position: "relative",
-  textDecoration: "underline"
-})
+import React from "react";
+import { useFela } from "react-fela";
+import Input from "./Input";
 
 function TextInput(props) {
-  const {label, name, defaultValue, required=false} = props
-  const {css} = useFela()
+  const { label, name, defaultValue, required = false, disabled=true } = props;
   return (
     <>
-    <label htmlFor={name}>{label}</label>
-    <div className={css(inputWrapperRule)}>
-      <input type="text" {...{name, defaultValue, required}}/>
-    </div>
+      <label htmlFor={name} disabled={disabled}>
+        {label}
+      </label>
+      <Input
+        type="text"
+        name={name}
+        defaultValue={defaultValue}
+        required={required}
+        disabled={disabled}
+      />
     </>
-  )
+  );
 }
 
-export default TextInput
+export default TextInput;

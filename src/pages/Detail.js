@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useFela } from "react-fela";
+import { Controller, useForm } from "react-hook-form";
 import FontPreview from "../components/FontPreview";
-import Form from "../components/Form";
 import FilterContext from "../contexts/FilterContext";
-import { Transition } from "react-transition-group";
 import OutputFontContext from "../contexts/OutputFontContext";
 
 const wrapperRule = () => ({
@@ -18,6 +17,7 @@ const wrapperRule = () => ({
   justifyContent: "center",
   pointerEvents: "none",
   userSelect: "none",
+  overflow: "hidden"
 });
 
 const previewRule = () => ({
@@ -25,16 +25,23 @@ const previewRule = () => ({
   display: "inline-block",
 });
 
-const getTransitionRule = (state) => () => ({
-  opacity: ["entering", "exiting"].includes(state) ? 0 : 1,
-  transition: "opacity 1s ease-in",
-});
 
 function Detail() {
   const { identifier } = useContext(FilterContext);
-  const { previewStrings } = useContext(OutputFontContext);
+  const { previewStrings, previewRef } = useContext(OutputFontContext);
   const { title } = useContext(FilterContext);
   const { css } = useFela();
+  const {register} = useForm()
+
+  const { onChange, onBlur, name, ref } = register(`${identifier}-identifier`, {keepValues: true, keepDirty: true, keepDefaultValues: true}); 
+
+  const { control, handleSubmit } = useForm({
+    defaultValues: {
+      firstName: '',
+      select: {}
+    }
+  });
+
   return (
     <div className={css(wrapperRule)} data-font-preview>
       <FontPreview className={css(previewRule)}>

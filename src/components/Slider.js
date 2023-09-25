@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useFela } from "react-fela";
 import FilterContext from "../contexts/FilterContext";
 import InputMemoryContext from "../contexts/InputMemoryContext";
@@ -6,7 +6,9 @@ import Input from "./Input";
 
 const borderRadius = "14px";
 
-const inputRule = ({ position }) => ({
+const inputRule = ({ position }) => {
+  const scaledPosition = position * 100
+  return {
   appearance: "none",
   "-webkit-appearance": "none",
   height: "3px",
@@ -34,9 +36,9 @@ const inputRule = ({ position }) => ({
   },
   "@supports not selector(::-moz-range-progress)": {
     // background: "red",
-    background: `linear-gradient(to right, #00F 0%, #00F ${position}%, #EEE ${position}%, #EEE 100%)`,
+    background: `linear-gradient(to right, #00F 0%, #00F ${scaledPosition}%, #EEE ${scaledPosition}%, #EEE 100%)`,
     "&:disabled": {
-      background: `linear-gradient(to right, #DDD 0%, #DDD ${position}%, #EEE ${position}%, #EEE 100%) !important`,
+      background: `linear-gradient(to right, #DDD 0%, #DDD ${scaledPosition}%, #EEE ${scaledPosition}%, #EEE 100%) !important`,
     },
   },
   "&:disabled": {
@@ -44,11 +46,11 @@ const inputRule = ({ position }) => ({
       background: "#EEE",
     },
   },
-});
+}}
 
 function Slider(props) {
   const {
-    children,
+    identifier,
     label,
     name,
     min,
@@ -56,22 +58,26 @@ function Slider(props) {
     defaultValue,
     onInput,
     required = false,
+    disabled = false,
   } = props;
-  const [position, setPosition] = useState((defaultValue - min) / (max - min));
-  const inputIdentifier = name || label.replace(" ", "");
-  const { css } = useFela({ position: position * 100 });
-
+  const {getInputMemory} = useContext(InputMemoryContext)
+  const [position, setPosition] = useState(getInputMemory(identifier) || defaultValue)
+  const { css } = useFela({
+    position: (position - min) / (max - min)
+  });
   function handleOnInput(e) {
     if (onInput) {
       onInput(e);
     }
-    const { value } = e.target;
-    setPosition((value - min) / (max - min));
+    setPosition(e.target.value);
   }
+
 
   return (
     <>
-      <label htmlFor={name}>{label}</label>
+      <label htmlFor={name} disabled={disabled}>
+        {label}
+      </label>
       <input
         name={name}
         type="range"
@@ -81,6 +87,7 @@ function Slider(props) {
         max={max}
         required={required}
         onInput={handleOnInput}
+        disabled={disabled}
       />
     </>
   );

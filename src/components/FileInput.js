@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useFela } from 'react-fela'
+import FilterContext from '../contexts/FilterContext'
+import InputMemoryContext from '../contexts/InputMemoryContext'
 
 const inputWrapperRule = () => ({
   position : "relative"
 })
 
-const puppetRule = () => ({
+const masterRule = () => ({
   top: 0,
   left: 0,
   whiteSpace: "nowrap",
@@ -13,10 +15,10 @@ const puppetRule = () => ({
   height: "100%",
   textOverflow: "ellipsis",
   overflow: "hidden",
-  display: "block"
+  display: "block",
 })
 
-const masterRule = () => ({
+const puppetRule = () => ({
   opacity: 0,
   position: "absolute",
   left: 0,
@@ -26,26 +28,28 @@ const masterRule = () => ({
 })
 
 function FileInput(props) {
-  const {required = false} = props
-  const [file, setFile] = useState()
   const {css} = useFela()
+  const {identifier:filterIdentifier} = useContext(FilterContext)
+  const identifier = `${filterIdentifier}-fontfile`
+  const {setInputMemory, getInputMemory} = useContext(InputMemoryContext)
+  const inputFile = getInputMemory(identifier)
   function handleOnInput(e) {
     if(e.target.files.length === 1) {
-      setFile(e.target.files[0])
+      setInputMemory(identifier, e.target.files[0])
     }
     else {
-      setFile(null)
+      setInputFile(identifier, null)
     }
   }
   return (
     <>
     <label>font</label>
     <span className={css(inputWrapperRule)}>
-      <button className={css(puppetRule)}>
-        {file?.name ?? "Upload a font"}
+      <button className={css(masterRule)}>
+        {inputFile?.name ?? "Upload a font"}
       </button>
-      <input className={css(masterRule
-        )} onInput={handleOnInput} name="font_file" type="file" required={required}></input>
+      <input className={css(puppetRule
+        )} onInput={handleOnInput} name="font_file" type="file"></input>
     </span>
     </>
   )

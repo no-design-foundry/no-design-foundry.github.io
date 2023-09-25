@@ -14,11 +14,14 @@ const formRule = () => ({
   display: "grid",
   gridTemplateColumns: "repeat(2, min-content)",
   gridAutoRows: "min-content",
-  gridGap: "0px 1ch",
+  gridGap: "4px 1ch",
   alignItems: "center",
   "& > label": {
     whiteSpace: "nowrap",
   },
+  "& > *": {
+    width: "100%"
+  }
 });
 
 const processingRule = () => ({

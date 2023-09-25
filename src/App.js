@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useFela } from "react-fela";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
-import { useMeasure } from "react-use";
 import Form from "./components/Form";
 import Nav from "./components/Nav";
 import { FilterContextWrapper } from "./contexts/FilterContext";
@@ -9,7 +8,6 @@ import { OutputFontContextWrapper } from "./contexts/OutputFontContext";
 import data from "./data";
 import About from "./pages/About";
 import Detail from "./pages/Detail";
-import Index from "./pages/Index";
 import "./styles/style.scss";
 import { Transition } from "react-transition-group";
 
@@ -25,9 +23,6 @@ const headerRule = () => ({
   left: "8px",
 });
 
-const mainRule = ({ headerHeight = 100 }) => ({
-  // paddingTop: headerHeight + "px",
-});
 
 function App() {
   const { css } = useFela();
@@ -37,9 +32,9 @@ function App() {
         <header className={css(headerRule)}>
           <Nav />
         </header>
-        <main className={css(mainRule)}>
+        <main>
           <Routes>
-            <Route path="/" element={<></>} />
+            <Route path="/"/>
             <Route path="/about" element={<About identifier={"home"} />} />
             {data.map((filter) => (
               <Route

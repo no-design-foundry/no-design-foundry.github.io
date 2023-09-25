@@ -1,5 +1,9 @@
 // fonts
 
+* {
+    box-sizing: border-box;
+}
+
 @font-face {
     font-family: "rasterizer-0";
     src: url(./rasterizer-0.ttf);
@@ -24,8 +28,16 @@ ul {
     list-style: none;
 }
 
+button {
+    background: #ddd;
+    padding: .5em .5em .25em .5em;
+    text-align: center !important;
+    border-radius: 4px;
+    font-size: .75em;
+}
+
 body {
-    font-size: 20px;
+    font-size: 15px;
     line-height: 1.2em;
     font-family: "vtt", sans-serif;
     > * {
@@ -42,12 +54,12 @@ body {
     border: none;
     appearance: none;
     background: inherit;
-    box-sizing: content-box;
+    // box-sizing: content-box;
     // text-decoration-thickness: .05em;
 }
 
 button, input {
-    color: blue
+    // color: gray
 }
 
 input:not([type=range])[disabled] {
@@ -68,7 +80,7 @@ button {
 }
 
 a, a:visited, a:hover, a:focus, a:active {
-    color: blue;
+    color: black;
     position: relative;
     display: inline-block;
 }

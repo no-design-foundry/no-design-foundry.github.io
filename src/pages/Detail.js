@@ -28,19 +28,10 @@ const previewRule = () => ({
 
 function Detail() {
   const { identifier } = useContext(FilterContext);
-  const { previewStrings, previewRef } = useContext(OutputFontContext);
+  const { previewStrings } = useContext(OutputFontContext);
   const { title } = useContext(FilterContext);
   const { css } = useFela();
   const {register} = useForm()
-
-  const { onChange, onBlur, name, ref } = register(`${identifier}-identifier`, {keepValues: true, keepDirty: true, keepDefaultValues: true}); 
-
-  const { control, handleSubmit } = useForm({
-    defaultValues: {
-      firstName: '',
-      select: {}
-    }
-  });
 
   return (
     <div className={css(wrapperRule)} data-font-preview>

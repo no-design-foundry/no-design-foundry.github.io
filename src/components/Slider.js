@@ -17,9 +17,9 @@ const inputRule = ({ position }) => {
   "&::-webkit-slider-thumb, &::-moz-range-thumb": {
     appearance: "none",
     "-webkit-appearance": "none",
-    height: "20px",
-    width: "20px",
-    background: "#00F",
+    height: "1em",
+    width: "1em",
+    background: "#000",
     borderRadius: "100%",
     // filter: "drop-shadow(0 2px 3px #00000066)",
     border: "none",
@@ -36,7 +36,7 @@ const inputRule = ({ position }) => {
   },
   "@supports not selector(::-moz-range-progress)": {
     // background: "red",
-    background: `linear-gradient(to right, #00F 0%, #00F ${scaledPosition}%, #EEE ${scaledPosition}%, #EEE 100%)`,
+    background: `linear-gradient(to right, #999 0%, #999 ${scaledPosition}%, #EEE ${scaledPosition}%, #EEE 100%)`,
     "&:disabled": {
       background: `linear-gradient(to right, #DDD 0%, #DDD ${scaledPosition}%, #EEE ${scaledPosition}%, #EEE 100%) !important`,
     },

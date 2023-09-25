@@ -3,7 +3,13 @@ import { useFela } from "react-fela";
 import { Link, useLocation } from "react-router-dom";
 import data from "../data";
 
-const linkRule = ({ linkActive, aboutLinkActive, isHome, identifier, variableSliders }) => ({
+const linkRule = ({
+  linkActive,
+  aboutLinkActive,
+  isHome,
+  identifier,
+  variableSliders,
+}) => ({
   position: "relative",
   extend: [
     {
@@ -15,11 +21,6 @@ const linkRule = ({ linkActive, aboutLinkActive, isHome, identifier, variableSli
     {
       condition: isHome,
       style: {
-        fontSize: "100px",
-        portrait: {
-          fontSize: "60px",
-        },
-        lineHeight: 1.07,
         "& > *:not(:first-child)": {
           position: "absolute",
           left: 0,
@@ -27,24 +28,20 @@ const linkRule = ({ linkActive, aboutLinkActive, isHome, identifier, variableSli
         },
       },
     },
-    {
-      condition: variableSliders || true,
-      style: {
-        fontVariationSettings: `"RTTX" 33`
-      }
-    }
   ],
 });
 
-const layerRule = (index, color) => ({identifier}) => ({
-  fontFamily: `${identifier}-${index}`,
-  extend: [{
-    condition: index !== 0,
-    style: {
-      color: "#55F"
-    }
-  }]
-})
+const layerRule =
+  (index, color) =>
+  ({ identifier }) => ({
+    // fontFamily: `${identifier}-${index}`,
+    // extend: [{
+    //   condition: index !== 0,
+    //   style: {
+    //     color: "#55F"
+    //   }
+    // }]
+  });
 
 const aboutLinkRule = ({ aboutLinkActive }) => ({
   extend: {
@@ -61,7 +58,7 @@ const navRule = () => ({
   top: 0,
 });
 
-function NavLink({ to, children, colors, identifier }) {
+function NavLink({ to, children, identifier }) {
   const toAbout = `${to}/about`;
   let { pathname } = useLocation();
   pathname = pathname.replace(/\/$/, "");
@@ -70,19 +67,20 @@ function NavLink({ to, children, colors, identifier }) {
     linkActive: pathname === to,
     aboutLinkActive: pathname === toAbout,
     isHome,
-    identifier
+    identifier,
   });
   return (
     <>
       <Link to={to} className={css(linkRule)}>
-        {
-          (isHome && colors) ? colors.map((color, index) => <span className={css(layerRule(index, color))}>{children}</span>) : children
-        }
+        {children}
       </Link>
       {(pathname === to || pathname === toAbout) && (
         <>
           <span>, </span>
-          <Link to={toAbout} className={css(aboutLinkRule)}>
+          <Link
+            to={pathname === toAbout ? to : toAbout}
+            className={css(aboutLinkRule)}
+          >
             about
           </Link>
         </>
